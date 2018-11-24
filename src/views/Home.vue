@@ -11,7 +11,8 @@
 			</el-col>
 			<el-col :span="4" class="userinfo">
 				<el-dropdown trigger="hover">
-					<span class="el-dropdown-link userinfo-inner"><img :src="this.sysUserAvatar" /> {{sysUserName}}</span>
+					<!-- <span class="el-dropdown-link userinfo-inner"><img :src="this.sysUserAvatar" /> {{sysUserName}}</span> -->
+					<span class="el-dropdown-link userinfo-inner">欢迎您，{{sysUserName}}</span>
 					<el-dropdown-menu slot="dropdown">
 						<el-dropdown-item>我的消息</el-dropdown-item>
 						<el-dropdown-item>设置</el-dropdown-item>
@@ -75,7 +76,7 @@
 	export default {
 		data() {
 			return {
-				sysName:'VUEADMIN',
+				sysName:'后台管理系统',
 				collapsed:false,
 				sysUserName: '',
 				sysUserAvatar: '',
@@ -119,7 +120,7 @@
 			},
 			//折叠导航栏
 			collapse:function(){
-				this.collapsed=!this.collapsed;
+				// this.collapsed=!this.collapsed;
 			},
 			showMenu(i,status){
 				this.$refs.menuCollapsed.getElementsByClassName('submenu-hook-'+i)[0].style.display=status?'block':'none';

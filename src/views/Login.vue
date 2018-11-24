@@ -17,6 +17,7 @@
 
 <script>
   import { requestLogin } from '../api/api';
+  import { LoginUsers} from '../mock/data/user';
   //import NProgress from 'nprogress'
   export default {
     data() {
@@ -43,6 +44,27 @@
       handleReset2() {
         this.$refs.ruleForm2.resetFields();
       },
+      validatePassWord(loginParams){
+          let username = loginParams.username;
+          let password = loginParams.password;
+          return new Promise((resolve, reject) => {
+            let user = null;
+            setTimeout(() => {
+              let hasUser = LoginUsers.some(u => {
+                if (u.username === username && u.password === password) {
+                  user = JSON.parse(JSON.stringify(u));
+                  user.password = undefined;
+                  return true;
+                }
+              });
+              if (hasUser) {
+                resolve({ code: 200, msg: '请求成功', user });
+              } else {
+                resolve({ code: 500, msg: '账号或密码错误' });
+              }
+            }, 1000);
+          });
+      },
       handleSubmit2(ev) {
         var _this = this;
         this.$refs.ruleForm2.validate((valid) => {
@@ -51,7 +73,7 @@
             this.logining = true;
             //NProgress.start();
             var loginParams = { username: this.ruleForm2.account, password: this.ruleForm2.checkPass };
-            requestLogin(loginParams).then(data => {
+            this.validatePassWord(loginParams).then(data => {
               this.logining = false;
               //NProgress.done();
               let { msg, code, user } = data;
@@ -62,7 +84,7 @@
                 });
               } else {
                 sessionStorage.setItem('user', JSON.stringify(user));
-                this.$router.push({ path: '/table' });
+                this.$router.push({ path: '/' });
               }
             });
           } else {

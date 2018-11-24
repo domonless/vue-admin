@@ -7,6 +7,8 @@
 	</div>
 </template>
 
+<script language="javascript" src="LodopFuncs.js"></script>
+
 <script>
 export default {
 	name: 'app',

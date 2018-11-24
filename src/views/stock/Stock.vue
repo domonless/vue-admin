@@ -4,7 +4,7 @@
 		<el-col :span="24" class="toolbar" style="padding-bottom: 0px;">
 			<el-form :inline="true" :model="filters">
 				<el-form-item>
-					<el-input v-model="filters.name" placeholder="姓名"></el-input>
+					<el-input v-model="filters.name" placeholder="名称"></el-input>
 				</el-form-item>
 				<el-form-item>
 					<el-button type="primary" v-on:click="getUsers">查询</el-button>
@@ -21,7 +21,7 @@
 			</el-table-column>
 			<el-table-column type="index" width="60">
 			</el-table-column>
-			<el-table-column prop="name" label="姓名" width="120" sortable>
+			<el-table-column prop="name" label="名称" width="120" sortable>
 			</el-table-column>
 			<el-table-column prop="sex" label="性别" width="100" :formatter="formatSex" sortable>
 			</el-table-column>
