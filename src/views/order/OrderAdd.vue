@@ -161,7 +161,7 @@
 				</el-table-column>
 				<el-table-column prop="count" label="数量" width="100">
 					<template scope="scope">
-						<el-input type="number" size="mini" min="1" @change="handleItemCountChange(scope.$index, scope.row, $event)" @keyup.enter.native="handleAdd(scope.$index, scope.row)"></el-input>
+						<el-input type="number" size="mini" min="1" :key="scope.row.id" @change="handleItemCountChange(scope.$index, scope.row, $event)" @keyup.enter.native="handleAdd(scope.$index, scope.row)"></el-input>
 					</template>
 				</el-table-column>
 			</el-table>
@@ -234,8 +234,8 @@
 
 				//新增界面数据
 				addForm: {
-					cdSn: 'CD1234567890',
-					qgSn: 'QG1234567890',
+					cdSn: 'CD18',
+					qgSn: 'QG18',
 					providerId: '',
 					demanderId: '',
 					purchaserId: '',
@@ -378,7 +378,6 @@
 				this.addForm.itemList.splice(index,1);
 				//计算金额
 				let sum = this.addForm.sum - (row.price * row.count);
-				console.log(sum);
 				this.addForm.sum = this.formatNumber(sum);
 			},
 			//处理物料数量

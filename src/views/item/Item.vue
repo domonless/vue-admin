@@ -46,7 +46,7 @@
 			</el-table-column>
 			<el-table-column prop="price" label="价格" width="80">
 			</el-table-column>
-			<el-table-column prop="startTime" label="起始日期" width="120">
+			<el-table-column prop="remark" label="备注" width="120">
 			</el-table-column>
 			<el-table-column prop="endTime" label="截止日期" width="120">
 			</el-table-column>
@@ -54,14 +54,12 @@
 				<template scope="scope">
 					<el-button size="mini" type="primary" @click="handleEdit(scope.$index, scope.row)">编辑</el-button>
 					<el-button size="mini" type="danger" @click="handleDel(scope.$index, scope.row)">删除</el-button>
-					<el-button size="mini" type="warning" @click="handlePrint(scope.$index, scope.row)">打印</el-button>
+					<el-button size="mini" type="warning" :disabled="scope.row.imgurl==''" @click="handlePrint(scope.$index, scope.row)">打印</el-button>
 				</template>
 			</el-table-column>
 			<el-table-column label="签价单" width="100">
 				<template scope="scope">
-					<viewer>
 						<div :id="scope.row.itemNumber" v-if="scope.row.imgurl"><img :src="scope.row.imgurl" :key="scope.row.imgurl" class="signImg"></div>
-				    </viewer>
 				</template>
 			</el-table-column>
 		</el-table>
@@ -281,6 +279,7 @@
 		                    obj.form = v.form
 		                    obj.unit = v.unit
 		                    obj.price = v.price
+		                    obj.remark = v.remark
 		                    obj.providerId = v.providerId
 		                    obj.startTime = v.startTime
 		                    obj.endTime = v.endTime
@@ -388,6 +387,7 @@
     		handlePrint: function (index, row) {
     			var printHtml = document.getElementById(row.itemNumber).innerHTML;
 			    let newWindow = window.open("",'newwindow');
+				console.log(printHtml);
 				newWindow.document.body.innerHTML = printHtml;
 				setTimeout(function(){ newWindow.print();}, 1);
     		},
