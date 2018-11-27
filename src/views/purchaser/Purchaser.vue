@@ -127,7 +127,7 @@
 					},
 					{
 						value:3,
-						label:'仓库签字人'
+						label:'仓库'
 					}
 				],
 
@@ -172,7 +172,7 @@
 				}else if (row.role == 2){
 					roleStr="采购员";
 				}else if (row.role == 3){
-					roleStr="仓库签字人";
+					roleStr="仓库";
 				}
 				return roleStr;
 			},

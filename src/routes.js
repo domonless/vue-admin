@@ -54,7 +54,7 @@ let routes = [
         redirect: '/order/list',
         children: [
             { path: '/order/list', component: Order, name: '采购订单列表' },
-            { path: '/order/add', component: OrderAdd, name: '新增采购订单', hidden: true },
+            { path: '/order/add', component: OrderAdd, name: '新增采购订单' },
         ]
     },
     // {

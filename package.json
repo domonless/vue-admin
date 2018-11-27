@@ -20,6 +20,7 @@
     "v-viewer": "^1.2.1",
     "vue": "^2.2.2",
     "vue-directive-image-previewer": "^2.2.1",
+    "vue-pdf": "^3.3.1",
     "vue-router": "^2.3.0",
     "vuex": "^2.0.0-rc.6",
     "xlsx": "^0.14.0"

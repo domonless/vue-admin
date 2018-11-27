@@ -6,6 +6,26 @@
 				<el-form-item>
 					<el-input v-model="filters.cdSn" placeholder="订单号" @input="getOrders"></el-input>
 				</el-form-item>
+				<el-form-item label="供应商" prop="providerId">
+					<el-select v-model="filters.providerId" placeholder="请选择" @change="getOrders" clearable >
+					    <el-option
+					      v-for="item in providers"
+					      :key="item.id"
+					      :label="item.name"
+					      :value="item.id">
+					    </el-option>
+					</el-select>
+				</el-form-item>
+				<el-form-item label="状态" prop="status">
+					<el-select v-model="filters.status" placeholder="请选择" @change="getOrders" clearable >
+					    <el-option
+					      v-for="item in status"
+					      :key="item.value"
+					      :label="item.label"
+					      :value="item.value">
+					    </el-option>
+					</el-select>
+				</el-form-item>
 				<el-form-item>
 					<el-button type="primary" v-on:click="getOrders" >查询</el-button>
 				</el-form-item>
@@ -18,9 +38,11 @@
 		<el-table :data="orders" highlight-current-row v-loading="listLoading" style="width: 100%;">
 			<el-table-column type="index" width="60">
 			</el-table-column>
-			<el-table-column prop="cdSn" label="订单编号" width="150" sortable>
+			<el-table-column prop="cdSn" label="订单编号" width="130" sortable>
 			</el-table-column>
-			<el-table-column prop="qgSn" label="请购编号" width="150">
+			<!-- <el-table-column prop="qgSn" label="请购编号" width="120">
+			</el-table-column> -->
+			<el-table-column prop="provider" label="供货商" width="250" sortable>
 			</el-table-column>
 			<el-table-column prop="org" label="采购组织" width="100">
 			</el-table-column>
@@ -28,15 +50,15 @@
 			</el-table-column>
 			<el-table-column prop="buyer" label="采购员" width="150">
 			</el-table-column>
-			<el-table-column prop="stocker" label="仓库签字人" width="150">
+			<el-table-column prop="stocker" label="仓库" width="150">
 			</el-table-column>
 			<el-table-column prop="sum" label="总金额" width="100">
 			</el-table-column>
 			<el-table-column prop="status" label="订单状态" width="100" :formatter="formatStatus">
 			</el-table-column>
-			<el-table-column prop="remark" label="备注" width="150">
-			</el-table-column>
-			<el-table-column label="操作" width="300">
+			<!-- <el-table-column prop="remark" label="备注" width="150">
+			</el-table-column> -->
+			<el-table-column label="操作" width="200">
 				<template scope="scope">
 					<el-button type="info" size="small" @click="handleView(scope.$index, scope.row)">查看</el-button>
 					<el-button type="danger" size="small" @click="handleDel(scope.$index, scope.row)">删除</el-button>
@@ -86,14 +108,21 @@
 				</el-table-column>
 				<el-table-column prop="logisticsSn" label="物流单号" width="100">
 				</el-table-column>
+				<el-table-column label="操作" width="100">
+					<template scope="scope">
+						<el-button size="mini" type="warning" :disabled="scope.row.imgurl==''" @click="handleItemPrint(scope.$index, scope.row)">签价单</el-button>
+					</template>
+				</el-table-column>
 			</el-table>
 			<div id="footer"></div>
 			<div slot="footer" class="dialog-footer">
-				<!-- <el-button type="warning" @click.native="handlePrint">打印</el-button> -->
 				<!-- <el-button type="warning" @click.native="handleDesign">设计</el-button>  -->
-				<el-button type="warning" v-if="this.selectStatus===1 && this.sels.length>0" @click.native="handleBuy" :loading="sendLoading">进货</el-button>
-				<el-button type="warning" v-if="this.selectStatus===2 && this.sels.length>0" @click.native="handlePrint">打印</el-button>
-				<el-button type="warning" v-if="this.selectStatus===3 && this.sels.length>0" @click.native="handleSend" :loading="sendLoading">发货</el-button>
+				<el-button type="primary" v-if="this.selectStatus===1 && this.sels.length>0" @click.native="handleBuy" :loading="sendLoading">进货</el-button>
+				<el-button type="primary" v-if="this.selectStatus===2 && this.sels.length>0" @click.native="handleSend" :loading="sendLoading">发货</el-button>
+				<el-button type="primary" v-if="this.selectStatus===3 && this.sels.length>0" @click.native="handleIn" :loading="sendLoading">入库</el-button>
+				<el-button type="primary" v-if="this.selectStatus===4 && this.sels.length>0" @click.native="handleInvoice" :loading="sendLoading">开票</el-button>
+				<el-button type="primary" v-if="this.selectStatus===5 && this.sels.length>0" @click.native="handleReturn" :loading="sendLoading">回款</el-button>
+				<el-button type="warning" @click.native="handlePrint">送货单</el-button>
 				<el-button type="danger" @click.native="itemListVisible=false">取消</el-button>
 			</div>
 		</el-dialog>
@@ -149,29 +178,28 @@
 				<el-form-item label="备注" prop="remark">
 					<el-input type="textarea" v-model="sendForm.remark"></el-input>
 				</el-form-item>
-				<el-table :data="items" highlight-current-row v-loading="itemsLoading" style="width: 100%;" >
-					<el-table-column type="index" width="50">
-					</el-table-column>
-					<el-table-column prop="itemNumber" label="物料编号" width="95">
-					</el-table-column>
-					<el-table-column prop="name" label="物料名称" width="120">
-					</el-table-column>
-					<el-table-column prop="brand" label="品牌" width="80">
-					</el-table-column>
-					<el-table-column prop="form" label="规格" width="150">
-					</el-table-column>
-					<el-table-column prop="unit" label="单位" width="65">
-					</el-table-column>
-					<el-table-column prop="price" label="单价" width="80">
-					</el-table-column>
-					<el-table-column prop="count" label="数量" width="70">
-					</el-table-column>
-					<el-table-column prop="bidPrice" label="进价" width="100">
-						<template scope="scope">
-							<el-input type="number" size="mini" min="1" @input="handleBidPriceChange(scope.$index, scope.row, $event)" @keyup.enter.native="handleEditBidPrice(scope.$index, scope.row)"></el-input>
-						</template>
-					</el-table-column>
-				</el-table>
+			</el-form>
+			<div slot="footer" class="dialog-footer">
+				<el-button @click.native="sendFormVisible = false">取消</el-button>
+				<el-button type="primary" @click.native="sendSubmit" :loading="sendLoading">提交</el-button>
+			</div>
+		</el-dialog>
+
+		<!--开票界面-->
+		<el-dialog title="开票" :visible.sync="sendFormVisible" :close-on-click-modal="false">
+			<el-form :model="sendForm" label-width="80px" :rules="sendFormRules" ref="sendForm" :inline="true">
+				<el-form-item label="订单编号" prop="cdSn">
+					<el-input v-model="sendForm.cdSn" disabled></el-input>
+				</el-form-item>
+				<el-form-item label="物流单号" prop="logisticsSn">
+					<el-input v-model="sendForm.logisticsSn"></el-input>
+				</el-form-item>
+				<el-form-item label="其他费用" prop="fee">
+					<el-input type="number" v-model="sendForm.fee"></el-input>
+				</el-form-item>
+				<el-form-item label="备注" prop="remark">
+					<el-input type="textarea" v-model="sendForm.remark"></el-input>
+				</el-form-item>
 			</el-form>
 			<div slot="footer" class="dialog-footer">
 				<el-button @click.native="sendFormVisible = false">取消</el-button>
@@ -187,15 +215,44 @@
 	import qs from 'qs'
 	import {getLodop} from '../../common/js/LodopFuncs'
 	//import NProgress from 'nprogress'
-	import { getOrderList, editOrder, removeOrder, getOrderDetail, editOrderDetail } from '../../api/api';
+	import { getOrderList, editOrder, removeOrder, getOrderDetail, editOrderDetail, getProviderList } from '../../api/api';
 
 	var LODOP
 	export default {
 		data() {
 			return {
 				filters: {
-					cdSn: ''
+					cdSn: '',
+					providerId: '',
+					status: ''
 				},
+				status:[
+					{
+						value:1,
+						label:this.getStrByStatus(1)
+					},
+					{
+						value:2,
+						label:this.getStrByStatus(2)
+					},
+					{
+						value:3,
+						label:this.getStrByStatus(3)
+					},
+					{
+						value:4,
+						label:this.getStrByStatus(4)
+					},
+					{
+						value:5,
+						label:this.getStrByStatus(5)
+					},
+					{
+						value:6,
+						label:this.getStrByStatus(6)
+					}
+
+				],
 				orders: [],
 				total: 0,
 				page: 1,
@@ -218,16 +275,16 @@
 				//发货界面
 				sendFormVisible: false,//发货界面是否显示
 				sendLoading: false,
-				//编辑界面数据
+				//发货界面数据
 				sendForm: {},
 				//校验规则
 				sendFormRules: {
 					cdSn: [
 						{ required: true, message: '请填写订单编号', trigger: 'blur' }
 					],
-					logisticsSn: [
-						{ required: true, message: '请填写物流单号', trigger: 'blur' }
-					],
+					// logisticsSn: [
+					// 	{ required: true, message: '请填写物流单号', trigger: 'blur' }
+					// ],
 					fee: [
 						{ required: true, message: '请填写其他费用', trigger: 'blur' }
 					],
@@ -236,26 +293,32 @@
 					]
 				},
 
+				//开票界面
+				invoiceFormVisible: false,//开票界面是否显示
+
 				spanArr:[],
+
+				providers:[],
 			}
 		},
 		methods: {
 			//状态转化
 			formatStatus: function (row, column) {
+				return this.getStrByStatus(row.status);
+			},
+			getStrByStatus(status){
 				let statusStr = '';
-				if(row.status == 1){
+				if(status == 1){
 					statusStr="备货中";
-				}else if (row.status == 2){
-					statusStr="待打印";
-				}else if (row.status == 3){
+				}else if (status == 2){
 					statusStr="待发货";
-				}else if (row.status == 4){
+				}else if (status == 3){
 					statusStr="待入库";
-				}else if (row.status == 5){
+				}else if (status == 4){
 					statusStr="待开票";
-				}else if (row.status == 6){
+				}else if (status == 5){
 					statusStr="待回款";
-				}else if (row.status == 7){
+				}else if (status == 6){
 					statusStr="已回款";
 				}
 				return statusStr;
@@ -273,12 +336,22 @@
 				this.page = val;
 				this.getOrders();
 			},
+			//获取供应商列表
+			getProviders() {
+				let para = {
+				};
+				getProviderList(para).then((res) => {
+					this.providers = res.data.data.list
+				});
+			},
 			//获取订单列表
 			getOrders() {
 				let para = {
 					page:this.page,
                     size:20,
-                    cdSn:this.filters.cdSn
+                    cdSn:this.filters.cdSn,
+                    providerId:this.filters.providerId,
+                    status:this.filters.status
 				};
 				this.listLoading = true;
 				//NProgress.start();
@@ -307,6 +380,13 @@
 				this.sendForm = Object.assign({}, row);
 				this.buyForm = Object.assign({}, row);
 			},
+			//打印
+			handleItemPrint: function (index, row) {
+    			var printHtml = "<img src='" + row.imgurl + "' />";
+			    let newWindow = window.open("",'newwindow');
+				newWindow.document.body.innerHTML = printHtml;
+				setTimeout(function(){ newWindow.print();}, 500);
+    		},
 			//删除
 			handleDel: function (index, row) {
 				this.$confirm('确认删除该记录吗?', '提示', {
@@ -338,12 +418,6 @@
 				this.buyFormVisible = true;
 				this.items = this.sels;
 			},
-			//显示编辑界面
-			handleSend: function (){
-				this.itemListVisible = false;
-				this.sendFormVisible = true;
-				this.items = this.sels;
-			},
 			//进货提交处理
 			buySubmit: function () {
 				this.buyForm.orderitemList = this.items;
@@ -364,12 +438,18 @@
 					});
 				});
 			},
+			//显示编辑界面
+			handleSend: function (){
+				this.itemListVisible = false;
+				this.sendFormVisible = true;
+				this.items = this.sels;
+			},
 			//发货提交处理
 			sendSubmit: function () {
 				this.$refs.sendForm.validate((valid) => {
 					if (valid) {
 						this.sendForm.orderitemList = this.items;
-						this.sendForm.status = 4;
+						this.sendForm.status = 3;
 						this.$confirm('确认提交吗？', '提示', {}).then(() => {
 							this.sendLoading = true;
 							//NProgress.start();
@@ -389,6 +469,53 @@
 					}
 				});
 			},
+			//入库处理
+			handleIn: function () {
+				this.sendForm.status = 4;
+				this.$confirm('确认提交吗？', '提示', {}).then(() => {
+					this.sendLoading = true;
+					editOrderDetail(this.sendForm).then((res) => {
+						this.sendLoading = false;
+						//NProgress.done();
+						this.$message({
+							message: '提交成功',
+							type: 'success'
+						});
+						this.getOrders();
+						this.$refs['sendForm'].resetFields();
+					});
+				});
+			},
+			//显示开票界面
+			handleInvoice: function (){
+				this.itemListVisible = false;
+				this.invoiceFormVisible = true;
+				this.items = this.sels;
+			},
+			//开票提交处理
+			invoiceSubmit: function () {
+				this.$refs.sendForm.validate((valid) => {
+					if (valid) {
+						this.sendForm.orderitemList = this.items;
+						this.sendForm.status = 5;
+						this.$confirm('确认提交吗？', '提示', {}).then(() => {
+							this.sendLoading = true;
+							editOrderDetail(this.sendForm).then((res) => {
+								this.sendLoading = false;
+								//NProgress.done();
+								this.$message({
+									message: '提交成功',
+									type: 'success'
+								});
+								this.getOrders();
+								this.$refs['sendForm'].resetFields();
+								this.sendFormVisible = false;
+							});
+						});
+					}
+				});
+			},
+			
 			//多选
 			selsChange: function (sels) {
 				this.sels = sels;
@@ -610,7 +737,16 @@
 		    }
 		},
 		mounted() {
-			this.getOrders();
+			let res = this.$route.query.relatedResponse;
+			if(res == undefined){
+				this.getOrders();
+			}else{
+				this.orders = res.data.data.list
+                this.page = res.data.data.pageNum == 0 ? res.data.data.pageNum +1 : res.data.data.pageNum
+            	this.total = res.data.data.total
+			}
+			
+			this.getProviders();
 		}
 	}
 

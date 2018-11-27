@@ -13,10 +13,10 @@ import Vuex from 'vuex'
 import routes from './routes'
 import Mock from './mock'
 import Blob from './excel/Blob.js'
+
 import Export2Excel from './excel/Export2Excel.js'
 Mock.bootstrap();
 import 'font-awesome/css/font-awesome.min.css'
-
 
 import VueDirectiveImagePreviewer from 'vue-directive-image-previewer'
 import 'vue-directive-image-previewer/dist/assets/style.css'
@@ -28,7 +28,6 @@ Vue.use(Viewer);
 Viewer.setDefaults({
   Options: {  "button": true, "navbar": true, "title": true, "toolbar": true, "tooltip": true, "movable": true, "zoomable": true, "rotatable": true, "scalable": true, "transition": true, "fullscreen": true, "keyboard": true, "url": "data-source" }
 });
-
 
 Vue.use(ElementUI)
 Vue.use(VueRouter)

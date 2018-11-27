@@ -19,6 +19,8 @@ export const batAddItem = params => { return axios.post(`${base}/item/batAdd`, p
 
 export const batchRemoveItem = params => { return axios.post(`${base}/item/batDel`, params); };
 
+export const getOrdersByItemId = params => { return axios.get(`${base}/item/orders`, { params: params }); };
+
 
 //订单
 export const getOrderList = params => { return axios.get(`${base}/order/list`, { params: params }); };

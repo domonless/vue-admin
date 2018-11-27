@@ -7,7 +7,7 @@
 					<el-input v-model="filters.name" placeholder="名称或编号" @input="getItems"></el-input>
 				</el-form-item>
 				<el-form-item>
-					<el-select v-model="filters.providerId" placeholder="请选择" clearable>
+					<el-select v-model="filters.providerId" placeholder="请选择" @change="getItems" clearable>
 					    <el-option
 					      v-for="item in providers"
 					      :key="item.id"
@@ -32,9 +32,9 @@
 		<el-table :data="items" highlight-current-row v-loading="listLoading" @selection-change="selsChange" style="width: 100%;">
 			<el-table-column type="selection" width="55">
 			</el-table-column>
-			<el-table-column type="index" width="60">
+			<el-table-column type="index" width="50">
 			</el-table-column>
-			<el-table-column prop="itemNumber" label="编号" width="100" sortable>
+			<el-table-column prop="itemNumber" label="编号" width="80" sortable>
 			</el-table-column>
 			<el-table-column prop="name" label="名称" width="120" sortable>
 			</el-table-column>
@@ -50,18 +50,20 @@
 			</el-table-column>
 			<el-table-column prop="endTime" label="截止日期" width="120">
 			</el-table-column>
-			<el-table-column label="操作" width="240">
+			<el-table-column label="操作">
 				<template scope="scope">
 					<el-button size="mini" type="primary" @click="handleEdit(scope.$index, scope.row)">编辑</el-button>
 					<el-button size="mini" type="danger" @click="handleDel(scope.$index, scope.row)">删除</el-button>
 					<el-button size="mini" type="warning" :disabled="scope.row.imgurl==''" @click="handlePrint(scope.$index, scope.row)">打印</el-button>
+					<el-button size="mini" @click="handleRelated(scope.$index, scope.row)">相关订单</el-button>
 				</template>
 			</el-table-column>
-			<el-table-column label="签价单" width="100">
+			<!-- <el-table-column label="签价单" width="100">
 				<template scope="scope">
-						<div :id="scope.row.itemNumber" v-if="scope.row.imgurl"><img :src="scope.row.imgurl" :key="scope.row.imgurl" class="signImg"></div>
+						<pdf :id="scope.row.itemNumber" v-if="scope.row.imgurl && scope.row.imgurl.endsWith('.pdf')" :src="scope.row.imgurl"></pdf>
+						<div :id="scope.row.itemNumber" v-if="scope.row.imgurl && !scope.row.imgurl.endsWith('.pdf')"><img :src="scope.row.imgurl" :key="scope.row.imgurl" class="signImg"></div>
 				</template>
-			</el-table-column>
+			</el-table-column> -->
 		</el-table>
 
 		<!--工具条-->
@@ -96,6 +98,7 @@
 					<el-upload
 					  class="avatar-uploader"
 					  action="http://192.168.1.3:8080/file/upload"
+					  accept=".jpg;.png;.jpeg"
 					  :on-progress="uploadProcess"
 					  :on-success="uploadSuccess"
 					  :show-file-list="false">
@@ -157,10 +160,15 @@
 
 <script>
 	import util from '../../common/js/util'
+	import pdf from 'vue-pdf'
 	import qs from 'qs'
 	//import NProgress from 'nprogress'
-	import { getItemList, addItem, editItem, removeItem, batAddItem, batchRemoveItem, getProviderList } from '../../api/api';
+	import { getItemList, addItem, editItem, removeItem, batAddItem, batchRemoveItem, getProviderList, getOrdersByItemId } from '../../api/api';
 	export default {
+		components:
+		{
+			pdf
+		},
 		data() {
 			return {
 				filters: {
@@ -385,11 +393,24 @@
 				};
 			},
     		handlePrint: function (index, row) {
-    			var printHtml = document.getElementById(row.itemNumber).innerHTML;
+    			var printHtml = "<img src='" + row.imgurl + "' />";
 			    let newWindow = window.open("",'newwindow');
-				console.log(printHtml);
 				newWindow.document.body.innerHTML = printHtml;
-				setTimeout(function(){ newWindow.print();}, 1);
+				setTimeout(function(){ newWindow.print();}, 500);
+    		},
+    		//物料相关订单
+    		handleRelated: function (index, row) {
+    			let para = {
+					page:this.page,
+                    size:20,
+                    itemId:row.id
+				};
+				getOrdersByItemId(para).then((res) => {
+					this.$router.push({path: '/order/list', query: {relatedResponse: res}});
+					// this.items = res.data.data.list
+                    // this.page = res.data.data.pageNum == 0 ? res.data.data.pageNum +1 : res.data.data.pageNum
+                    // this.total = res.data.data.total
+				});
     		},
 			//编辑
 			editSubmit: function () {
