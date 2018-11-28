@@ -690,11 +690,11 @@
 					LODOP.SET_PRINT_STYLEA(0,"FontSize",10);
 					LODOP.SET_PRINT_STYLEA(0,"Alignment",2);
 					//单价
-					LODOP.ADD_PRINT_TEXT(213+25*i,470,60,25,item.price);
+					LODOP.ADD_PRINT_TEXT(213+25*i,470,60,25,util.formatNumber(item.price));
 					LODOP.SET_PRINT_STYLEA(0,"FontSize",10);
 					LODOP.SET_PRINT_STYLEA(0,"Alignment",2);
 					//总金额
-					LODOP.ADD_PRINT_TEXT(213+25*i,530,80,25,item.count*item.price);
+					LODOP.ADD_PRINT_TEXT(213+25*i,530,80,25,util.formatNumber(item.count*item.price));
 					LODOP.SET_PRINT_STYLEA(0,"FontSize",10);
 					LODOP.SET_PRINT_STYLEA(0,"Alignment",2);
 					sum += (item.count*item.price);

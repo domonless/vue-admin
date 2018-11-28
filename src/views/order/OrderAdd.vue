@@ -367,7 +367,7 @@
 				this.addForm.itemList.push(row);
 				//计算金额
 				let sum = this.addForm.sum + (row.price * row.count);
-				this.addForm.sum = this.formatNumber(sum);
+				this.addForm.sum = util.formatNumber(sum);
 			},
 
 			//将物料从订单移除
@@ -376,17 +376,12 @@
 				this.addForm.itemList.splice(index,1);
 				//计算金额
 				let sum = this.addForm.sum - (row.price * row.count);
-				this.addForm.sum = this.formatNumber(sum);
+				this.addForm.sum = util.formatNumber(sum);
 			},
 			//处理物料数量
 			handleItemCountChange: function(index, row, e){
 				row.count = Number(e);
 			},
-
-			//formatNumber
-			formatNumber: function(num){
-				return Number(Number(num).toFixed(2));
-			}
 		},
 		mounted() {
 			this.getProviders();
