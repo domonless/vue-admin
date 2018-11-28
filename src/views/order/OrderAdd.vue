@@ -363,8 +363,6 @@
 				if(row.count == 0){
 					row.count++;
 				}
-				//移除物料队列
-				// this.items.splice(index, 1);
 				//加入订单队列
 				this.addForm.itemList.push(row);
 				//计算金额

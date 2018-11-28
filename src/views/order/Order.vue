@@ -38,27 +38,41 @@
 		<el-table :data="orders" highlight-current-row v-loading="listLoading" style="width: 100%;">
 			<el-table-column type="index" width="60">
 			</el-table-column>
+			<el-table-column type="expand">
+			      <template slot-scope="props">
+			        <el-form label-position="left" inline class="demo-table-expand">
+			          <el-form-item label="采购组织:">
+			            <span>{{ props.row.org }}</span>
+			          </el-form-item>
+			          <el-form-item label="采购员:">
+			            <span>{{ props.row.buyer }}</span>
+			          </el-form-item>
+			        </el-form>
+			      </template>
+			    </el-table-column>
 			<el-table-column prop="cdSn" label="订单编号" width="130" sortable>
 			</el-table-column>
 			<!-- <el-table-column prop="qgSn" label="请购编号" width="120">
 			</el-table-column> -->
 			<el-table-column prop="provider" label="供货商" width="250" sortable>
 			</el-table-column>
-			<el-table-column prop="org" label="采购组织" width="100">
+			<el-table-column prop="demander" label="需求公司" width="300" sortable>
 			</el-table-column>
-			<el-table-column prop="purchaser" label="请购人" width="150">
+			<!-- <el-table-column prop="org" label="采购组织" width="100">
 			</el-table-column>
 			<el-table-column prop="buyer" label="采购员" width="150">
+			</el-table-column> -->
+			<el-table-column prop="purchaser" label="请购人" width="150">
 			</el-table-column>
 			<el-table-column prop="stocker" label="仓库" width="150">
 			</el-table-column>
-			<el-table-column prop="sum" label="总金额" width="100">
+			<el-table-column prop="sum" label="总金额" width="90">
 			</el-table-column>
-			<el-table-column prop="status" label="订单状态" width="100" :formatter="formatStatus">
+			<el-table-column prop="status" label="订单状态" width="90" :formatter="formatStatus">
 			</el-table-column>
 			<!-- <el-table-column prop="remark" label="备注" width="150">
 			</el-table-column> -->
-			<el-table-column label="操作" width="200">
+			<el-table-column label="操作" width="180">
 				<template scope="scope">
 					<el-button type="info" size="small" @click="handleView(scope.$index, scope.row)">查看</el-button>
 					<el-button type="danger" size="small" @click="handleDel(scope.$index, scope.row)">删除</el-button>
@@ -152,7 +166,7 @@
 					</el-table-column>
 					<el-table-column prop="bidPrice" label="进价" width="100">
 						<template scope="scope">
-							<el-input type="number" size="mini" min="1" @input="handleBidPriceChange(scope.$index, scope.row, $event)" @keyup.enter.native="handleEditBidPrice(scope.$index, scope.row)"></el-input>
+							<el-input type="number" size="mini" min="1" :key="scope.row.id" @input="handleBidPriceChange(scope.$index, scope.row, $event)" @keyup.enter.native="handleEditBidPrice(scope.$index, scope.row)"></el-input>
 						</template>
 					</el-table-column>
 				</el-table>
@@ -186,24 +200,24 @@
 		</el-dialog>
 
 		<!--开票界面-->
-		<el-dialog title="开票" :visible.sync="sendFormVisible" :close-on-click-modal="false">
-			<el-form :model="sendForm" label-width="80px" :rules="sendFormRules" ref="sendForm" :inline="true">
-				<el-form-item label="订单编号" prop="cdSn">
-					<el-input v-model="sendForm.cdSn" disabled></el-input>
+		<el-dialog title="开票" :visible.sync="invoiceFormVisible" :close-on-click-modal="false">
+			<el-form :model="invoiceForm" label-width="80px" :rules="invoiceFormRules" ref="sendForm" :inline="true">
+				<!-- <el-form-item label="订单编号" prop="cdSn">
+					<el-input v-model="invoiceForm.cdSn" disabled></el-input>
+				</el-form-item> -->
+				<el-form-item label="发票号" prop="invoiceSn">
+					<el-input v-model="invoiceForm.invoiceSn"></el-input>
 				</el-form-item>
-				<el-form-item label="物流单号" prop="logisticsSn">
-					<el-input v-model="sendForm.logisticsSn"></el-input>
+				<el-form-item label="发票金额" prop="money">
+					<el-input type="number" v-model="invoiceForm.money"></el-input>
 				</el-form-item>
-				<el-form-item label="其他费用" prop="fee">
-					<el-input type="number" v-model="sendForm.fee"></el-input>
-				</el-form-item>
-				<el-form-item label="备注" prop="remark">
-					<el-input type="textarea" v-model="sendForm.remark"></el-input>
-				</el-form-item>
+				<!-- <el-form-item label="备注" prop="remark">
+					<el-input type="textarea" v-model="invoiceForm.remark"></el-input>
+				</el-form-item> -->
 			</el-form>
 			<div slot="footer" class="dialog-footer">
-				<el-button @click.native="sendFormVisible = false">取消</el-button>
-				<el-button type="primary" @click.native="sendSubmit" :loading="sendLoading">提交</el-button>
+				<el-button @click.native="invoiceFormVisible = false">取消</el-button>
+				<el-button type="primary" @click.native="invoiceSubmit" :loading="sendLoading">提交</el-button>
 			</div>
 		</el-dialog>
 
@@ -295,6 +309,18 @@
 
 				//开票界面
 				invoiceFormVisible: false,//开票界面是否显示
+				invoiceLoading: false,
+				//开票界面数据
+				invoiceForm: {},
+				//校验规则
+				invoiceFormRules: {
+					invoiceSn: [
+						{ required: true, message: '请填写发票号', trigger: 'blur' }
+					],
+					money: [
+						{ required: true, message: '请填写发票金额', trigger: 'blur' }
+					],
+				},
 
 				spanArr:[],
 
@@ -420,7 +446,7 @@
 			},
 			//进货提交处理
 			buySubmit: function () {
-				this.buyForm.orderitemList = this.items;
+				this.buyForm.orderItemList = this.items;
 				this.buyForm.status = 2;
 				this.$confirm('确认提交吗？', '提示', {}).then(() => {
 					this.buyLoading = true;
@@ -448,7 +474,7 @@
 			sendSubmit: function () {
 				this.$refs.sendForm.validate((valid) => {
 					if (valid) {
-						this.sendForm.orderitemList = this.items;
+						this.sendForm.orderItemList = this.items;
 						this.sendForm.status = 3;
 						this.$confirm('确认提交吗？', '提示', {}).then(() => {
 							this.sendLoading = true;
@@ -472,6 +498,7 @@
 			//入库处理
 			handleIn: function () {
 				this.sendForm.status = 4;
+				this.sendForm.itemList = this.sels;
 				this.$confirm('确认提交吗？', '提示', {}).then(() => {
 					this.sendLoading = true;
 					editOrderDetail(this.sendForm).then((res) => {
@@ -494,22 +521,23 @@
 			},
 			//开票提交处理
 			invoiceSubmit: function () {
-				this.$refs.sendForm.validate((valid) => {
+				this.$refs.invoiceForm.validate((valid) => {
 					if (valid) {
-						this.sendForm.orderitemList = this.items;
-						this.sendForm.status = 5;
+						this.invoiceForm.orderId = this.sendForm.id;
+						this.invoiceForm.itemList = this.items;
+						this.invoiceForm.status = 5;
 						this.$confirm('确认提交吗？', '提示', {}).then(() => {
-							this.sendLoading = true;
+							this.invoiceLoading = true;
 							editOrderDetail(this.sendForm).then((res) => {
-								this.sendLoading = false;
+								this.invoiceLoading = false;
 								//NProgress.done();
 								this.$message({
 									message: '提交成功',
 									type: 'success'
 								});
 								this.getOrders();
-								this.$refs['sendForm'].resetFields();
-								this.sendFormVisible = false;
+								this.$refs['invoiceForm'].resetFields();
+								this.invoiceFormVisible = false;
 							});
 						});
 					}
@@ -753,7 +781,7 @@
 </script>
 
 <style scoped>
-.demo-table-expand {
+  .demo-table-expand {
     font-size: 0;
   }
   .demo-table-expand label {
