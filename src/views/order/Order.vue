@@ -299,12 +299,12 @@
 					// logisticsSn: [
 					// 	{ required: true, message: '请填写物流单号', trigger: 'blur' }
 					// ],
-					fee: [
-						{ required: true, message: '请填写其他费用', trigger: 'blur' }
-					],
-					remark: [
-						{ required: true, message: '请填写备注', trigger: 'blur' }
-					]
+					// fee: [
+					// 	{ required: true, message: '请填写其他费用', trigger: 'blur' }
+					// ],
+					// remark: [
+					// 	{ required: true, message: '请填写备注', trigger: 'blur' }
+					// ]
 				},
 
 				//开票界面
