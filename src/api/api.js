@@ -1,7 +1,19 @@
 import axios from 'axios';
+import md5 from 'js-md5'
 
 axios.defaults.headers.common['Content-Type'] = 'application/json;charset=UTF-8';
-let base = 'http://192.168.1.3:8080';
+let base = 'http://bgy.test.kyb66.com';
+// let base = 'http://192.168.1.3:8080';
+
+const getSign = function(timestamp){
+  const signStr = timestamp + "Potato"
+  console.log(signStr);
+  return md5(signStr)
+}
+const timestamp = new Date().getTime()
+axios.defaults.headers.tm = timestamp
+axios.defaults.headers.sign = getSign(timestamp)
+
 
 export const requestLogin = params => { return axios.post(`/login`, params).then(res => res.data); };
 

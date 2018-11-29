@@ -16,6 +16,7 @@
     "file-saver": "^2.0.0-rc.4",
     "font-awesome": "^4.7.0",
     "img-vuer": "^0.15.4",
+    "js-md5": "^0.7.3",
     "nprogress": "^0.2.0",
     "v-viewer": "^1.2.1",
     "vue": "^2.2.2",
