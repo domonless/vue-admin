@@ -95,18 +95,20 @@
 					<el-input-number v-model="editForm.price" :min="0" :max="99999"></el-input-number>
 				</el-form-item>
 				<el-form-item label="图片" prop="imgurl">
-					<el-upload
-					  class="avatar-uploader"
-					  action="http://192.168.1.3:8080/file/upload"
-					  accept=".jpg;.png;.jpeg"
-					  :on-progress="uploadProcess"
-					  :on-success="uploadSuccess"
-					  :show-file-list="false">
-					  <img v-if="editForm.imgurl && this.uploadFlag == false" :src="editForm.imgurl" class="avatar">
-					  <i v-else-if="!editForm.imgurl && this.uploadFlag == false" class="el-icon-plus avatar-uploader-icon"></i>
-					  <el-progress v-if="this.uploadFlag" type="circle" :percentage="uploadPercent" style="margin-top:30px;"></el-progress>
-					</el-upload>
-					
+					<form id="upload" enctype="multipart/form-data" method="post">
+						<el-upload
+						  class="avatar-uploader"
+						  action=""
+						  accept=".jpg;.png;.jpeg"
+						  :http-request="uploadImg"
+						  :on-progress="uploadProcess"
+						  :on-success="uploadSuccess"
+						  :show-file-list="false">
+						  <img v-if="editForm.imgurl && this.uploadFlag == false" :src="editForm.imgurl" class="avatar">
+						  <i v-else-if="!editForm.imgurl && this.uploadFlag == false" class="el-icon-plus avatar-uploader-icon"></i>
+						  <el-progress v-if="this.uploadFlag" type="circle" :percentage="uploadPercent" style="margin-top:30px;"></el-progress>
+						</el-upload>
+					</form>
 				</el-form-item>
 
 				<el-form-item label="起始时间" prop="startTime">
@@ -163,7 +165,7 @@
 	import pdf from 'vue-pdf'
 	import qs from 'qs'
 	//import NProgress from 'nprogress'
-	import { getItemList, addItem, editItem, removeItem, batAddItem, batchRemoveItem, getProviderList, getOrdersByItemId } from '../../api/api';
+	import { getItemList, addItem, editItem, removeItem, batAddItem, batchRemoveItem, getProviderList, getOrdersByItemId, fileUpload } from '../../api/api';
 	export default {
 		components:
 		{
@@ -318,6 +320,15 @@
 		        } else {
 		            reader.readAsBinaryString(f);
 		        }
+		    },
+		    uploadImg(content){
+		    	console.log("begin");
+		    	var data = document.getElementById('upload');
+		     	const fd = new window.FormData(data);
+		     	fd.append('file', content.file);
+		    	fileUpload(fd).then((res) => {
+					console.log(res);
+				});
 		    },
 			handleCurrentChange(val) {
 				this.page = val;

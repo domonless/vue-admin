@@ -47,6 +47,9 @@
 			          <el-form-item label="采购员:">
 			            <span>{{ props.row.buyer }}</span>
 			          </el-form-item>
+			          <el-form-item label="下单日期:">
+			            <span>{{ util.formatDate.format(props.row.createTime) }}</span>
+			          </el-form-item>
 			        </el-form>
 			      </template>
 			    </el-table-column>

@@ -3,11 +3,10 @@ import md5 from 'js-md5'
 
 axios.defaults.headers.common['Content-Type'] = 'application/json;charset=UTF-8';
 let base = 'http://bgy.test.kyb66.com';
-// let base = 'http://192.168.1.3:8080';
+// let base = 'http://192.168.1.3:8081';
 
 const getSign = function(timestamp){
   const signStr = timestamp + "Potato"
-  console.log(signStr);
   return md5(signStr)
 }
 const timestamp = new Date().getTime()
@@ -32,6 +31,9 @@ export const batAddItem = params => { return axios.post(`${base}/item/batAdd`, p
 export const batchRemoveItem = params => { return axios.post(`${base}/item/batDel`, params); };
 
 export const getOrdersByItemId = params => { return axios.get(`${base}/item/orders`, { params: params }); };
+
+//上传图片
+export const fileUpload = params => { return axios.post(`${base}/file/upload`, params); };
 
 
 //订单
@@ -81,5 +83,7 @@ export const addDemander = params => { return axios.post(`${base}/demander/add`,
 export const editDemander = params => { return axios.post(`${base}/demander/update`, params); };
 
 export const removeDemander = params => { return axios.post(`${base}/demander/delete`, params); };
+
+
 
 
