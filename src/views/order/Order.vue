@@ -132,7 +132,7 @@
 			</el-table>
 			<div id="footer"></div>
 			<div slot="footer" class="dialog-footer">
-				<!-- <el-button type="warning" @click.native="handleDesign">设计</el-button>  -->
+				<el-button type="warning" @click.native="handleDesign">设计</el-button> 
 				<el-button type="primary" v-if="this.selectStatus===1 && this.sels.length>0" @click.native="handleBuy" :loading="sendLoading">进货</el-button>
 				<el-button type="primary" v-if="this.selectStatus===2 && this.sels.length>0" @click.native="handleSend" :loading="sendLoading">发货</el-button>
 				<el-button type="primary" v-if="this.selectStatus===3 && this.sels.length>0" @click.native="handleIn" :loading="sendLoading">入库</el-button>
@@ -334,7 +334,7 @@
 			formatStatus: function (row, column) {
 				return this.getStrByStatus(row.status);
 			},
-			//状态转化
+			//日期转化
 			formatDate: function (row, column) {
 				// return util.formatDate.format(new Date(row.createTime),"yyyy-MM-dd");
 				return new Date(row.createTime).toLocaleDateString();
@@ -745,17 +745,17 @@
 				//表尾
 				LODOP.ADD_PRINT_TEXT(790,95,194,25,"供应商联系人： 杨世琪");
 				LODOP.SET_PRINT_STYLEA(0,"FontSize",11);
-				LODOP.ADD_PRINT_TEXT(790,460,172,25,"联系电话：18378996547");
+				LODOP.ADD_PRINT_TEXT(790,445,172,25,"联系电话：18378996547");
 				LODOP.SET_PRINT_STYLEA(0,"FontSize",11);
 				LODOP.ADD_PRINT_TEXT(816,95,300,25,"送货方地址：贵港市金田路213号");
 				LODOP.SET_PRINT_STYLEA(0,"FontSize",11);
 				LODOP.ADD_PRINT_TEXT(875,95,300,25,"供应商盖章：");
 				LODOP.SET_PRINT_STYLEA(0,"FontSize",11);
-				LODOP.ADD_PRINT_TEXT(836,460,107,25,"仓库签名：");
+				LODOP.ADD_PRINT_TEXT(836,445,107,25,"仓库签名：");
 				LODOP.SET_PRINT_STYLEA(0,"FontSize",11);
 				LODOP.ADD_PRINT_TEXT(836,580,109,25,"请购人签名：");
 				LODOP.SET_PRINT_STYLEA(0,"FontSize",11);
-				LODOP.ADD_PRINT_TEXT(875,460,94,25,"收货日期：");
+				LODOP.ADD_PRINT_TEXT(875,445,94,25,"收货日期：");
 				LODOP.SET_PRINT_STYLEA(0,"FontSize",11);
 				LODOP.ADD_PRINT_TEXT(875,580,96,25,"收货日期：");
 				LODOP.SET_PRINT_STYLEA(0,"FontSize",11);
