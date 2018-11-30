@@ -39,20 +39,17 @@
 			<el-table-column type="index" width="60">
 			</el-table-column>
 			<el-table-column type="expand">
-			      <template slot-scope="props">
-			        <el-form label-position="left" inline class="demo-table-expand">
-			          <el-form-item label="采购组织:">
-			            <span>{{ props.row.org }}</span>
-			          </el-form-item>
-			          <el-form-item label="采购员:">
-			            <span>{{ props.row.buyer }}</span>
-			          </el-form-item>
-			          <el-form-item label="下单日期:">
-			            <span>{{ util.formatDate.format(props.row.createTime) }}</span>
-			          </el-form-item>
-			        </el-form>
-			      </template>
-			    </el-table-column>
+		      <template slot-scope="props">
+		        <el-form label-position="left" inline class="demo-table-expand">
+		          <el-form-item label="采购组织:">
+		            <span>{{ props.row.org }}</span>
+		          </el-form-item>
+		          <el-form-item label="采购员:">
+		            <span>{{ props.row.buyer }}</span>
+		          </el-form-item>
+		        </el-form>
+		      </template>
+		    </el-table-column>
 			<el-table-column prop="cdSn" label="订单编号" width="130" sortable>
 			</el-table-column>
 			<!-- <el-table-column prop="qgSn" label="请购编号" width="120">
@@ -70,6 +67,8 @@
 			<el-table-column prop="stocker" label="仓库" width="150">
 			</el-table-column>
 			<el-table-column prop="sum" label="总金额" width="90">
+			</el-table-column>
+			<el-table-column prop="createTime" label="下单时间" width="100" :formatter="formatDate">
 			</el-table-column>
 			<el-table-column prop="status" label="订单状态" width="90" :formatter="formatStatus">
 			</el-table-column>
@@ -334,6 +333,11 @@
 			//状态转化
 			formatStatus: function (row, column) {
 				return this.getStrByStatus(row.status);
+			},
+			//状态转化
+			formatDate: function (row, column) {
+				// return util.formatDate.format(new Date(row.createTime),"yyyy-MM-dd");
+				return new Date(row.createTime).toLocaleDateString();
 			},
 			getStrByStatus(status){
 				let statusStr = '';
