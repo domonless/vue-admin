@@ -117,47 +117,19 @@
 			提示: 输入数量后按回车键即可添加，默认数量为1个
 			<!--列表-->
 			<el-table :data="items" highlight-current-row v-loading="itemsLoading" style="width: 100%;margin-top:10px" height="500">
-				<el-table-column type="expand">
-			      <template slot-scope="props">
-			        <el-form label-position="left" inline class="demo-table-expand">
-			          <el-form-item label="编号">
-			            <span>{{ props.row.itemNumber }}</span>
-			          </el-form-item>
-			          <el-form-item label="名称">
-			            <span>{{ props.row.name }}</span>
-			          </el-form-item>
-			          <el-form-item label="品牌">
-			            <span>{{ props.row.brand }}</span>
-			          </el-form-item>
-			          <el-form-item label="规格">
-			            <span>{{ props.row.form }}</span>
-			          </el-form-item>
-			          <el-form-item label="单位">
-			            <span>{{ props.row.unit }}</span>
-			          </el-form-item>
-			          <el-form-item label="价格">
-			            <span>{{ props.row.price }}</span>
-			          </el-form-item>
-			          <el-form-item label="签价起始日期">
-			            <span>{{ props.row.startTime }}</span>
-			          </el-form-item>
-			          <el-form-item label="签价截止日期">
-			            <span>{{ props.row.endTime }}</span>
-			          </el-form-item>
-			        </el-form>
-			      </template>
-			    </el-table-column>
-			    <el-table-column prop="itemNumber" label="编号" width="80">
+			    <el-table-column prop="itemNumber" label="编号" width="70">
 				</el-table-column>
-				<el-table-column prop="name" label="名称" width="140">
+				<el-table-column prop="name" label="名称" width="120">
 				</el-table-column>
 				<el-table-column prop="brand" label="品牌" width="80">
 				</el-table-column>
 				<el-table-column prop="form" label="规格" width="200">
 				</el-table-column>
-				<el-table-column prop="unit" label="单位" width="75">
+				<el-table-column prop="unit" label="单位" width="70">
 				</el-table-column>
 				<el-table-column prop="price" label="价格" width="80">
+				</el-table-column>
+				<el-table-column prop="endTime" label="到期日期" width="95" :formatter="formatDate">
 				</el-table-column>
 				<el-table-column prop="count" label="数量" width="100">
 					<template scope="scope">
@@ -248,6 +220,10 @@
 			}
 		},
 		methods: {
+			formatDate: function (row, column) {
+				// return util.formatDate.format(new Date(row.createTime),"yyyy-MM-dd");
+				return new Date(row.endTime).toLocaleDateString();
+			},
 			//获取物料倩价列表
 			getItems() {
 				let para = {
