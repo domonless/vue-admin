@@ -132,7 +132,7 @@
 			</el-table>
 			<div id="footer"></div>
 			<div slot="footer" class="dialog-footer">
-				<el-button type="warning" @click.native="handleDesign">设计</el-button> 
+				<!-- <el-button type="warning" @click.native="handleDesign">设计</el-button>  -->
 				<el-button type="primary" v-if="this.selectStatus===1 && this.sels.length>0" @click.native="handleBuy" :loading="sendLoading">进货</el-button>
 				<el-button type="primary" v-if="this.selectStatus===2 && this.sels.length>0" @click.native="handleSend" :loading="sendLoading">发货</el-button>
 				<el-button type="primary" v-if="this.selectStatus===3 && this.sels.length>0" @click.native="handleIn" :loading="sendLoading">入库</el-button>
@@ -763,6 +763,7 @@
 		    handlePrint: function(){
 		    	LODOP=getLodop();  
 				this.initPrintData();
+				if(LODOP.SET_PRINTER_INDEX(0));
 				LODOP.PREVIEW();//打印预览
 		    },
 		    handleDesign: function(){
