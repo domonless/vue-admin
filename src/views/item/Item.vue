@@ -97,10 +97,9 @@
 				<el-form-item label="图片" prop="imgurl">
 					<el-upload
 					  class="avatar-uploader"
-					  action="http://bgy.test.kyb66.com/file/upload"
+					  action="http://bapi.kyb66.com/file/upload"
 					  accept=".jpg,.jpeg,.png,.gif,.bmp,.pdf,.JPG,.JPEG,.PBG,.GIF,.BMP,.PDF"
-					  :on-progress="uploadProcess"
-					  :on-success="uploadSuccess"
+					  :http-request="uploadImg"
 					  :show-file-list="false">
 					  <img v-if="editForm.imgurl && this.uploadFlag == false" :src="editForm.imgurl" class="avatar">
 					  <i v-else-if="!editForm.imgurl && this.uploadFlag == false" class="el-icon-plus avatar-uploader-icon"></i>
@@ -296,8 +295,6 @@
 		                    obj.status = 1
 		                    arr.push(obj)
 		                })
-		                // console.log(arr)
-		                // console.log(JSON.stringify(this.da))
 		                let para = {
 		                    itemListStr: JSON.stringify(arr)
 		                    // withList: arr
@@ -318,6 +315,25 @@
 		        } else {
 		            reader.readAsBinaryString(f);
 		        }
+		    },
+		    uploadImg(content){
+		    	this.uploadPercent = 0;
+			    this.uploadFlag = true;
+			    let _this = this;
+			    clearInterval(this.time);
+			    this.time = setInterval(function(){  
+		           if(_this.uploadPercent<100){
+		               _this.uploadPercent += 25;//进程条
+		           }else{                 
+		           }          
+		        },100)
+
+		    	var formData = new FormData();
+		    	formData.append("file", content.file);
+		    	fileUpload(formData).then((res) => {
+			        this.uploadFlag = false;
+					this.editForm.imgurl = res.data.data;
+		    	});
 		    },
 			handleCurrentChange(val) {
 				this.page = val;
@@ -484,22 +500,22 @@
 				});
 			},
 
-			uploadProcess(event, file, fileList){
-				this.uploadPercent = 0;
-			    this.uploadFlag = true;
-			    let _this = this;
-			    clearInterval(this.time);
-			    this.time = setInterval(function(){  
-		           if(_this.uploadPercent<100){
-		               _this.uploadPercent += 2;//进程条
-		           }else{                 
-		           }          
-		        },100)
-			},
-			uploadSuccess(response, file, fileList) {
-				this.uploadFlag = false;
-				this.editForm.imgurl = response.data;
-    		}
+			// uploadProcess(event, file, fileList){
+			// 	this.uploadPercent = 0;
+			//     this.uploadFlag = true;
+			//     let _this = this;
+			//     clearInterval(this.time);
+			//     this.time = setInterval(function(){  
+		 //           if(_this.uploadPercent<100){
+		 //               _this.uploadPercent += 2;//进程条
+		 //           }else{                 
+		 //           }          
+		 //        },100)
+			// },
+			// uploadSuccess(response, file, fileList) {
+			// 	this.uploadFlag = false;
+			// 	this.editForm.imgurl = response.data;
+   //  		}
 		},
 		mounted() {
 			this.getItems();

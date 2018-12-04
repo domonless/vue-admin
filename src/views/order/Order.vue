@@ -763,7 +763,7 @@
 		    handlePrint: function(){
 		    	LODOP=getLodop();  
 				this.initPrintData();
-				if(LODOP.SET_PRINTER_INDEX(0));
+				if(LODOP.SET_PRINTER_INDEX(1));
 				LODOP.PREVIEW();//打印预览
 		    },
 		    handleDesign: function(){

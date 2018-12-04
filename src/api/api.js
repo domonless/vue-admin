@@ -2,7 +2,8 @@ import axios from 'axios';
 import md5 from 'js-md5'
 
 axios.defaults.headers.common['Content-Type'] = 'application/json;charset=UTF-8';
-let base = 'http://bgy.test.kyb66.com';
+let base = 'http://bapi.kyb66.com';
+// let base = 'http://bgy.test.kyb66.com';
 // let base = 'http://192.168.1.3:8081';
 
 const getSign = function(timestamp){
