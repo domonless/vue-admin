@@ -13,9 +13,11 @@ import Stock from './views/stock/Stock.vue'
 import Item from './views/item/Item.vue'
 import Order from './views/order/Order.vue'
 import OrderAdd from './views/order/OrderAdd.vue'
+import OrderAddPre from './views/order/OrderAddPre.vue'
 import Purchaser from './views/purchaser/Purchaser.vue'
 import Provider from './views/provider/Provider.vue'
 import Demander from './views/demander/Demander.vue'
+import Statistic from './views/statistic/Statistic.vue'
 
 let routes = [
     {
@@ -55,6 +57,7 @@ let routes = [
         children: [
             { path: '/order/list', component: Order, name: '采购订单列表' },
             { path: '/order/add', component: OrderAdd, name: '新增采购订单' },
+            { path: '/preorder/add', component: OrderAddPre, name: '提前送货' },
         ]
     },
     // {
@@ -77,6 +80,16 @@ let routes = [
             { path: '/purchaser/list', component: Purchaser, name: '人员列表' },
             { path: '/provider/list', component: Provider, name: '供应商列表' },
             { path: '/demander/list', component: Demander, name: '需求公司列表' },
+        ]
+    },
+    {
+        path: '/statistic',
+        component: Home,
+        name: '数据统计',
+        iconCls: 'fa fa-calculator',//图标样式class
+        redirect: '/statistic/query',
+        children: [
+            { path: '/statistic/query', component: Statistic, name: '汇总' },
         ]
     },
     // {

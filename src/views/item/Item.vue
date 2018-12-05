@@ -423,9 +423,6 @@
 				};
 				getOrdersByItemId(para).then((res) => {
 					this.$router.push({path: '/order/list', query: {relatedResponse: res}});
-					// this.items = res.data.data.list
-                    // this.page = res.data.data.pageNum == 0 ? res.data.data.pageNum +1 : res.data.data.pageNum
-                    // this.total = res.data.data.total
 				});
     		},
 			//编辑

@@ -72,12 +72,13 @@
 			</el-table-column>
 			<el-table-column prop="status" label="订单状态" width="90" :formatter="formatStatus">
 			</el-table-column>
-			<!-- <el-table-column prop="remark" label="备注" width="150">
-			</el-table-column> -->
-			<el-table-column label="操作" width="180">
+			<el-table-column prop="remark" label="备注" width="100">
+			</el-table-column>
+			<el-table-column label="操作" width="240">
 				<template scope="scope">
 					<el-button type="info" size="small" @click="handleView(scope.$index, scope.row)">查看</el-button>
 					<el-button type="danger" size="small" @click="handleDel(scope.$index, scope.row)">删除</el-button>
+					<el-button type="primary" size="small" @click="handleRemark(scope.$index, scope.row)">备注</el-button>
 				</template>
 			</el-table-column>
 		</el-table>
@@ -88,10 +89,23 @@
 			</el-pagination>
 		</el-col>
 
+		<!--备注界面-->
+		<el-dialog title="编辑" :visible.sync="editFormVisible" :close-on-click-modal="false">
+			<el-form :model="editForm" label-width="80px" ref="editForm">
+				<el-form-item label="备注" prop="remark">
+					<el-input v-model="editForm.remark"></el-input>
+				</el-form-item>
+			</el-form>
+			<div slot="footer" class="dialog-footer">
+				<el-button @click.native="editFormVisible = false">取消</el-button>
+				<el-button type="primary" @click.native="editSubmit" :loading="editLoading">提交</el-button>
+			</div>
+		</el-dialog>
+
 		<!--查看界面-->
 		<el-dialog title="查看" :visible.sync="itemListVisible" :close-on-click-modal="false">
-			<el-table :data="items" :span-method="objectSpanMethod" highlight-current-row v-loading="itemsLoading" @selection-change="selsChange" style="width: 100%;" >
-				<el-table-column type="selection" :selectable="checkSelectable" width="40">
+			<el-table :data="items" ref="viewTable" :span-method="objectSpanMethod" highlight-current-row v-loading="itemsLoading" @selection-change="selsChange" style="width: 100%;" >
+				<el-table-column type="selection" :selectable="checkSelectable" :disable="false" width="40">
 			    </el-table-column>
 			    <el-table-column type="expand">
 			      <template slot-scope="props">
@@ -135,7 +149,8 @@
 				<!-- <el-button type="warning" @click.native="handleDesign">设计</el-button>  -->
 				<el-button type="primary" v-if="this.selectStatus===1 && this.sels.length>0" @click.native="handleBuy" :loading="sendLoading">进货</el-button>
 				<el-button type="primary" v-if="this.selectStatus===2 && this.sels.length>0" @click.native="handleSend" :loading="sendLoading">发货</el-button>
-				<el-button type="primary" v-if="this.selectStatus===3 && this.sels.length>0" @click.native="handleIn" :loading="sendLoading">入库</el-button>
+				<el-button type="primary" v-if="this.selectStatus===3 && this.sels.length>0 && this.sendForm.status!=9" @click.native="handleIn" :loading="sendLoading">入库</el-button>
+				<el-button type="primary" v-if="this.selectStatus===3 && this.sels.length>0 && this.sendForm.status==9" @click.native="handleRepair">补单</el-button>
 				<el-button type="primary" v-if="this.selectStatus===4 && this.sels.length>0" @click.native="handleInvoice" :loading="sendLoading">开票</el-button>
 				<el-button type="primary" v-if="this.selectStatus===5 && this.sels.length>0" @click.native="handleReturn" :loading="sendLoading">回款</el-button>
 				<el-button type="warning" @click.native="handlePrint">送货单</el-button>
@@ -201,9 +216,65 @@
 			</div>
 		</el-dialog>
 
+		<!--补单界面-->
+		<el-dialog title="补单" :visible.sync="repairFormVisible" :close-on-click-modal="false">
+			<el-form :model="repairForm" label-width="80px" :rules="repairFormRules" ref="repairForm" :inline="true">
+				<el-form-item label="采购员" prop="buyerId">
+					<el-select v-model="repairForm.buyerId" filterable placeholder="请选择" clearable>
+					    <el-option
+					      v-for="item in buyers"
+					      :key="item.id"
+					      :label="item.name+item.phone"
+					      :value="item.id">
+					    </el-option>
+				  	</el-select>
+				</el-form-item>
+				<el-form-item label="采购组织" prop="org">
+					<el-radio-group v-model="repairForm.org">
+				      <el-radio-button label="广西区域"></el-radio-button>
+				      <el-radio-button label="采购中心"></el-radio-button>
+				    </el-radio-group>
+				</el-form-item>
+				<br>
+
+				<el-form-item label="请购人" prop="purchaserId">
+					<el-select v-model="repairForm.purchaserId" filterable placeholder="请选择" clearable>
+					    <el-option
+					      v-for="item in purchasers"
+					      :key="item.id"
+					      :label="item.name+item.phone"
+					      :value="item.id">
+					    </el-option>
+				  	</el-select>
+				</el-form-item>
+				
+				<el-form-item label="仓库" prop="stockerId">
+					<el-select v-model="repairForm.stockerId" filterable placeholder="请选择" clearable>
+					    <el-option
+					      v-for="item in stockers"
+					      :key="item.id"
+					      :label="item.name+item.phone"
+					      :value="item.id">
+					    </el-option>
+				  	</el-select>
+				</el-form-item>
+
+				<el-form-item label="订单编号" prop="cdSn">
+					<el-input v-model="repairForm.cdSn" :maxlength="12"></el-input>
+				</el-form-item>
+				<el-form-item label="请购编号" prop="qgSn">
+					<el-input v-model="repairForm.qgSn" :maxlength="12"></el-input>
+				</el-form-item>
+			</el-form>
+			<div slot="footer" class="dialog-footer">
+				<el-button @click.native="repairFormVisible = false">取消</el-button>
+				<el-button type="primary" @click.native="repairSubmit" :loading="sendLoading">提交</el-button>
+			</div>
+		</el-dialog>
+
 		<!--开票界面-->
 		<el-dialog title="开票" :visible.sync="invoiceFormVisible" :close-on-click-modal="false">
-			<el-form :model="invoiceForm" label-width="80px" :rules="invoiceFormRules" ref="sendForm" :inline="true">
+			<el-form :model="invoiceForm" label-width="80px" :rules="invoiceFormRules" ref="invoiceForm" :inline="true">
 				<!-- <el-form-item label="订单编号" prop="cdSn">
 					<el-input v-model="invoiceForm.cdSn" disabled></el-input>
 				</el-form-item> -->
@@ -231,12 +302,15 @@
 	import qs from 'qs'
 	import {getLodop} from '../../common/js/LodopFuncs'
 	//import NProgress from 'nprogress'
-	import { getOrderList, editOrder, removeOrder, getOrderDetail, editOrderDetail, getProviderList } from '../../api/api';
+	import { getOrderList, editOrder, removeOrder, getOrderDetail, editOrderDetail, getProviderList, getPurchaserList, getPurchaserListByRole, } from '../../api/api';
 
 	var LODOP
 	export default {
 		data() {
 			return {
+				purchasers:[],
+				buyers:[],
+				stockers:[],
 				filters: {
 					cdSn: '',
 					providerId: '',
@@ -266,6 +340,10 @@
 					{
 						value:6,
 						label:this.getStrByStatus(6)
+					},
+					{
+						value:9,
+						label:this.getStrByStatus(9)
 					}
 
 				],
@@ -295,9 +373,9 @@
 				sendForm: {},
 				//校验规则
 				sendFormRules: {
-					cdSn: [
-						{ required: true, message: '请填写订单编号', trigger: 'blur' }
-					],
+					// cdSn: [
+					// 	{ required: true, message: '请填写订单编号', trigger: 'blur' }
+					// ],
 					// logisticsSn: [
 					// 	{ required: true, message: '请填写物流单号', trigger: 'blur' }
 					// ],
@@ -307,6 +385,12 @@
 					// remark: [
 					// 	{ required: true, message: '请填写备注', trigger: 'blur' }
 					// ]
+				},
+
+				editFormVisible: false,//编辑界面是否显示
+				editLoading: false,
+				//编辑界面数据
+				editForm: {
 				},
 
 				//开票界面
@@ -324,6 +408,39 @@
 					],
 				},
 
+				//补单界面
+				repairFormVisible: false,//补单界面是否显示
+				repairLoading: false,
+				//补单界面数据
+				repairForm: {
+					cdSn: 'CD',
+					qgSn: 'QG',
+					purchaserId: '',
+					buyerId: '',
+					stockerId: '',
+					org: '广西区域'
+				},
+				//校验规则
+				repairFormRules: {
+					cdSn: [
+						{ required: true, message: '请输入订单编号', trigger: 'blur' },
+						{ min: 12, message: '请输入12位订单编号'}
+					],
+					qgSn: [
+						{ required: true, message: '请输入请购编号', trigger: 'blur' },
+						{ min: 12, message: '请输入12位请购编号'}
+					],
+					purchaserId: [
+						{ required: true, message: '请选择请购人', trigger: 'blur', type: 'number' }
+					],
+					buyerId: [
+						{ required: true, message: '请选择采购员', trigger: 'blur', type: 'number' }
+					],
+					stockerId: [
+						{ required: true, message: '请选择仓库签字人', trigger: 'blur', type: 'number' }
+					]
+				},
+
 				spanArr:[],
 
 				providers:[],
@@ -339,6 +456,33 @@
 				// return util.formatDate.format(new Date(row.createTime),"yyyy-MM-dd");
 				return new Date(row.createTime).toLocaleDateString();
 			},
+			//获取请购人列表
+			getPurchasers() {
+				let para = {
+					role: 1
+				};
+				getPurchaserListByRole(para).then((res) => {
+					this.purchasers = res.data.data.list
+				});
+			},
+			//获取采购员列表
+			getBuyers() {
+				let para = {
+					role: 2
+				};
+				getPurchaserListByRole(para).then((res) => {
+					this.buyers = res.data.data.list
+				});
+			},
+			//获取仓库签字人列表
+			getStockers() {
+				let para = {
+					role: 3
+				};
+				getPurchaserListByRole(para).then((res) => {
+					this.stockers = res.data.data.list
+				});
+			},
 			getStrByStatus(status){
 				let statusStr = '';
 				if(status == 1){
@@ -353,6 +497,8 @@
 					statusStr="待回款";
 				}else if (status == 6){
 					statusStr="已回款";
+				}else if (status == 9){
+					statusStr="提前送货";
 				}
 				return statusStr;
 			},
@@ -361,7 +507,7 @@
 				if(this.sels.length == 0){
 					return true;
 				}else{
-					return this.selectStatus == row.status;
+					return this.selectStatus === row.status;
 				}
 			},
 			//分页
@@ -412,6 +558,10 @@
 				this.itemListVisible = true
 				this.sendForm = Object.assign({}, row);
 				this.buyForm = Object.assign({}, row);
+
+				// this.items.forEach(item => {
+				// 	this.$refs.viewTable.toggleRowSelection(item,true)
+				// });
 			},
 			//打印
 			handleItemPrint: function (index, row) {
@@ -427,8 +577,8 @@
 				}).then(() => {
 					this.listLoading = true;
 					//NProgress.start();
-					let para = { id: row.id };
-					removeOrder(qs.stringify(para)).then((res) => {
+					let para = { id: row.id, status: 0 };
+					editOrder(qs.stringify(para)).then((res) => {
 						this.listLoading = false;
 						//NProgress.done();
 						this.$message({
@@ -441,6 +591,28 @@
 
 				});
 			},
+			
+			//显示备注界面
+			handleRemark: function (index, row) {
+				this.editFormVisible = true;
+				this.editForm = Object.assign({}, row);
+			},
+			//编辑
+			editSubmit: function () {
+				this.editLoading = true;
+				let para = { id: this.editForm.id, remark: this.editForm.remark };
+				editOrder(qs.stringify(para)).then((res) => {
+					this.editLoading = false;
+					this.$message({
+						message: '提交成功',
+						type: 'success'
+					});
+					this.getOrders();
+					this.$refs['editForm'].resetFields();
+					this.editFormVisible = false;
+				});
+			},
+
 			//跳转新增页面
 			handleAdd: function () {
 				this.$router.push({path: '/order/add'});
@@ -453,6 +625,7 @@
 			},
 			//进货提交处理
 			buySubmit: function () {
+				this.buyForm.cdSn = this.sendForm.cdSn;
 				this.buyForm.orderItemList = this.items;
 				this.buyForm.status = 2;
 				this.$confirm('确认提交吗？', '提示', {}).then(() => {
@@ -520,6 +693,37 @@
 					});
 				});
 			},
+			//显示补单界面
+			handleRepair: function(){
+				this.getPurchasers();
+				this.getStockers();
+				this.getBuyers();
+				this.itemListVisible = false;
+				this.repairFormVisible = true;
+				this.items = this.sels;
+			},
+			//补单提交处理
+			repairSubmit: function () {
+				this.$refs.repairForm.validate((valid) => {
+					if (valid) {
+						this.repairForm.id = this.items[0].orderId;
+						this.repairForm.status = 3;
+						this.$confirm('确认提交吗？', '提示', {}).then(() => {
+							this.repairLoading = true;
+							editOrder(this.repairForm).then((res) => {
+								this.repairLoading = false;
+								this.$message({
+									message: '提交成功',
+									type: 'success'
+								});
+								this.getOrders();
+								this.$refs['repairForm'].resetFields();
+								this.repairFormVisible = false;
+							});
+						});
+					}
+				});
+			},
 			//显示开票界面
 			handleInvoice: function (){
 				this.itemListVisible = false;
@@ -560,7 +764,6 @@
 			},
 			//处理物料数量
 			handleBidPriceChange: function(index, row, e){
-				console.log(e);
 				row.bidPrice = Number(e);
 			},
 

@@ -22,52 +22,11 @@
 				    </el-option>
 			  	</el-select>
 			</el-form-item>
-			<el-form-item label="采购组织" prop="org">
-				<el-radio-group v-model="addForm.org">
-			      <el-radio-button label="广西区域"></el-radio-button>
-			      <el-radio-button label="采购中心"></el-radio-button>
-			    </el-radio-group>
-			</el-form-item>
 			<br>
-
-			<el-form-item label="请购人" prop="purchaserId">
-				<el-select v-model="addForm.purchaserId" filterable placeholder="请选择" clearable>
-				    <el-option
-				      v-for="item in purchasers"
-				      :key="item.id"
-				      :label="item.name+item.phone"
-				      :value="item.id">
-				    </el-option>
-			  	</el-select>
+			<el-form-item label="备注" prop="remark">
+				<el-input type="textarea" placeholder="采购、请购人、区域" v-model="addForm.remark" clearable></el-input>
 			</el-form-item>
-			<el-form-item label="采购员" prop="buyerId">
-				<el-select v-model="addForm.buyerId" filterable placeholder="请选择" clearable>
-				    <el-option
-				      v-for="item in buyers"
-				      :key="item.id"
-				      :label="item.name+item.phone"
-				      :value="item.id">
-				    </el-option>
-			  	</el-select>
-			</el-form-item>
-			<el-form-item label="仓库" prop="stockerId">
-				<el-select v-model="addForm.stockerId" filterable placeholder="请选择" clearable>
-				    <el-option
-				      v-for="item in stockers"
-				      :key="item.id"
-				      :label="item.name+item.phone"
-				      :value="item.id">
-				    </el-option>
-			  	</el-select>
-			</el-form-item>
-			<br>
-
-			<el-form-item label="订单编号" prop="cdSn">
-				<el-input v-model="addForm.cdSn" :maxlength="12"></el-input>
-			</el-form-item>
-			<el-form-item label="请购编号" prop="qgSn">
-				<el-input v-model="addForm.qgSn" :maxlength="12"></el-input>
-			</el-form-item>
+			
 			<el-button type="primary"  @click="showItemList">物料列表</el-button>
 
 			<!-- 订单物料列表 -->
@@ -150,7 +109,7 @@
 	import util from '../../common/js/util'
 	import qs from 'qs'
 	//import NProgress from 'nprogress'
-	import { addOrder, getItemList, getPurchaserList, getPurchaserListByRole, getProviderList, getDemanderList} from '../../api/api';
+	import { addOrder, getItemList, getProviderList, getDemanderList} from '../../api/api';
 	export default {
 		data() {
 			return {
@@ -182,51 +141,36 @@
 
 				//校验规则
 				addFormRules: {
-					cdSn: [
-						{ required: true, message: '请输入订单编号', trigger: 'blur' },
-						{ min: 12, message: '请输入12位订单编号'}
-					],
-					qgSn: [
-						{ required: true, message: '请输入请购编号', trigger: 'blur' },
-						{ min: 12, message: '请输入12位请购编号'}
-					],
 					providerId: [
 						{ required: true, message: '请选择供应商', trigger: 'blur', type: 'number'}
 					],
 					demanderId: [
-						{ required: true, message: '请选择需求公司', trigger: 'blur', type: 'number' }
+						{ required: true, message: '请选择需求公司', trigger: 'blur', type: 'number'}
 					],
-					purchaserId: [
-						{ required: true, message: '请选择请购人', trigger: 'blur', type: 'number' }
-					],
-					buyerId: [
-						{ required: true, message: '请选择采购员', trigger: 'blur', type: 'number' }
-					],
-					stockerId: [
-						{ required: true, message: '请选择仓库签字人', trigger: 'blur', type: 'number' }
+					remark: [
+						{ required: true, message: '请备注相应采购、请购人、区域', trigger: 'blur'}
 					]
 				},
 
 				//新增界面数据
 				addForm: {
-					cdSn: 'CD',
-					qgSn: 'QG',
+					status: 9,
+					cdSn: '',
+					qgSn: '',
 					providerId: '',
 					demanderId: '',
-					purchaserId: '',
-					buyerId: '',
-					stockerId: '',
+					purchaserId: 0,
+					buyerId: 0,
+					stockerId: 0,
 					sum: 0,
 					org: '广西区域',
 					itemList: []
 				},
-
 				count:0
 			}
 		},
 		methods: {
 			formatDate: function (row, column) {
-				// return util.formatDate.format(new Date(row.createTime),"yyyy-MM-dd");
 				return new Date(row.endTime).toLocaleDateString();
 			},
 			//获取物料倩价列表
@@ -244,33 +188,6 @@
 					this.total = res.data.data.total
 					this.itemsLoading = false;
 					//NProgress.done();
-				});
-			},
-			//获取请购人列表
-			getPurchasers() {
-				let para = {
-					role: 1
-				};
-				getPurchaserListByRole(para).then((res) => {
-					this.purchasers = res.data.data.list
-				});
-			},
-			//获取采购员列表
-			getBuyers() {
-				let para = {
-					role: 2
-				};
-				getPurchaserListByRole(para).then((res) => {
-					this.buyers = res.data.data.list
-				});
-			},
-			//获取仓库签字人列表
-			getStockers() {
-				let para = {
-					role: 3
-				};
-				getPurchaserListByRole(para).then((res) => {
-					this.stockers = res.data.data.list
 				});
 			},
 			//获取供应商列表
@@ -368,9 +285,6 @@
 		},
 		mounted() {
 			this.getProviders();
-			this.getPurchasers();
-			this.getBuyers();
-			this.getStockers();
 			this.getDemanders();
 		}
 	}
