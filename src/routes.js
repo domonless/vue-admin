@@ -35,7 +35,7 @@ let routes = [
     // { path: '/main', component: Main },
     {
         path: '/',
-        redirect: '/item',
+        redirect: '/order',
         hidden: true
     },
     {
@@ -89,7 +89,7 @@ let routes = [
         iconCls: 'fa fa-calculator',//图标样式class
         redirect: '/statistic/query',
         children: [
-            { path: '/statistic/query', component: Statistic, name: '汇总' },
+            { path: '/statistic/query', component: Statistic, name: '收支汇总' },
         ]
     },
     // {

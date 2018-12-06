@@ -86,5 +86,8 @@ export const editDemander = params => { return axios.post(`${base}/demander/upda
 export const removeDemander = params => { return axios.post(`${base}/demander/delete`, params); };
 
 
+//统计
+export const getStatistic = params => { return axios.get(`${base}/statistic/query`, { params: params }); };
+
 
 
