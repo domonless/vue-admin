@@ -23,7 +23,8 @@
 					<el-button type="warning" @click="handleAdd">新增</el-button>
 				</el-form-item>
 				<el-form-item>
-					<el-input id="upload" type="file" size="mini" @change="importFromExcel(this)" accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel"></el-input>
+					<el-button type="primary" v-on:click="uploadClick" >批量导入</el-button>
+					<el-input id="upload" type="file" size="mini" @change="importFromExcel(this)" accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel" style="display:none;"></el-input>
 				</el-form-item>
 			</el-form>
 		</el-col>
@@ -243,6 +244,9 @@
 			}
 		},
 		methods: {
+			uploadClick(){
+				document.getElementById("upload").click();
+			},
 			//导入excel数据
 			importFromExcel: function(obj) {
 		        let _this = this;
@@ -300,12 +304,21 @@
 		                    itemListStr: JSON.stringify(arr)
 		                    // withList: arr
 		                }
-		                _this.$message({
-		                    message: '请耐心等待导入成功',
-		                    type: 'success'
-		                });
 		                batAddItem(qs.stringify(para)).then(res => {
-		                    _this.getItems();
+		                	if (res.data.code !== 200) {
+				                _this.$message({
+				                  message: '上传失败，请检查文档格式',
+				                  type: 'error'
+				                });
+				              } else {
+				                _this.$message({
+				                  message: '上传成功',
+				                  type: 'success'
+				                });
+				                _this.getItems();
+				                document.getElementById("upload").value = '';
+				              }
+		                    
 		                })
 		                
 		            }
@@ -349,23 +362,19 @@
                     providerId:this.filters.providerId	
 				};
 				this.listLoading = true;
-				//NProgress.start();
 				getItemList(para).then((res) => {
 					this.items = res.data.data.list
                     this.page = res.data.data.pageNum == 0 ? res.data.data.pageNum +1 : res.data.data.pageNum
                     this.total = res.data.data.total
 					this.listLoading = false;
-					//NProgress.done();
 				});
 			},
 			//获取供应商列表
 			getProviders() {
 				let para = {
 				};
-				//NProgress.start();
 				getProviderList(para).then((res) => {
 					this.providers = res.data.data.list
-					//NProgress.done();
 				});
 			},
 			//删除

@@ -47,6 +47,15 @@
 		          <el-form-item label="采购员:">
 		            <span>{{ props.row.buyer }}</span>
 		          </el-form-item>
+		          <el-form-item label="请购人:">
+		            <span>{{ props.row.purchaser }}</span>
+		          </el-form-item>
+		          <el-form-item label="仓库:">
+		            <span>{{ props.row.stocker }}</span>
+		          </el-form-item>
+		          <el-form-item label="供货商:">
+		            <span>{{ props.row.provider }}</span>
+		          </el-form-item>
 		        </el-form>
 		      </template>
 		    </el-table-column>
@@ -54,25 +63,19 @@
 			</el-table-column>
 			<!-- <el-table-column prop="qgSn" label="请购编号" width="120">
 			</el-table-column> -->
-			<el-table-column prop="provider" label="供货商" width="250" sortable>
-			</el-table-column>
+			<!-- <el-table-column prop="provider" label="供货商" width="250" sortable>
+			</el-table-column> -->
 			<el-table-column prop="demander" label="需求公司" width="300" sortable>
 			</el-table-column>
-			<!-- <el-table-column prop="org" label="采购组织" width="100">
-			</el-table-column>
-			<el-table-column prop="buyer" label="采购员" width="150">
-			</el-table-column> -->
-			<el-table-column prop="purchaser" label="请购人" width="150">
+			<!-- <el-table-column prop="purchaser" label="请购人" width="150">
 			</el-table-column>
 			<el-table-column prop="stocker" label="仓库" width="150">
-			</el-table-column>
+			</el-table-column> -->
 			<el-table-column prop="sum" label="总金额" width="90">
 			</el-table-column>
 			<el-table-column prop="createTime" label="下单时间" width="100" :formatter="formatDate">
 			</el-table-column>
 			<el-table-column prop="status" label="订单状态" width="90" :formatter="formatStatus">
-			</el-table-column>
-			<el-table-column prop="remark" label="备注" width="100">
 			</el-table-column>
 			<el-table-column label="操作" width="240">
 				<template scope="scope">
@@ -80,6 +83,8 @@
 					<el-button type="danger" size="small" @click="handleDel(scope.$index, scope.row)">删除</el-button>
 					<el-button type="primary" size="small" @click="handleRemark(scope.$index, scope.row)">备注</el-button>
 				</template>
+			</el-table-column>
+			<el-table-column prop="remark" label="备注" width="100">
 			</el-table-column>
 		</el-table>
 
