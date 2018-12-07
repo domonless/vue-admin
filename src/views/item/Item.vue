@@ -101,7 +101,8 @@
 					  accept=".jpg,.jpeg,.png,.gif,.bmp,.pdf,.JPG,.JPEG,.PBG,.GIF,.BMP,.PDF"
 					  :http-request="uploadImg"
 					  :show-file-list="false">
-					  <img v-if="editForm.imgurl && this.uploadFlag == false" :src="editForm.imgurl" class="avatar">
+					  <pdf v-if="editForm.imgurl && this.uploadFlag == false && editForm.imgurl.endsWith('.pdf')" :src="editForm.imgurl" class="avatar"></pdf>
+					  <img v-if="editForm.imgurl && this.uploadFlag == false && !editForm.imgurl.endsWith('.pdf')" :src="editForm.imgurl" class="avatar">
 					  <i v-else-if="!editForm.imgurl && this.uploadFlag == false" class="el-icon-plus avatar-uploader-icon"></i>
 					  <el-progress v-if="this.uploadFlag" type="circle" :percentage="uploadPercent" style="margin-top:30px;"></el-progress>
 					</el-upload>
@@ -409,10 +410,15 @@
 				};
 			},
     		handlePrint: function (index, row) {
-    			var printHtml = "<img src='" + row.imgurl + "' />";
-			    let newWindow = window.open("",'newwindow');
-				newWindow.document.body.innerHTML = printHtml;
-				setTimeout(function(){ newWindow.print();}, 500);
+    			let newWindow=""
+    			if(row.imgurl.endsWith('.pdf')){
+				    newWindow = window.open(row.imgurl);
+    			}else{
+    				var printHtml = "<img src='" + row.imgurl + "' />";
+					newWindow = window.open("",'newwindow');
+					newWindow.document.body.innerHTML = printHtml;
+					setTimeout(function(){ newWindow.print();}, 500);
+    			}
     		},
     		//物料相关订单
     		handleRelated: function (index, row) {
@@ -429,24 +435,20 @@
 			editSubmit: function () {
 				this.$refs.editForm.validate((valid) => {
 					if (valid) {
-						// this.$confirm('确认提交吗？', '提示', {}).then(() => {
-							this.editLoading = true;
-							//NProgress.start();
-							let para = Object.assign({}, this.editForm);
-							para.createTime = undefined;
-							para.updateTime = undefined;
-							editItem(qs.stringify(para)).then((res) => {
-								this.editLoading = false;
-								//NProgress.done();
-								this.$message({
-									message: '提交成功',
-									type: 'success'
-								});
-								this.getItems();
-								this.$refs['editForm'].resetFields();
-								this.editFormVisible = false;
+						this.editLoading = true;
+						let para = Object.assign({}, this.editForm);
+						para.createTime = undefined;
+						para.updateTime = undefined;
+						editItem(qs.stringify(para)).then((res) => {
+							this.editLoading = false;
+							this.$message({
+								message: '提交成功',
+								type: 'success'
 							});
-						// });
+							this.getItems();
+							this.$refs['editForm'].resetFields();
+							this.editFormVisible = false;
+						});
 					}
 				});
 			},
@@ -454,20 +456,18 @@
 			addSubmit: function () {
 				this.$refs.addForm.validate((valid) => {
 					if (valid) {
-							this.addLoading = true;
-							//NProgress.start();
-							let para = Object.assign({}, this.addForm);
-							addItem(qs.stringify(para)).then((res) => {
-								this.addLoading = false;
-								//NProgress.done();
-								this.$message({
-									message: '提交成功',
-									type: 'success'
-								});
-								this.$refs['addForm'].resetFields();
-								this.addFormVisible = false;
-								this.getItems();
+						this.addLoading = true;
+						let para = Object.assign({}, this.addForm);
+						addItem(qs.stringify(para)).then((res) => {
+							this.addLoading = false;
+							this.$message({
+								message: '提交成功',
+								type: 'success'
 							});
+							this.$refs['addForm'].resetFields();
+							this.addFormVisible = false;
+							this.getItems();
+						});
 					}
 				});
 			},
@@ -481,11 +481,9 @@
 					type: 'warning'
 				}).then(() => {
 					this.listLoading = true;
-					//NProgress.start();
 					let para = { ids: ids };
 					batchRemoveItem(qs.stringify(para)).then((res) => {
 						this.listLoading = false;
-						//NProgress.done();
 						this.$message({
 							message: '删除成功',
 							type: 'success'
@@ -496,23 +494,6 @@
 
 				});
 			},
-
-			// uploadProcess(event, file, fileList){
-			// 	this.uploadPercent = 0;
-			//     this.uploadFlag = true;
-			//     let _this = this;
-			//     clearInterval(this.time);
-			//     this.time = setInterval(function(){  
-		 //           if(_this.uploadPercent<100){
-		 //               _this.uploadPercent += 2;//进程条
-		 //           }else{                 
-		 //           }          
-		 //        },100)
-			// },
-			// uploadSuccess(response, file, fileList) {
-			// 	this.uploadFlag = false;
-			// 	this.editForm.imgurl = response.data;
-   //  		}
 		},
 		mounted() {
 			this.getItems();
