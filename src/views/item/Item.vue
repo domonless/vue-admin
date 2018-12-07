@@ -23,11 +23,19 @@
 					<el-button type="warning" @click="handleAdd">新增</el-button>
 				</el-form-item>
 				<el-form-item>
-					<el-button type="primary" v-on:click="uploadClick" >批量导入</el-button>
+					<el-button type="primary" @click="isItemsBatAddShow =true" >批量导入</el-button>
 					<el-input id="upload" type="file" size="mini" @change="importFromExcel(this)" accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel" style="display:none;"></el-input>
 				</el-form-item>
 			</el-form>
 		</el-col>
+
+		<!--批量导入界面-->
+		<el-dialog title="批量导入" :visible.sync="isItemsBatAddShow" :close-on-click-modal="false" width="30%">
+			<font color="red"><b>请按照模版中的格式进行填写，文件后缀为.xlsx&nbsp;&nbsp;&nbsp;&nbsp;</b></font>
+			<a href="http://bapi.kyb66.com/xlsx/itemTemplate/物料批量上传模板.xlsx" target="_blank" style="font-size:18px;color:#CD6839;">下载模版</a>
+			&nbsp;
+			<a href="javascript:void();" @click="uploadClick" style="font-size:18px;color:green">立即上传</a>
+		</el-dialog>
 
 		<!--列表-->
 		<el-table :data="items" highlight-current-row v-loading="listLoading" @selection-change="selsChange" style="width: 100%;">
@@ -239,8 +247,9 @@
 					// providerId: 0,
 					startTime: new Date(),
 					endTime: new Date(new Date().getTime() + 365*24*60*60*1000)
-				}
+				},
 
+				isItemsBatAddShow: false
 			}
 		},
 		methods: {
