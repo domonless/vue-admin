@@ -3,7 +3,7 @@
 		<el-form :model="addForm" label-width="80px" :rules="addFormRules" ref="addForm" :inline="true">
 			<br>
 			<el-form-item label="供应商" prop="providerId">
-				<el-select v-model="addForm.providerId" placeholder="请选择" clearable>
+				<el-select v-model="addForm.providerId" placeholder="请选择" @change="providerChangeHandler" clearable>
 				    <el-option
 				      v-for="item in providers"
 				      :key="item.id"
@@ -162,7 +162,7 @@
 				page: 1,
 				filters: {
 					name: '',
-					providerId: 1
+					providerId: ''
 				},
 
 				//供应商
@@ -365,6 +365,9 @@
 			handleItemCountChange: function(index, row, e){
 				row.count = Number(e);
 			},
+			providerChangeHandler(){
+				this.filters.providerId = this.addForm.providerId
+			}
 		},
 		mounted() {
 			this.getProviders();

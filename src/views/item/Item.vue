@@ -23,7 +23,7 @@
 					<el-button type="warning" @click="handleAdd">新增</el-button>
 				</el-form-item>
 				<el-form-item>
-					<el-button type="primary" @click="isItemsBatAddShow =true" >批量导入</el-button>
+					<el-button type="primary" @click="isItemsBatAddShow=true" >批量导入</el-button>
 					<el-input id="upload" type="file" size="mini" @change="importFromExcel(this)" accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel" style="display:none;"></el-input>
 				</el-form-item>
 			</el-form>
@@ -34,7 +34,7 @@
 			<font color="red"><b>请按照模版中的格式进行填写，文件后缀为.xlsx&nbsp;&nbsp;&nbsp;&nbsp;</b></font>
 			<a href="http://bapi.kyb66.com/xlsx/itemTemplate/物料批量上传模板.xlsx" target="_blank" style="font-size:18px;color:#CD6839;">下载模版</a>
 			&nbsp;
-			<a href="javascript:void();" @click="uploadClick" style="font-size:18px;color:green">立即上传</a>
+			<a href="javascript:void(0);" @click="uploadClick" style="font-size:18px;color:green">立即上传</a>
 		</el-dialog>
 
 		<!--列表-->
@@ -254,6 +254,7 @@
 		},
 		methods: {
 			uploadClick(){
+				this.isItemsBatAddShow = false;
 				document.getElementById("upload").click();
 			},
 			//导入excel数据
