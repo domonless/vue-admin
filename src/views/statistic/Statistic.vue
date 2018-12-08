@@ -24,7 +24,7 @@
 		<el-col>
 			<div id="chartPie" style="width:50%; height:400px;"></div>
 		</el-col>
-		毛利：{{totalSum-bidSum-feeSum}}元
+		毛利：{{gross}}元
 
 	</section>
 </template>
@@ -43,6 +43,7 @@
 				totalSum:0,
 				bidSum:0,
 				feeSum:0,
+				gross:0,
 
 				pickerOptions: {
 		          shortcuts: [{
@@ -96,6 +97,7 @@
 							this.totalSum = res.data.data.totalSum
 							this.bidSum = res.data.data.bidSum
 							this.feeSum = res.data.data.feeSum
+							this.gross = util.formatNumber(this.totalSum - this.bidSum - this.feeSum)
 							this.drawPieChart();
 							this.queryLoading = false;
 						}
@@ -149,6 +151,7 @@
 			
 		},
 		mounted() {
+			this.drawPieChart();
 		}
 	}
 
