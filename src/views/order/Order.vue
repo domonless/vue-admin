@@ -6,8 +6,8 @@
 				<el-form-item>
 					<el-input v-model="filters.cdSn" placeholder="订单号" @input="getOrders"></el-input>
 				</el-form-item>
-				<el-form-item label="供应商" prop="providerId">
-					<el-select v-model="filters.providerId" placeholder="请选择" @change="getOrders" clearable >
+				<el-form-item prop="providerId">
+					<el-select v-model="filters.providerId" placeholder="供货商" @change="getOrders" clearable >
 					    <el-option
 					      v-for="item in providers"
 					      :key="item.id"
@@ -16,8 +16,11 @@
 					    </el-option>
 					</el-select>
 				</el-form-item>
-				<el-form-item label="状态" prop="status">
-					<el-select v-model="filters.status" placeholder="请选择" @change="getOrders" clearable >
+				<el-form-item>
+					<el-input v-model="filters.demander" placeholder="需求公司" @input="getOrders"></el-input>
+				</el-form-item>
+				<el-form-item prop="status">
+					<el-select v-model="filters.status" placeholder="订单状态" @change="getOrders" clearable >
 					    <el-option
 					      v-for="item in status"
 					      :key="item.value"
@@ -34,6 +37,7 @@
 				</el-form-item>
 			</el-form>
 		</el-col>
+
 		<!--列表-->
 		<el-table :data="orders" highlight-current-row v-loading="listLoading" style="width: 100%;">
 			<el-table-column type="index" width="60">
@@ -77,14 +81,15 @@
 			</el-table-column>
 			<el-table-column prop="status" label="订单状态" width="90" :formatter="formatStatus">
 			</el-table-column>
-			<el-table-column label="操作" width="240">
-				<template scope="scope">
-					<el-button type="info" size="small" @click="handleView(scope.$index, scope.row)">查看</el-button>
-					<el-button type="danger" size="small" @click="handleDel(scope.$index, scope.row)">删除</el-button>
-					<el-button type="primary" size="small" @click="handleRemark(scope.$index, scope.row)">备注</el-button>
-				</template>
+			<el-table-column prop="remark" label="备注" width="200">
 			</el-table-column>
-			<el-table-column prop="remark" label="备注" width="100">
+			<el-table-column label="操作" width="300">
+				<template scope="scope">
+					<el-button type="info" size="small" :disabled="scope.row.url==''" @click="handlePdfPrint(scope.$index, scope.row)">订单</el-button>
+					<el-button type="primary" size="small" @click="handleRemark(scope.$index, scope.row)">编辑</el-button>
+					<el-button type="warning" size="small" @click="handleView(scope.$index, scope.row)">物料</el-button>
+					<el-button type="danger" size="small" @click="handleDel(scope.$index, scope.row)">删除</el-button>
+				</template>
 			</el-table-column>
 		</el-table>
 
@@ -97,6 +102,18 @@
 		<!--备注界面-->
 		<el-dialog title="编辑" :visible.sync="editFormVisible" :close-on-click-modal="false">
 			<el-form :model="editForm" label-width="80px" ref="editForm">
+				<el-form-item label="PDF" prop="url">
+					<el-upload
+					  class="avatar-uploader"
+					  action=""
+					  accept=".pdf,.PDF"
+					  :http-request="uploadPdf"
+					  :show-file-list="false">
+					  <pdf v-if="editForm.url && this.uploadFlag == false" :src="editForm.url" class="avatar"></pdf>
+					  <i v-else-if="!editForm.url && this.uploadFlag == false" class="el-icon-plus avatar-uploader-icon"></i>
+					  <el-progress v-if="this.uploadFlag" type="circle" :percentage="uploadPercent" style="margin-top:30px;"></el-progress>
+					</el-upload>
+				</el-form-item>
 				<el-form-item label="备注" prop="remark">
 					<el-input v-model="editForm.remark"></el-input>
 				</el-form-item>
@@ -263,6 +280,7 @@
 					    </el-option>
 				  	</el-select>
 				</el-form-item>
+				<br>
 
 				<el-form-item label="订单编号" prop="cdSn">
 					<el-input v-model="repairForm.cdSn" :maxlength="12"></el-input>
@@ -304,13 +322,18 @@
 
 <script>
 	import util from '../../common/js/util'
+	import pdf from 'vue-pdf'
 	import qs from 'qs'
 	import {getLodop} from '../../common/js/LodopFuncs'
 	//import NProgress from 'nprogress'
-	import { getOrderList, editOrder, removeOrder, getOrderDetail, editOrderDetail, getProviderList, getPurchaserList, getPurchaserListByRole, } from '../../api/api';
+	import { getOrderList, editOrder, removeOrder, getOrderDetail, editOrderDetail, getProviderList, getPurchaserList, getPurchaserListByRole, fileOrderUpload} from '../../api/api';
 
 	var LODOP
 	export default {
+		components:
+		{
+			pdf
+		},
 		data() {
 			return {
 				purchasers:[],
@@ -319,6 +342,7 @@
 				filters: {
 					cdSn: '',
 					providerId: '',
+					demander: '',
 					status: ''
 				},
 				status:[
@@ -359,6 +383,9 @@
 				sels: [],//列表选中列
 				selectStatus: 0,//选中列的订单状态
 
+				//图片上传
+				uploadFlag: false,
+				uploadPercent:0,
 
 				//查看页面
 				itemListVisible: false,//查看页面是否显示
@@ -461,6 +488,26 @@
 				// return util.formatDate.format(new Date(row.createTime),"yyyy-MM-dd");
 				return new Date(row.createTime).toLocaleDateString();
 			},
+			//上传pdf
+			uploadPdf(content){
+		    	this.uploadPercent = 0;
+			    this.uploadFlag = true;
+			    let _this = this;
+			    clearInterval(this.time);
+			    this.time = setInterval(function(){  
+		           if(_this.uploadPercent<100){
+		               _this.uploadPercent += 25;//进程条
+		           }else{                 
+		           }          
+		        },100)
+
+		    	var formData = new FormData();
+		    	formData.append("file", content.file);
+		    	fileOrderUpload(formData).then((res) => {
+			        this.uploadFlag = false;
+					this.editForm.url = res.data.data;
+		    	});
+		    },
 			//获取请购人列表
 			getPurchasers() {
 				let para = {
@@ -535,6 +582,7 @@
                     size:20,
                     cdSn:this.filters.cdSn,
                     providerId:this.filters.providerId,
+                    demander:this.filters.demander,
                     status:this.filters.status
 				};
 				this.listLoading = true;
@@ -575,6 +623,9 @@
 				newWindow.document.body.innerHTML = printHtml;
 				setTimeout(function(){ newWindow.print();}, 500);
     		},
+    		handlePdfPrint: function (index, row) {
+    			window.open(row.url);
+    		},
 			//删除
 			handleDel: function (index, row) {
 				this.$confirm('确认删除该记录吗?', '提示', {
@@ -605,7 +656,11 @@
 			//编辑
 			editSubmit: function () {
 				this.editLoading = true;
-				let para = { id: this.editForm.id, remark: this.editForm.remark };
+				let para = { 
+					id: this.editForm.id, 
+					remark: this.editForm.remark,
+					url: this.editForm.url 
+				};
 				editOrder(qs.stringify(para)).then((res) => {
 					this.editLoading = false;
 					this.$message({
@@ -1008,5 +1063,38 @@
     margin-right: 0;
     margin-bottom: 0;
     width: 50%;
+  }
+
+  .avatar-uploader{
+ 	width: 178px;
+    height: 178px;
+    border: 1px dashed #d9d9d9;
+    border-radius: 6px;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+  }
+  .avatar-uploader:hover {
+    border-color: #409EFF;
+  }
+  .avatar-uploader-icon {
+    font-size: 28px;
+    color: #8c939d;
+    width: 178px;
+    height: 178px;
+    line-height: 178px;
+    text-align: center;
+  }
+  .avatar {
+    width: 178px;
+    height: 178px;
+    display: block;
+  }
+  .signImg {
+    width: 50px;
+    height: 80px;
+  }
+  .el-upload {
+  	margin-left: 25px;
   }
 </style>

@@ -106,7 +106,7 @@
 				<el-form-item label="图片" prop="imgurl">
 					<el-upload
 					  class="avatar-uploader"
-					  action="http://bapi.kyb66.com/file/upload"
+					  action=""
 					  accept=".jpg,.jpeg,.png,.gif,.bmp,.pdf,.JPG,.JPEG,.PBG,.GIF,.BMP,.PDF"
 					  :http-request="uploadImg"
 					  :show-file-list="false">
@@ -152,10 +152,10 @@
 					<el-input-number v-model="addForm.price" :min="0" :max="99999"></el-input-number>
 				</el-form-item>
 				<el-form-item label="起始时间" prop="startTime">
-					<el-date-picker type="date" placeholder="选择日期" v-model="addForm.startTime" @change="addForm.startTime=$event"></el-date-picker>
+					<el-date-picker type="datetime" placeholder="选择日期" v-model="addForm.startTime" value-format="yyyy-MM-dd" format="yyyy-MM-dd"></el-date-picker>
 				</el-form-item>
 				<el-form-item label="截止时间" prop="endTime">
-					<el-date-picker type="date" placeholder="选择日期" v-model="addForm.endTime" @change="addForm.endTime=$event"></el-date-picker>
+					<el-date-picker type="datetime" placeholder="选择日期" v-model="addForm.endTime" value-format="yyyy-MM-dd" format="yyyy-MM-dd"></el-date-picker>
 				</el-form-item>
 			</el-form>
 			<div slot="footer" class="dialog-footer">
@@ -172,7 +172,7 @@
 	import qs from 'qs'
 	import axios from 'axios'
 	//import NProgress from 'nprogress'
-	import { getItemList, addItem, editItem, removeItem, batAddItem, batchRemoveItem, getProviderList, getOrdersByItemId, fileUpload } from '../../api/api';
+	import { getItemList, addItem, editItem, removeItem, batAddItem, batchRemoveItem, getProviderList, getOrdersByItemId, fileItemUpload } from '../../api/api';
 	export default {
 		components:
 		{
@@ -238,15 +238,6 @@
 				},
 				//新增界面数据
 				addForm: {
-					itemNumber: '',
-					name: '',
-					brand: '/',
-					form: '',
-					unit: '',
-					price: 0,
-					// providerId: 0,
-					startTime: new Date(),
-					endTime: new Date(new Date().getTime() + 365*24*60*60*1000)
 				},
 
 				isItemsBatAddShow: false
@@ -354,7 +345,7 @@
 
 		    	var formData = new FormData();
 		    	formData.append("file", content.file);
-		    	fileUpload(formData).then((res) => {
+		    	fileItemUpload(formData).then((res) => {
 			        this.uploadFlag = false;
 					this.editForm.imgurl = res.data.data;
 		    	});

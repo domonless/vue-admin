@@ -33,8 +33,8 @@ export const batchRemoveItem = params => { return axios.post(`${base}/item/batDe
 
 export const getOrdersByItemId = params => { return axios.get(`${base}/item/orders`, { params: params }); };
 
-//上传图片
-export const fileUpload = params => { return axios.post(`${base}/file/upload`, params); };
+//上传物料图片
+export const fileItemUpload = params => { return axios.post(`${base}/file/item/upload`, params); };
 
 
 //订单
@@ -49,6 +49,9 @@ export const removeOrder = params => { return axios.post(`${base}/order/delete`,
 export const getOrderDetail = params => { return axios.post(`${base}/order/detail`, params); };
 
 export const editOrderDetail = params => { return axios.post(`${base}/order/detail/edit`, params); };
+
+export const fileOrderUpload = params => { return axios.post(`${base}/file/order/upload`, params); };
+
 
 //送货单
 export const getDeliveryOrderList = params => { return axios.get(`${base}/deliveryOrder/list`, { params: params }); };
