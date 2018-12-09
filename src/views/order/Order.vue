@@ -337,7 +337,7 @@
 		data() {
 			return {
 				//a4纸
-				height:1092,
+				height:1089,
 				pageSize:20,
 				pages:0,
 
@@ -947,7 +947,7 @@
 				//--行内容
 				let sum = 0;
 				let restCount = this.sels.length - page*this.pageSize;
-				for (let j = page*this.pageSize; j <  (restCount<this.pageSize?restCount:this.pageSize*(page+1)); j++) {
+				for (let j = page*this.pageSize; j <  (restCount<this.pageSize?this.sels.length:this.pageSize*(page+1)); j++) {
 					let i = j+1;
 					let item = this.sels[j];
 					LODOP.ADD_PRINT_TEXT(page*this.height+213+25*i-500*page,95,50,20,i);
@@ -979,6 +979,7 @@
 					LODOP.SET_PRINT_STYLEA(0,"Alignment",2);
 					sum += (item.count*item.price);
 				}
+				sum = util.formatNumber(sum);
 				//格子画线
 				let j = this.pageSize;
 				for (let i = 1; i <= j; i++) {

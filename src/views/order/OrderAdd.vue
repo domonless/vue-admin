@@ -344,10 +344,11 @@
 				if(row.count == 0){
 					row.count++;
 				}
+				let addItem = Object.assign({}, row);
 				//加入订单队列
-				this.addForm.itemList.push(row);
+				this.addForm.itemList.push(addItem);
 				//计算金额
-				let sum = this.addForm.sum + (row.price * row.count);
+				let sum = this.addForm.sum + (addItem.price * addItem.count);
 				this.count += row.count;
 				this.addForm.sum = util.formatNumber(sum);
 			},
