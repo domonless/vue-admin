@@ -4,16 +4,24 @@ import md5 from 'js-md5'
 axios.defaults.headers.common['Content-Type'] = 'application/json;charset=UTF-8';
 let base = 'http://bapi.kyb66.com';
 // let base = 'http://bgy.test.kyb66.com';
-// let base = 'http://192.168.1.3:8081';
+// let base = 'http://192.168.1.3:8080';
 
 const getSign = function(timestamp){
   const signStr = timestamp + "Potato"
   return md5(signStr)
 }
 const timestamp = new Date().getTime()
+axios.defaults.headers.userId = JSON.parse(localStorage.getItem('user')).id;
 axios.defaults.headers.tm = timestamp
 axios.defaults.headers.sign = getSign(timestamp)
 
+
+
+//rsa
+export const getRsa = params => { return axios.get(`${base}/auth/rsa`, { params: params }); };
+
+//登陆
+export const login = params => { return axios.post(`${base}/auth/login`, params); };
 
 export const requestLogin = params => { return axios.post(`/login`, params).then(res => res.data); };
 

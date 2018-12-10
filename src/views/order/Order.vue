@@ -356,7 +356,7 @@
 	import qs from 'qs'
 	import {getLodop} from '../../common/js/LodopFuncs'
 	//import NProgress from 'nprogress'
-	import { getOrderList, editOrder, removeOrder, getOrderDetail, editOrderDetail, getProviderList, getPurchaserList, getPurchaserListByRole, fileOrderUpload} from '../../api/api';
+	import { userId, getOrderList, editOrder, removeOrder, getOrderDetail, editOrderDetail, getProviderList, getPurchaserList, getPurchaserListByRole, fileOrderUpload} from '../../api/api';
 
 	var LODOP
 	export default {
@@ -640,7 +640,9 @@
 			},
 			//根据订单号获取物料签价列表
 			getItemsByOrderId(orderId) {
-				let para = { id: orderId };
+				let para = { 
+					id: orderId 
+				};
 				this.itemsLoading = true;
 				getOrderDetail(qs.stringify(para)).then((res) => {
 					this.items = res.data.data
@@ -650,7 +652,6 @@
 			},
 			//查看送货单
 			handleDeliveryOrder: function(index, row){
-				console.log(this.sels);
 				this.getItemsByOrderId(row.id)
 				this.deliveryOrderVisible = true
 				this.sendForm = Object.assign({}, row);

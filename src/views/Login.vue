@@ -1,91 +1,91 @@
 <template>
-  <el-form :model="ruleForm2" :rules="rules2" ref="ruleForm2" label-position="left" label-width="0px" class="demo-ruleForm login-container">
+  <el-form :model="ruleForm" :rules="rules" ref="ruleForm" label-position="left" label-width="0px" class="demo-ruleForm login-container">
     <h3 class="title">系统登录</h3>
-    <el-form-item prop="account">
-      <el-input type="text" v-model="ruleForm2.account" auto-complete="off" placeholder="账号"></el-input>
+    <el-form-item prop="loginName">
+      <el-input type="text" v-model="ruleForm.loginName" auto-complete="off" placeholder="账号"></el-input>
     </el-form-item>
-    <el-form-item prop="checkPass">
-      <el-input type="password" v-model="ruleForm2.checkPass" auto-complete="off" placeholder="密码" @keyup.enter.native="handleSubmit2"></el-input>
+    <el-form-item prop="password">
+      <el-input type="password" v-model="ruleForm.password" auto-complete="off" placeholder="密码" @keyup.enter.native="handleSubmit"></el-input>
     </el-form-item>
     <el-checkbox v-model="checked" checked class="remember">记住密码</el-checkbox>
     <el-form-item style="width:100%;">
-      <el-button type="primary" style="width:100%;" @click.native.prevent="handleSubmit2" :loading="logining">登录</el-button>
+      <el-button type="primary" style="width:100%;" @click.native.prevent="handleSubmit" :loading="logining">登录</el-button>
       <!--<el-button @click.native.prevent="handleReset2">重置</el-button>-->
     </el-form-item>
   </el-form>
 </template>
 
 <script>
-  import { requestLogin } from '../api/api';
+  import { requestLogin, getRsa, login } from '../api/api';
+  import qs from 'qs'
   import { LoginUsers} from '../mock/data/user';
-  //import NProgress from 'nprogress'
+  import { BigInteger } from 'jsbn'
+  import { JSEncrypt } from 'jsencrypt'
+  import hexabase from 'hexabase'
+  const getPasswordByRsa = (rsa, password) => {
+    const passEncrypt = new JSEncrypt()
+    passEncrypt.setKey({
+      n: new BigInteger(rsa.m, 16),
+      e: parseInt(rsa.p, 16)
+    })
+    return hexabase({
+      to: 'hex',
+      data: passEncrypt.encrypt(password)
+    })
+  }
   export default {
     data() {
       return {
         logining: false,
-        ruleForm2: {
-          account: 'admin',
-          checkPass: ''
+        ruleForm: {
+          loginName: '',
+          password: ''
         },
-        rules2: {
-          account: [
+        rules: {
+          loginName: [
             { required: true, message: '请输入账号', trigger: 'blur' },
-            //{ validator: validaePass }
           ],
-          checkPass: [
+          password: [
             { required: true, message: '请输入密码', trigger: 'blur' },
-            //{ validator: validaePass2 }
           ]
         },
         checked: true
       };
     },
     methods: {
-      handleReset2() {
-        this.$refs.ruleForm2.resetFields();
+      handleReset() {
+        this.$refs.ruleForm.resetFields();
       },
-      validatePassWord(loginParams){
-          let username = loginParams.username;
-          let password = loginParams.password;
-          return new Promise((resolve, reject) => {
-            let user = null;
-            setTimeout(() => {
-              let hasUser = LoginUsers.some(u => {
-                if (u.username === username && u.password === password) {
-                  user = JSON.parse(JSON.stringify(u));
+      handleSubmit(ev) {
+        var _this = this;
+        this.$refs.ruleForm.validate((valid) => {
+          if (valid) {
+            //获取rsa
+            getRsa().then(data => {
+              this.logining = true;
+              //登陆
+              login(qs.stringify({ 
+                loginName: this.ruleForm.loginName, 
+                password: getPasswordByRsa(data.data.data,this.ruleForm.password),
+                m:data.data.data.m,
+                p:data.data.data.p
+              })).then(data => {
+                this.logining = false;
+                let msg = data.data.message;
+                let code = data.data.code;
+                let user = data.data.data;
+                if (code !== 200) {
+                  this.$message({
+                    message: msg,
+                    type: 'error'
+                  });
+                } else {
+                  // sessionStorage.setItem('user', JSON.stringify(user));
                   user.password = undefined;
-                  return true;
+                  localStorage.user = JSON.stringify(user);
+                  this.$router.push({ path: '/' });
                 }
               });
-              if (hasUser) {
-                resolve({ code: 200, msg: '请求成功', user });
-              } else {
-                resolve({ code: 500, msg: '账号或密码错误' });
-              }
-            }, 1000);
-          });
-      },
-      handleSubmit2(ev) {
-        var _this = this;
-        this.$refs.ruleForm2.validate((valid) => {
-          if (valid) {
-            //_this.$router.replace('/table');
-            this.logining = true;
-            //NProgress.start();
-            var loginParams = { username: this.ruleForm2.account, password: this.ruleForm2.checkPass };
-            this.validatePassWord(loginParams).then(data => {
-              this.logining = false;
-              //NProgress.done();
-              let { msg, code, user } = data;
-              if (code !== 200) {
-                this.$message({
-                  message: msg,
-                  type: 'error'
-                });
-              } else {
-                sessionStorage.setItem('user', JSON.stringify(user));
-                this.$router.push({ path: '/' });
-              }
             });
           } else {
             console.log('error submit!!');
