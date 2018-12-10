@@ -83,12 +83,14 @@
 			</el-table-column>
 			<el-table-column prop="remark" label="备注" width="200">
 			</el-table-column>
-			<el-table-column label="操作" width="300">
+			<el-table-column label="操作" width="330">
 				<template scope="scope">
-					<el-button type="info" size="small" :disabled="scope.row.url==''" @click="handlePdfPrint(scope.$index, scope.row)">订单</el-button>
-					<el-button type="warning" size="small" @click="handleView(scope.$index, scope.row)">物料</el-button>
-					<el-button type="primary" size="small" @click="handleRemark(scope.$index, scope.row)">编辑</el-button>
-					<el-button type="danger" size="small" @click="handleDel(scope.$index, scope.row)">删除</el-button>
+					<!-- <el-button type="warning" @click.native="handleDesign()">设计</el-button>  -->
+					<el-button type="warning" size="small" @click="handleDeliveryOrder(scope.$index, scope.row)">送货单</el-button>
+					<el-button type="danger" size="small" :disabled="scope.row.url==''" @click="handlePdfPrint(scope.$index, scope.row)">pdf</el-button>
+					<el-button type="info" size="small" @click="handleView(scope.$index, scope.row)" icon="el-icon-search" circle></el-button>
+					<el-button type="primary" size="small" @click="handleRemark(scope.$index, scope.row)" icon="el-icon-edit" circle></el-button>
+					<el-button type="danger" size="small" @click="handleDel(scope.$index, scope.row)" icon="el-icon-delete" circle></el-button>
 				</template>
 			</el-table-column>
 		</el-table>
@@ -99,7 +101,7 @@
 			</el-pagination>
 		</el-col>
 
-		<!--备注界面-->
+		<!--编辑界面-->
 		<el-dialog title="编辑" :visible.sync="editFormVisible" :close-on-click-modal="false">
 			<el-form :model="editForm" label-width="80px" ref="editForm">
 				<el-form-item label="PDF" prop="url">
@@ -124,58 +126,86 @@
 			</div>
 		</el-dialog>
 
-		<!--查看界面-->
-		<el-dialog title="查看" :visible.sync="itemListVisible" :close-on-click-modal="false">
+		<!--送货单界面-->
+		<el-dialog title="送货单" :visible.sync="deliveryOrderVisible" :close-on-click-modal="false">
 			<el-table :data="items" ref="viewTable" :span-method="objectSpanMethod" highlight-current-row v-loading="itemsLoading" @selection-change="selsChange" style="width: 100%;" >
-				<el-table-column type="selection" :selectable="checkSelectable" :disable="false" width="40">
+				<el-table-column type="selection" :disable="false" width="40">
 			    </el-table-column>
-			    <el-table-column type="expand">
-			      <template slot-scope="props">
-			        <el-form label-position="left" inline class="demo-table-expand">
-			          <el-form-item label="品牌">
-			            <span>{{ props.row.brand }}</span>
-			          </el-form-item>
-			          <el-form-item label="规格">
-			            <span>{{ props.row.form }}</span>
-			          </el-form-item>
-			          <el-form-item label="发货日期">
-			            <span>{{ props.row.deliveryTime }}</span>
-			          </el-form-item>
-			        </el-form>
-			      </template>
-			    </el-table-column>
+			    <el-table-column label="序号" type="index" width="60">
+				</el-table-column>
 				<el-table-column prop="itemNumber" label="物料编号" width="80">
 				</el-table-column>
-				<el-table-column prop="name" label="物料名称" width="150">
+				<el-table-column prop="name" label="物料名称" width="120">
 				</el-table-column>
-				<el-table-column prop="unit" label="单位" width="70">
+				<el-table-column prop="brand" label="品牌" width="70">
 				</el-table-column>
-				<el-table-column prop="price" label="单价" width="80">
+				<el-table-column prop="form" label="规格" width="200">
+				</el-table-column>
+				<el-table-column prop="unit" label="单位" width="60">
+				</el-table-column>
+				<el-table-column prop="price" label="单价" width="70">
 				</el-table-column>
 				<el-table-column prop="count" label="数量" width="70">
 				</el-table-column>
-				<el-table-column prop="bidPrice" label="进价" width="80">
+				<el-table-column prop="status" label="状态" :formatter="formatStatus" width="70">
 				</el-table-column>
-				<el-table-column prop="status" label="状态" :formatter="formatStatus" width="90">
-				</el-table-column>
-				<el-table-column prop="logisticsSn" label="物流单号" width="100">
-				</el-table-column>
-				<el-table-column label="操作" width="100">
+				<el-table-column label="操作" width="80">
 					<template scope="scope">
-						<el-button size="mini" type="warning" :disabled="scope.row.imgurl==''" @click="handleItemPrint(scope.$index, scope.row)">签价单</el-button>
+						<el-button size="mini" type="warning" :disabled="scope.row.imgurl==''" @click="handleItemPrint(scope.$index, scope.row)">签价</el-button>
 					</template>
 				</el-table-column>
 			</el-table>
 			<div id="footer"></div>
 			<div slot="footer" class="dialog-footer">
-				<!-- <el-button type="warning" @click.native="handleDesign">设计</el-button>  -->
+				<!-- <el-button type="warning" @click.native="handleDesign()">设计</el-button>  -->
+				<el-button type="warning" :disabled="this.sels.length==0" @click="handlePrint()">打印</el-button>
+				<el-button type="danger" @click.native="deliveryOrderVisible=false">取消</el-button>
+			</div>
+		</el-dialog>
+
+		<!--查看界面-->
+		<el-dialog title="查看" :visible.sync="itemListVisible" :close-on-click-modal="false">
+			<el-table :data="items" ref="viewTable" :span-method="objectSpanMethod" highlight-current-row v-loading="itemsLoading" @selection-change="selsChange" style="width: 100%;" >
+				<el-table-column type="selection" :selectable="checkSelectable" :disable="false" width="40">
+			    </el-table-column>
+			    <el-table-column label="序号" type="index" width="60">
+				</el-table-column>
+				<el-table-column prop="itemNumber" label="物料编号" width="80">
+				</el-table-column>
+				<el-table-column prop="name" label="物料名称" width="100">
+				</el-table-column>
+				<el-table-column prop="brand" label="品牌" width="60">
+				</el-table-column>
+				<el-table-column prop="form" label="规格" width="200">
+				</el-table-column>
+				<el-table-column prop="unit" label="单位" width="60">
+				</el-table-column>
+				<el-table-column prop="price" label="单价" width="70">
+				</el-table-column>
+				<el-table-column prop="count" label="数量" width="70">
+				</el-table-column>
+				<el-table-column prop="bidPrice" label="进价" width="70">
+				</el-table-column>
+				<el-table-column prop="status" label="状态" :formatter="formatStatus" width="70">
+				</el-table-column>
+				<el-table-column prop="logisticsSn" label="物流单号" width="100">
+				</el-table-column>
+				<el-table-column prop="deliveryTime" label="发货日期" width="90" :formatter="formatDeliveryDate">
+				</el-table-column>
+				<!-- <el-table-column label="操作" width="80">
+					<template scope="scope">
+						<el-button size="mini" type="warning" :disabled="scope.row.imgurl==''" @click="handleItemPrint(scope.$index, scope.row)">签价</el-button>
+					</template>
+				</el-table-column> -->
+			</el-table>
+			<div id="footer"></div>
+			<div slot="footer" class="dialog-footer">
 				<el-button type="primary" v-if="this.selectStatus===1 && this.sels.length>0" @click.native="handleBuy" :loading="sendLoading">进货</el-button>
 				<el-button type="primary" v-if="this.selectStatus===2 && this.sels.length>0" @click.native="handleSend" :loading="sendLoading">发货</el-button>
 				<el-button type="primary" v-if="this.selectStatus===3 && this.sels.length>0 && this.sendForm.status!=9" @click.native="handleIn" :loading="sendLoading">入库</el-button>
 				<el-button type="primary" v-if="this.selectStatus===3 && this.sels.length>0 && this.sendForm.status==9" @click.native="handleRepair">补单</el-button>
 				<el-button type="primary" v-if="this.selectStatus===4 && this.sels.length>0" @click.native="handleInvoice" :loading="sendLoading">开票</el-button>
 				<el-button type="primary" v-if="this.selectStatus===5 && this.sels.length>0" @click.native="handleReturn" :loading="sendLoading">回款</el-button>
-				<el-button type="warning" @click.native="handlePrint">送货单</el-button>
 				<el-button type="danger" @click.native="itemListVisible=false">取消</el-button>
 			</div>
 		</el-dialog>
@@ -392,6 +422,9 @@
 				uploadFlag: false,
 				uploadPercent:0,
 
+				//送货单界面
+				deliveryOrderVisible: false,//查看页面是否显示
+
 				//查看页面
 				itemListVisible: false,//查看页面是否显示
 				itemsLoading: false,
@@ -488,10 +521,15 @@
 			formatStatus: function (row, column) {
 				return this.getStrByStatus(row.status);
 			},
-			//日期转化
+			//下单日期转化
 			formatDate: function (row, column) {
 				// return util.formatDate.format(new Date(row.createTime),"yyyy-MM-dd");
 				return new Date(row.createTime).toLocaleDateString();
+			},
+			//下单日期转化
+			formatDeliveryDate: function (row, column) {
+				// return util.formatDate.format(new Date(row.createTime),"yyyy-MM-dd");
+				return new Date(row.deliveryTime).toLocaleDateString();
 			},
 			//上传pdf
 			uploadPdf(content){
@@ -610,23 +648,31 @@
 					this.itemsLoading = false;
 				});
 			},
+			//查看送货单
+			handleDeliveryOrder: function(index, row){
+				console.log(this.sels);
+				this.getItemsByOrderId(row.id)
+				this.deliveryOrderVisible = true
+				this.sendForm = Object.assign({}, row);
+			},
 			//查看物料详情
 			handleView: function(index, row){
 				this.getItemsByOrderId(row.id)
 				this.itemListVisible = true
 				this.sendForm = Object.assign({}, row);
 				this.buyForm = Object.assign({}, row);
-
-				// this.items.forEach(item => {
-				// 	this.$refs.viewTable.toggleRowSelection(item,true)
-				// });
 			},
 			//打印
 			handleItemPrint: function (index, row) {
-    			var printHtml = "<img src='" + row.imgurl + "' />";
-			    let newWindow = window.open("",'newwindow');
-				newWindow.document.body.innerHTML = printHtml;
-				setTimeout(function(){ newWindow.print();}, 500);
+				let newWindow=""
+    			if(row.imgurl.endsWith('.pdf')){
+				    window.open(row.imgurl);
+    			}else{
+    				var printHtml = "<img src='" + row.imgurl + "' />";
+					newWindow = window.open("",'newwindow');
+					newWindow.document.body.innerHTML = printHtml;
+					setTimeout(function(){ newWindow.print();}, 500);
+    			}
     		},
     		handlePdfPrint: function (index, row) {
     			window.open(row.url);
@@ -652,7 +698,6 @@
 
 				});
 			},
-			
 			//显示备注界面
 			handleRemark: function (index, row) {
 				this.editFormVisible = true;
@@ -852,7 +897,7 @@
 			},
 			//
 			objectSpanMethod({row, column, rowIndex, columnIndex}){
-		        if(columnIndex === 9){
+		        if(columnIndex === 11){
 		            if(this.spanArr[rowIndex]){
 		                return {
 		                    rowspan:this.spanArr[rowIndex],
@@ -1037,7 +1082,7 @@
 		    handlePrint: function(){
 		    	LODOP=getLodop();  
 				this.initPrintData();
-				if(LODOP.SET_PRINTER_INDEX(1));
+				// if(LODOP.SET_PRINTER_INDEX(1));
 				LODOP.PREVIEW();//打印预览
 		    },
 		    handleDesign: function(){
