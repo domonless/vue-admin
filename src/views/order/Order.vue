@@ -4,7 +4,7 @@
 		<el-col :span="24" class="toolbar" style="padding-bottom: 0px;">
 			<el-form :inline="true" :model="filters">
 				<el-form-item>
-					<el-input v-model="filters.cdSn" placeholder="订单号" @input="getOrders"></el-input>
+					<el-input v-model="filters.cdSn" placeholder="订单号" @input="getOrders" clearable></el-input>
 				</el-form-item>
 				<el-form-item prop="providerId">
 					<el-select v-model="filters.providerId" placeholder="供货商" @change="getOrders" clearable >
@@ -17,7 +17,7 @@
 					</el-select>
 				</el-form-item>
 				<el-form-item>
-					<el-input v-model="filters.demander" placeholder="需求公司" @input="getOrders"></el-input>
+					<el-input v-model="filters.demander" placeholder="需求公司" @input="getOrders" clearable></el-input>
 				</el-form-item>
 				<el-form-item prop="status">
 					<el-select v-model="filters.status" placeholder="订单状态" @change="getOrders" clearable >
