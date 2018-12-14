@@ -19,7 +19,7 @@
 		<el-table :data="providers" highlight-current-row v-loading="listLoading" style="width: 100%;">
 			<el-table-column type="index" label="序号" width="100">
 			</el-table-column>
-			<el-table-column prop="name" label="名称" width="200">
+			<el-table-column prop="name" label="名称" width="300">
 			</el-table-column>
 			<el-table-column prop="master" label="联系人" width="100">
 			</el-table-column>
