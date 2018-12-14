@@ -421,7 +421,11 @@
 				row.count = Number(e);
 			},
 			providerChangeHandler(){
-				this.filters.providerId = this.addForm.providerId
+				this.filters.providerId = this.addForm.providerId;
+				//清空选择的物料
+				this.addForm.itemList = [];
+				this.addForm.sum = 0;
+				this.count = 0;
 			}
 		},
 		mounted() {
