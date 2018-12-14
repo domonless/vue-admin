@@ -84,7 +84,6 @@
 
 <script>
 	import util from '../../common/js/util'
-	import qs from 'qs'
 	import { getPurchaserList, addPurchaser, editPurchaser } from '../../api/api';
 	export default {
 		data() {
@@ -189,10 +188,19 @@
 				};
 				this.listLoading = true;
 				getPurchaserList(para).then((res) => {
-					this.purchasers = res.data.data.list
-                    this.page = res.data.data.pageNum == 0 ? res.data.data.pageNum +1 : res.data.data.pageNum
-                    this.total = res.data.data.total
 					this.listLoading = false;
+					let msg = res.data.msg;
+                	let code = res.data.code;
+					if (code !== 200) {
+	                  this.$message({
+	                    message: msg,
+	                    type: 'error'
+	                  });
+	                } else {
+						this.purchasers = res.data.data.list
+	                    this.page = res.data.data.pageNum == 0 ? res.data.data.pageNum +1 : res.data.data.pageNum
+	                    this.total = res.data.data.total
+	                }
 				});
 			},
             
@@ -207,14 +215,23 @@
 						id: row.id,
 						status: 0
 					};
-					editPurchaser(qs.stringify(para)).then((res) => {
+					editPurchaser(para).then((res) => {
 						this.listLoading = false;
 						//NProgress.done();
-						this.$message({
-							message: '删除成功',
-							type: 'success'
-						});
-						this.getPurchasers();
+						let msg = res.data.msg;
+	                	let code = res.data.code;
+						if (code !== 200) {
+		                  this.$message({
+		                    message: msg,
+		                    type: 'error'
+		                  });
+		                } else {
+							this.$message({
+								message: '删除成功',
+								type: 'success'
+							});
+							this.getPurchasers();
+						}
 					});
 				}).catch(() => {
 
@@ -244,15 +261,24 @@
 					if (valid) {
 						this.editLoading = true;
 						let para = Object.assign({}, this.editForm);
-						editPurchaser(qs.stringify(para)).then((res) => {
+						editPurchaser(para).then((res) => {
 							this.editLoading = false;
-							this.$message({
-								message: '提交成功',
-								type: 'success'
-							});
-							this.getPurchasers();
-							this.$refs['editForm'].resetFields();
 							this.editFormVisible = false;
+							let msg = res.data.msg;
+		                	let code = res.data.code;
+							if (code !== 200) {
+			                  this.$message({
+			                    message: msg,
+			                    type: 'error'
+			                  });
+			                } else {
+								this.$message({
+									message: '提交成功',
+									type: 'success'
+								});
+								this.getPurchasers();
+								this.$refs['editForm'].resetFields();
+							}
 						});
 					}
 				});
@@ -264,16 +290,25 @@
 							this.addLoading = true;
 							//NProgress.start();
 							let para = Object.assign({}, this.addForm);
-							addPurchaser(qs.stringify(para)).then((res) => {
+							addPurchaser(para).then((res) => {
 								this.addLoading = false;
-								//NProgress.done();
-								this.$message({
-									message: '提交成功',
-									type: 'success'
-								});
-								this.$refs['addForm'].resetFields();
 								this.addFormVisible = false;
-								this.getPurchasers();
+								let msg = res.data.msg;
+			                	let code = res.data.code;
+								if (code !== 200) {
+				                  this.$message({
+				                    message: msg,
+				                    type: 'error'
+				                  });
+				                } else {
+									//NProgress.done();
+									this.$message({
+										message: '提交成功',
+										type: 'success'
+									});
+									this.$refs['addForm'].resetFields();
+									this.getPurchasers();
+								}
 							});
 					}
 				});

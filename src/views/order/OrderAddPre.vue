@@ -3,7 +3,7 @@
 		<el-form :model="addForm" label-width="80px" :rules="addFormRules" ref="addForm" :inline="true">
 			<br>
 			<el-form-item label="供应商" prop="providerId">
-				<el-select v-model="addForm.providerId" placeholder="请选择" clearable>
+				<el-select v-model="addForm.providerId" placeholder="请选择" @change="providerChangeHandler" clearable>
 				    <el-option
 				      v-for="item in providers"
 				      :key="item.id"
@@ -27,7 +27,7 @@
 				<el-input type="textarea" placeholder="采购、请购人、区域" v-model="addForm.remark" clearable></el-input>
 			</el-form-item>
 			
-			<el-button type="primary"  @click="showItemList">物料列表</el-button>
+			<el-button type="primary" :disabled="!this.addForm.providerId" @click="showItemList">物料列表</el-button>
 
 			<!-- 订单物料列表 -->
 			<el-form-item label="物料列表" prop="itemList">
@@ -107,7 +107,6 @@
 
 <script>
 	import util from '../../common/js/util'
-	import qs from 'qs'
 	//import NProgress from 'nprogress'
 	import { addOrder, getItemList, getProviderList, getDemanderList} from '../../api/api';
 	export default {
@@ -121,7 +120,7 @@
 				page: 1,
 				filters: {
 					name: '',
-					providerId: 1
+					providerId: ''
 				},
 
 				//供应商
@@ -171,7 +170,7 @@
 		},
 		methods: {
 			formatDate: function (row, column) {
-				return new Date(row.endTime).toLocaleDateString();
+				return util.formatDate.format(new Date(row.endTime),"yyyy-MM-dd");
 			},
 			//获取物料倩价列表
 			getItems() {
@@ -184,10 +183,19 @@
 				this.itemsLoading = true;
 				//NProgress.start();
 				getItemList(para).then((res) => {
-					this.items = res.data.data.list
-					this.total = res.data.data.total
 					this.itemsLoading = false;
-					//NProgress.done();
+					let msg = res.data.msg;
+                	let code = res.data.code;
+					if (code !== 200) {
+	                  this.$message({
+	                    message: msg,
+	                    type: 'error'
+	                  });
+	                } else {
+						this.items = res.data.data.list
+						this.total = res.data.data.total
+						//NProgress.done();
+					}
 				});
 			},
 			//获取供应商列表
@@ -195,7 +203,16 @@
 				let para = {
 				};
 				getProviderList(para).then((res) => {
-					this.providers = res.data.data.list
+					let msg = res.data.msg;
+                	let code = res.data.code;
+					if (code !== 200) {
+	                  this.$message({
+	                    message: msg,
+	                    type: 'error'
+	                  });
+	                } else {
+						this.providers = res.data.data.list
+					}
 				});
 			},
 			//获取需求公司列表
@@ -203,7 +220,16 @@
 				let para = {
 				};
 				getDemanderList(para).then((res) => {
-					this.demanders = res.data.data.list
+					let msg = res.data.msg;
+                	let code = res.data.code;
+					if (code !== 200) {
+	                  this.$message({
+	                    message: msg,
+	                    type: 'error'
+	                  });
+	                } else {
+						this.demanders = res.data.data.list
+					}
 				});
 			},
 
@@ -223,18 +249,20 @@
 						addOrder(this.addForm).then((res) => {
 							//NProgress.done();
 							this.addLoading = false;
-							if(res.data.code!=200){
+							let msg = res.data.msg;
+		                	let code = res.data.code;
+							if (code !== 200) {
+			                  this.$message({
+			                    message: msg,
+			                    type: 'error'
+			                  });
+			                } else {
 								this.$message({
-									message: res.data.message,
-									type: 'error'
+									message: '提交成功',
+									type: 'success'
 								});
-								return false;
+								this.$refs['addForm'].resetFields();
 							}
-							this.$message({
-								message: '提交成功',
-								type: 'success'
-							});
-							this.$refs['addForm'].resetFields();
 						});
 					}
 				});
@@ -282,6 +310,9 @@
 			handleItemCountChange: function(index, row, e){
 				row.count = Number(e);
 			},
+			providerChangeHandler(){
+				this.filters.providerId = this.addForm.providerId
+			}
 		},
 		mounted() {
 			this.getProviders();

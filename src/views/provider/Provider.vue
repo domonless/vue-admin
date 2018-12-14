@@ -19,11 +19,13 @@
 		<el-table :data="providers" highlight-current-row v-loading="listLoading" style="width: 100%;">
 			<el-table-column type="index" label="序号" width="100">
 			</el-table-column>
-			<el-table-column prop="name" label="名称">
+			<el-table-column prop="name" label="名称" width="200">
 			</el-table-column>
-			<el-table-column prop="master" label="联系人">
+			<el-table-column prop="master" label="联系人" width="100">
 			</el-table-column>
-			<el-table-column prop="phone" label="联系电话">
+			<el-table-column prop="phone" label="联系电话" width="150">
+			</el-table-column>
+			<el-table-column prop="address" label="地址" width="500">
 			</el-table-column>
 			<el-table-column label="操作" width="150">
 				<template scope="scope">
@@ -81,7 +83,6 @@
 
 <script>
 	import util from '../../common/js/util'
-	import qs from 'qs'
 	import { getProviderList, addProvider, editProvider } from '../../api/api';
 	export default {
 		data() {
@@ -140,10 +141,19 @@
 				};
 				this.listLoading = true;
 				getProviderList(para).then((res) => {
-					this.providers = res.data.data.list
-                    this.page = res.data.data.pageNum == 0 ? res.data.data.pageNum +1 : res.data.data.pageNum
-                    this.total = res.data.data.total
 					this.listLoading = false;
+					let msg = res.data.msg;
+                	let code = res.data.code;
+					if (code !== 200) {
+	                  this.$message({
+	                    message: msg,
+	                    type: 'error'
+	                  });
+	                } else {
+						this.providers = res.data.data.list
+	                    this.page = res.data.data.pageNum == 0 ? res.data.data.pageNum +1 : res.data.data.pageNum
+	                    this.total = res.data.data.total
+	                }
 				});
 			},
             
@@ -158,14 +168,23 @@
 						id: row.id,
 						status: 0
 					};
-					editProvider(qs.stringify(para)).then((res) => {
+					editProvider(para).then((res) => {
 						this.listLoading = false;
-						//NProgress.done();
-						this.$message({
-							message: '删除成功',
-							type: 'success'
-						});
-						this.getProviders();
+						let msg = res.data.msg;
+	                	let code = res.data.code;
+						if (code !== 200) {
+		                  this.$message({
+		                    message: msg,
+		                    type: 'error'
+		                  });
+		                } else {
+							//NProgress.done();
+							this.$message({
+								message: '删除成功',
+								type: 'success'
+							});
+							this.getProviders();
+						}
 					});
 				}).catch(() => {
 
@@ -196,15 +215,24 @@
 					if (valid) {
 						this.editLoading = true;
 						let para = Object.assign({}, this.editForm);
-						editProvider(qs.stringify(para)).then((res) => {
+						editProvider(para).then((res) => {
 							this.editLoading = false;
-							this.$message({
-								message: '提交成功',
-								type: 'success'
-							});
-							this.getProviders();
-							this.$refs['editForm'].resetFields();
 							this.editFormVisible = false;
+							let msg = res.data.msg;
+		                	let code = res.data.code;
+							if (code !== 200) {
+			                  this.$message({
+			                    message: msg,
+			                    type: 'error'
+			                  });
+			                } else {
+								this.$message({
+									message: '提交成功',
+									type: 'success'
+								});
+								this.getProviders();
+								this.$refs['editForm'].resetFields();
+							}
 						});
 					}
 				});
@@ -216,16 +244,25 @@
 							this.addLoading = true;
 							//NProgress.start();
 							let para = Object.assign({}, this.addForm);
-							addProvider(qs.stringify(para)).then((res) => {
+							addProvider(para).then((res) => {
 								this.addLoading = false;
-								//NProgress.done();
-								this.$message({
-									message: '提交成功',
-									type: 'success'
-								});
-								this.$refs['addForm'].resetFields();
 								this.addFormVisible = false;
-								this.getProviders();
+								let msg = res.data.msg;
+			                	let code = res.data.code;
+								if (code !== 200) {
+				                  this.$message({
+				                    message: msg,
+				                    type: 'error'
+				                  });
+				                } else {
+									//NProgress.done();
+									this.$message({
+										message: '提交成功',
+										type: 'success'
+									});
+									this.$refs['addForm'].resetFields();
+									this.getProviders();
+								}
 							});
 					}
 				});

@@ -68,7 +68,7 @@
 			<el-form-item label="请购编号" prop="qgSn">
 				<el-input v-model="addForm.qgSn" :maxlength="12"></el-input>
 			</el-form-item>
-			<el-button type="primary"  @click="showItemList">物料列表</el-button>
+			<el-button type="primary" :disabled="!this.addForm.providerId" @click="showItemList">物料列表</el-button>
 
 			<!-- 订单物料列表 -->
 			<el-form-item label="物料列表" prop="itemList">
@@ -136,7 +136,7 @@
 				</el-table-column>
 				<el-table-column prop="count" label="数量" width="100">
 					<template scope="scope">
-						<el-input type="number" size="mini" min="1" :key="scope.row.id" @change="handleItemCountChange(scope.$index, scope.row, $event)" @keyup.enter.native="handleAdd(scope.$index, scope.row)"></el-input>
+						<el-input type="number" size="mini" :min="1" :max="99999" :key="scope.row.id" @change="handleItemCountChange(scope.$index, scope.row, $event)" @keyup.enter.native="handleAdd(scope.$index, scope.row)"></el-input>
 					</template>
 				</el-table-column>
 			</el-table>
@@ -148,7 +148,6 @@
 
 <script>
 	import util from '../../common/js/util'
-	import qs from 'qs'
 	//import NProgress from 'nprogress'
 	import { addOrder, getItemList, getPurchaserList, getPurchaserListByRole, getProviderList, getDemanderList} from '../../api/api';
 	export default {
@@ -226,8 +225,7 @@
 		},
 		methods: {
 			formatDate: function (row, column) {
-				// return util.formatDate.format(new Date(row.createTime),"yyyy-MM-dd");
-				return new Date(row.endTime).toLocaleDateString();
+				return util.formatDate.format(new Date(row.endTime),"yyyy-MM-dd");
 			},
 			//获取物料倩价列表
 			getItems() {
@@ -240,10 +238,19 @@
 				this.itemsLoading = true;
 				//NProgress.start();
 				getItemList(para).then((res) => {
-					this.items = res.data.data.list
-					this.total = res.data.data.total
 					this.itemsLoading = false;
-					//NProgress.done();
+					let msg = res.data.msg;
+                	let code = res.data.code;
+					if (code !== 200) {
+	                  this.$message({
+	                    message: msg,
+	                    type: 'error'
+	                  });
+	                } else {
+						this.items = res.data.data.list
+						this.total = res.data.data.total
+						//NProgress.done();
+					}
 				});
 			},
 			//获取请购人列表
@@ -252,7 +259,16 @@
 					role: 1
 				};
 				getPurchaserListByRole(para).then((res) => {
-					this.purchasers = res.data.data.list
+					let msg = res.data.msg;
+                	let code = res.data.code;
+					if (code !== 200) {
+	                  this.$message({
+	                    message: msg,
+	                    type: 'error'
+	                  });
+	                } else {
+						this.purchasers = res.data.data.list
+					}
 				});
 			},
 			//获取采购员列表
@@ -261,7 +277,16 @@
 					role: 2
 				};
 				getPurchaserListByRole(para).then((res) => {
-					this.buyers = res.data.data.list
+					let msg = res.data.msg;
+                	let code = res.data.code;
+					if (code !== 200) {
+	                  this.$message({
+	                    message: msg,
+	                    type: 'error'
+	                  });
+	                } else {
+						this.buyers = res.data.data.list
+					}
 				});
 			},
 			//获取仓库签字人列表
@@ -270,7 +295,16 @@
 					role: 3
 				};
 				getPurchaserListByRole(para).then((res) => {
-					this.stockers = res.data.data.list
+					let msg = res.data.msg;
+                	let code = res.data.code;
+					if (code !== 200) {
+	                  this.$message({
+	                    message: msg,
+	                    type: 'error'
+	                  });
+	                } else {
+						this.stockers = res.data.data.list
+					}
 				});
 			},
 			//获取供应商列表
@@ -278,7 +312,16 @@
 				let para = {
 				};
 				getProviderList(para).then((res) => {
-					this.providers = res.data.data.list
+					let msg = res.data.msg;
+                	let code = res.data.code;
+					if (code !== 200) {
+	                  this.$message({
+	                    message: msg,
+	                    type: 'error'
+	                  });
+	                } else {
+						this.providers = res.data.data.list
+					}
 				});
 			},
 			//获取需求公司列表
@@ -286,7 +329,16 @@
 				let para = {
 				};
 				getDemanderList(para).then((res) => {
-					this.demanders = res.data.data.list
+					let msg = res.data.msg;
+                	let code = res.data.code;
+					if (code !== 200) {
+	                  this.$message({
+	                    message: msg,
+	                    type: 'error'
+	                  });
+	                } else {
+						this.demanders = res.data.data.list
+					}
 				});
 			},
 
@@ -306,18 +358,20 @@
 						addOrder(this.addForm).then((res) => {
 							//NProgress.done();
 							this.addLoading = false;
-							if(res.data.code!=200){
+							let msg = res.data.msg;
+		                	let code = res.data.code;
+							if (code !== 200) {
+			                  this.$message({
+			                    message: msg,
+			                    type: 'error'
+			                  });
+			                } else {
 								this.$message({
-									message: res.data.message,
-									type: 'error'
+									message: '提交成功',
+									type: 'success'
 								});
-								return false;
+								this.$refs['addForm'].resetFields();
 							}
-							this.$message({
-								message: '提交成功',
-								type: 'success'
-							});
-							this.$refs['addForm'].resetFields();
 						});
 					}
 				});

@@ -14,8 +14,7 @@
 					<!-- <span class="el-dropdown-link userinfo-inner"><img :src="this.sysUserAvatar" /> {{sysUserName}}</span> -->
 					<span class="el-dropdown-link userinfo-inner">欢迎您，{{sysUserName}}</span>
 					<el-dropdown-menu slot="dropdown">
-						<el-dropdown-item>我的消息</el-dropdown-item>
-						<el-dropdown-item>设置</el-dropdown-item>
+						<el-dropdown-item @click.native="modPwdVisible=true">修改密码</el-dropdown-item>
 						<el-dropdown-item divided @click.native="logout">退出登录</el-dropdown-item>
 					</el-dropdown-menu>
 				</el-dropdown>
@@ -69,12 +68,57 @@
 				</div>
 			</section>
 		</el-col>
+		<el-dialog title="修改密码" :visible.sync="modPwdVisible" :close-on-click-modal="false">
+			<el-form :model="modPwdForm" label-width="80px" :rules="modPwdFormRules" ref="modPwdForm">
+				<el-form-item label="原密码" prop="oldPwd">
+					<el-input type="password" v-model="modPwdForm.oldPwd"></el-input>
+				</el-form-item>
+				<el-form-item label="新密码" prop="newPwd">
+					<el-input type="password" v-model="modPwdForm.newPwd"></el-input>
+				</el-form-item>
+				<el-form-item label="确认密码" prop="rePwd">
+					<el-input type="password" v-model="modPwdForm.rePwd"></el-input>
+				</el-form-item>
+			</el-form>
+			<div slot="footer" class="dialog-footer">
+				<el-button @click.native="modPwdVisible = false">取消</el-button>
+				<el-button type="primary" @click.native="modPwdSubmit" :loading="modPwdLoading">提交</el-button>
+			</div>
+		</el-dialog>
 	</el-row>
 </template>
 
 <script>
+	import { getRsa, editPassword } from '../api/api';
+	import Cookies from 'js-cookie'
+	import qs from 'qs'
+	import { BigInteger } from 'jsbn'
+	import { JSEncrypt } from 'jsencrypt'
+	import hexabase from 'hexabase'
+	//加密密码
+	const getPasswordByRsa = (rsa, password) => {
+	  const passEncrypt = new JSEncrypt()
+	  passEncrypt.setKey({
+	    n: new BigInteger(rsa.m, 16),
+	    e: parseInt(rsa.p, 16)
+	  })
+	  return hexabase({
+	    to: 'hex',
+	    data: passEncrypt.encrypt(password)
+	  })
+	}
+
 	export default {
 		data() {
+			var validatePass = (rule, value, callback) => {
+	           if (value === "") {
+	            callback(new Error("请再次输入密码"));
+	          } else if (value !== this.modPwdForm.newPwd) {
+	           callback(new Error("两次输入密码不一致!"));
+	            } else {
+	            callback();
+	          }
+	        };
 			return {
 				sysName:'后台管理系统',
 				collapsed:false,
@@ -88,7 +132,22 @@
 					type: [],
 					resource: '',
 					desc: ''
-				}
+				},
+
+				modPwdVisible: false,
+				modPwdForm: {},
+				modPwdLoading: false,
+				modPwdFormRules: {
+					oldPwd: [
+						{ required: true, message: '请输入原密码', trigger: 'blur' }
+					],
+					newPwd: [
+						{ required: true, message: '请输入新密码', trigger: 'blur' }
+					],
+					rePwd: [
+						{ required: true, validator: validatePass, trigger: 'blur' }
+					]
+				},
 			}
 		},
 		methods: {
@@ -109,7 +168,7 @@
 				this.$confirm('确认退出吗?', '提示', {
 					//type: 'warning'
 				}).then(() => {
-					localStorage.user = '';
+					Cookies.remove('user_info')
 					_this.$router.push('/login');
 				}).catch(() => {
 
@@ -123,15 +182,46 @@
 			},
 			showMenu(i,status){
 				this.$refs.menuCollapsed.getElementsByClassName('submenu-hook-'+i)[0].style.display=status?'block':'none';
-			}
+			},
+			//修改密码提交
+			modPwdSubmit: function () {
+				this.$refs.modPwdForm.validate((valid) => {
+					if (valid) {
+			            //获取rsa
+			            getRsa().then(data => {
+			              this.modPwdLoading = true;
+			              //登陆
+			              editPassword({ 
+			                oldPwd: getPasswordByRsa(data.data.data,this.modPwdForm.oldPwd),
+			                newPwd: getPasswordByRsa(data.data.data,this.modPwdForm.newPwd),
+			                m:data.data.data.m,
+			                p:data.data.data.p,
+			              }).then(data => {
+			              	this.modPwdVisible = false;
+			                this.modPwdLoading = false;
+			                let msg = data.data.message;
+			                let code = data.data.code;
+			                if (code !== 200) {
+			                  this.$message({
+			                    message: msg,
+			                    type: 'error'
+			                  });
+			                } 
+			              });
+			            });
+			          } else {
+			            console.log('error submit!!');
+			            return false;
+			          }
+				});
+			},
 		},
 		mounted() {
-			var user = localStorage.user;
-			if (user) {
-				user = JSON.parse(user);
-				this.sysUserName = user.username || '';
+			let cookie = Cookies.get('user_info');
+			if(cookie){
+				cookie = JSON.parse(cookie);
+				this.sysUserName = cookie.name || '';
 			}
-
 		}
 	}
 

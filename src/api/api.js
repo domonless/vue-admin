@@ -1,24 +1,54 @@
 import axios from 'axios';
-import md5 from 'js-md5'
+import qs from 'qs'
+import md5 from 'js-md5';
+import Cookies from 'js-cookie';
 
 axios.defaults.headers.common['Content-Type'] = 'application/json;charset=UTF-8';
 let base = 'http://bapi.kyb66.com';
-// let base = 'http://bgy.test.kyb66.com';
-// let base = 'http://192.168.1.3:8080';
+// let base = 'http://localhost:8080';
+// let base = 'http://192.168.1.5:8080';
 
-const getSign = function(timestamp){
-  const signStr = timestamp + "Potato"
+const getSignStr = function(obj,token,timestamp){
+  let values = ''
+  obj && Object.keys(obj).sort().forEach(key => {
+    const value = obj[key]
+    values += value === null || value === undefined ? 'null' : obj[key]
+  })
+  return values + token + timestamp
+}
+
+const getSign = function(obj,token,timestamp){
+  const signStr = getSignStr(obj,token,timestamp)
   return md5(signStr)
 }
-const timestamp = new Date().getTime()
-axios.defaults.headers.userId = JSON.parse(localStorage.getItem('user')).id;
-axios.defaults.headers.tm = timestamp
-axios.defaults.headers.sign = getSign(timestamp)
 
-
+// request拦截器
+axios.interceptors.request.use(config => {
+	const timestamp = new Date().getTime()
+	let cookie = Cookies.get('user_info');
+	if(cookie){
+		cookie = JSON.parse(cookie);
+		// axios.defaults.headers.tm = timestamp
+		// axios.defaults.headers.s = cookie.session
+		// axios.defaults.headers.t = getSign(config.method=='post'? {} : config.params, cookie.token, timestamp)
+		config.headers = {
+	      'Content-Type': 'application/json;charset=UTF-8', // 设置很关键
+	      'tm': timestamp,
+	      's': cookie.session,
+	      't': getSign(config.method=='post'? {} : config.params, cookie.token, timestamp)
+	    }
+	}
+	return config;
+}, error => {
+	console.log(error); // for debug
+	Promise.reject(error);
+})
 
 //rsa
 export const getRsa = params => { return axios.get(`${base}/auth/rsa`, { params: params }); };
+
+//用户
+export const editPassword = params => { return axios.post(`${base}/user/password`, params); };
 
 //登陆
 export const login = params => { return axios.post(`${base}/auth/login`, params); };
@@ -54,7 +84,7 @@ export const editOrder = params => { return axios.post(`${base}/order/update`, p
 
 export const removeOrder = params => { return axios.post(`${base}/order/delete`, params); };
 
-export const getOrderDetail = params => { return axios.post(`${base}/order/detail`, params); };
+export const getOrderDetail = params => { return axios.get(`${base}/order/detail`, { params: params }); };
 
 export const editOrderDetail = params => { return axios.post(`${base}/order/detail/edit`, params); };
 

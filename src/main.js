@@ -13,6 +13,7 @@ import Vuex from 'vuex'
 import routes from './routes'
 import Mock from './mock'
 import Blob from './excel/Blob.js'
+import Cookies from 'js-cookie'
 
 import Export2Excel from './excel/Export2Excel.js'
 Mock.bootstrap();
@@ -42,10 +43,10 @@ const router = new VueRouter({
 router.beforeEach((to, from, next) => {
   //NProgress.start();
   if (to.path == '/login') {
-    localStorage.removeItem('user');
+    Cookies.remove('user_info')
   }
-  let user = JSON.parse(localStorage.getItem('user'));
-  if (!user && to.path != '/login') {
+  let cookie = Cookies.get('user_info');
+  if (!cookie && to.path != '/login') {
     next({ path: '/login' })
   } else {
     next()

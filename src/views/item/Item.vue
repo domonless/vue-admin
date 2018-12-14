@@ -7,7 +7,7 @@
 					<el-input v-model="filters.name" placeholder="名称或编号" @input="getItems"></el-input>
 				</el-form-item>
 				<el-form-item>
-					<el-select v-model="filters.providerId" placeholder="请选择" @change="getItems" clearable>
+					<el-select v-model="filters.providerId" placeholder="抬头" @change="getItems" clearable>
 					    <el-option
 					      v-for="item in providers"
 					      :key="item.id"
@@ -31,10 +31,24 @@
 
 		<!--批量导入界面-->
 		<el-dialog title="批量导入" :visible.sync="isItemsBatAddShow" :close-on-click-modal="false" width="30%">
-			<font color="red"><b>请按照模版中的格式进行填写，文件后缀为.xlsx&nbsp;&nbsp;&nbsp;&nbsp;</b></font>
-			<a href="http://bapi.kyb66.com/xlsx/itemTemplate/物料批量上传模板.xlsx" target="_blank" style="font-size:18px;color:#CD6839;">下载模版</a>
-			&nbsp;
-			<a href="javascript:void(0);" @click="uploadClick" style="font-size:18px;color:green">立即上传</a>
+			<el-form :model="batAddForm" label-width="80px" :rules="batAddFormRules" ref="batAddForm">
+				<el-form-item label="抬头" prop="providerId">
+					<el-select v-model="batAddForm.providerId" placeholder="请选择抬头" clearable>
+					    <el-option
+					      v-for="item in providers"
+					      :key="item.id"
+					      :label="item.name"
+					      :value="item.id">
+					    </el-option>
+					</el-select>
+				</el-form-item>
+			</el-form>
+			<div style="margin-top:30px">
+				<font color="red"><b>请按照模版进行填写，文件后缀为.xlsx&nbsp;&nbsp;&nbsp;&nbsp;</b></font>
+				<a href="http://bapi.kyb66.com/xlsx/itemTemplate/物料批量上传模板.xlsx" target="_blank" style="font-size:18px;color:#CD6839;">下载模版</a>
+				&nbsp;
+				<el-button @click.native="uploadClick" style="font-size:18px;color:green">立即上传</el-button>
+			</div>
 		</el-dialog>
 
 		<!--列表-->
@@ -85,6 +99,16 @@
 		<!--编辑界面-->
 		<el-dialog title="编辑" :visible.sync="editFormVisible" :close-on-click-modal="false">
 			<el-form :model="editForm" label-width="80px" :rules="editFormRules" ref="editForm">
+				<el-form-item label="抬头" prop="providerId">
+					<el-select v-model="editForm.providerId" placeholder="抬头" @change="getItems" clearable>
+					    <el-option
+					      v-for="item in providers"
+					      :key="item.id"
+					      :label="item.name"
+					      :value="item.id">
+					    </el-option>
+					</el-select>
+				</el-form-item>
 				<el-form-item label="编号" prop="itemNumber">
 					<el-input v-model="editForm.itemNumber"></el-input>
 				</el-form-item>
@@ -133,6 +157,16 @@
 		<!--新增界面-->
 		<el-dialog title="新增" :visible.sync="addFormVisible" :close-on-click-modal="false">
 			<el-form :model="addForm" label-width="80px" :rules="addFormRules" ref="addForm">
+				<el-form-item label="抬头" prop="providerId">
+					<el-select v-model="addForm.providerId" placeholder="抬头" clearable>
+					    <el-option
+					      v-for="item in providers"
+					      :key="item.id"
+					      :label="item.name"
+					      :value="item.id">
+					    </el-option>
+					</el-select>
+				</el-form-item>
 				<el-form-item label="编号" prop="itemNumber">
 					<el-input v-model="addForm.itemNumber"></el-input>
 				</el-form-item>
@@ -169,8 +203,6 @@
 <script>
 	import util from '../../common/js/util'
 	import pdf from 'vue-pdf'
-	import qs from 'qs'
-	import axios from 'axios'
 	//import NProgress from 'nprogress'
 	import { getItemList, addItem, editItem, removeItem, batAddItem, batchRemoveItem, getProviderList, getOrdersByItemId, fileItemUpload } from '../../api/api';
 	export default {
@@ -182,7 +214,7 @@
 			return {
 				filters: {
 					name: '',
-					providerId: 1
+					providerId: ''
 				},
 				items: [],
 				total: 0,
@@ -217,6 +249,9 @@
 				addFormVisible: false,//新增界面是否显示
 				addLoading: false,
 				addFormRules: {
+					providerId: [
+						{ required: true, message: '请选择抬头', trigger: 'blur', type: 'number'}
+					],
 					itemNumber: [
 						{ required: true, message: '请输入编号', trigger: 'blur' }
 					],
@@ -240,13 +275,26 @@
 				addForm: {
 				},
 
+
+				batAddFormRules: {
+					providerId: [
+						{ required: true, message: '请选择抬头', trigger: 'blur', type: 'number'}
+					]
+				},
+				//批量新增界面数据
+				batAddForm: {
+				},
 				isItemsBatAddShow: false
 			}
 		},
 		methods: {
 			uploadClick(){
-				this.isItemsBatAddShow = false;
-				document.getElementById("upload").click();
+				this.$refs.batAddForm.validate((valid) => {
+					if (valid) {
+						this.isItemsBatAddShow = false;
+						document.getElementById("upload").click();
+					}
+				});
 			},
 			//导入excel数据
 			importFromExcel: function(obj) {
@@ -293,19 +341,13 @@
 		                    obj.unit = v.unit
 		                    obj.price = v.price
 		                    obj.remark = v.remark
-		                    obj.providerId = v.providerId
+		                    obj.providerId = _this.batAddForm.providerId
 		                    obj.startTime = v.startTime
 		                    obj.endTime = v.endTime
-		                    obj.createTime = new Date()
-		                    obj.updateTime = new Date()
 		                    obj.status = 1
 		                    arr.push(obj)
 		                })
-		                let para = {
-		                    itemListStr: JSON.stringify(arr)
-		                    // withList: arr
-		                }
-		                batAddItem(qs.stringify(para)).then(res => {
+		                batAddItem(JSON.stringify(arr)).then(res => {
 		                	if (res.data.code !== 200) {
 				                _this.$message({
 				                  message: '上传失败，请检查文档格式',
@@ -317,9 +359,9 @@
 				                  type: 'success'
 				                });
 				                _this.getItems();
-				                document.getElementById("upload").value = '';
+				                
 				              }
-		                    
+				              document.getElementById("upload").value = '';
 		                })
 		                
 		            }
@@ -347,7 +389,16 @@
 		    	formData.append("file", content.file);
 		    	fileItemUpload(formData).then((res) => {
 			        this.uploadFlag = false;
-					this.editForm.imgurl = res.data.data;
+			        let msg = res.data.msg;
+                	let code = res.data.code;
+					if (code !== 200) {
+	                  this.$message({
+	                    message: msg,
+	                    type: 'error'
+	                  });
+	                } else {
+						this.editForm.imgurl = res.data.data;
+					}
 		    	});
 		    },
 			handleCurrentChange(val) {
@@ -364,10 +415,19 @@
 				};
 				this.listLoading = true;
 				getItemList(para).then((res) => {
-					this.items = res.data.data.list
-                    this.page = res.data.data.pageNum == 0 ? res.data.data.pageNum +1 : res.data.data.pageNum
-                    this.total = res.data.data.total
 					this.listLoading = false;
+					let msg = res.data.msg;
+                	let code = res.data.code;
+					if (code !== 200) {
+	                  this.$message({
+	                    message: msg,
+	                    type: 'error'
+	                  });
+	                } else {
+						this.items = res.data.data.list
+	                    this.page = res.data.data.pageNum == 0 ? res.data.data.pageNum +1 : res.data.data.pageNum
+	                    this.total = res.data.data.total
+	                }
 				});
 			},
 			//获取供应商列表
@@ -375,7 +435,16 @@
 				let para = {
 				};
 				getProviderList(para).then((res) => {
-					this.providers = res.data.data.list
+					let msg = res.data.msg;
+                	let code = res.data.code;
+					if (code !== 200) {
+	                  this.$message({
+	                    message: msg,
+	                    type: 'error'
+	                  });
+	                } else {
+						this.providers = res.data.data.list
+					}
 				});
 			},
 			//删除
@@ -386,14 +455,23 @@
 					this.listLoading = true;
 					//NProgress.start();
 					let para = { id: row.id, status: 0 };
-					editItem(qs.stringify(para)).then((res) => {
+					editItem(para).then((res) => {
 						this.listLoading = false;
 						//NProgress.done();
-						this.$message({
-							message: '删除成功',
-							type: 'success'
-						});
-						this.getItems();
+						let msg = res.data.msg;
+	                	let code = res.data.code;
+						if (code !== 200) {
+		                  this.$message({
+		                    message: msg,
+		                    type: 'error'
+		                  });
+		                } else {
+							this.$message({
+								message: '删除成功',
+								type: 'success'
+							});
+							this.getItems();
+						}
 					});
 				}).catch(() => {
 
@@ -414,7 +492,7 @@
 					form: '',
 					unit: '',
 					price: 0,
-					// providerId: 0,
+					providerId: '',
 					startTime: new Date(),
 					endTime: new Date(new Date().getTime() + 365*24*60*60*1000)
 				};
@@ -438,7 +516,16 @@
                     itemId:row.id
 				};
 				getOrdersByItemId(para).then((res) => {
-					this.$router.push({path: '/order/list', query: {relatedResponse: res}});
+					let msg = res.data.msg;
+                	let code = res.data.code;
+					if (code !== 200) {
+	                  this.$message({
+	                    message: msg,
+	                    type: 'error'
+	                  });
+	                } else {
+						this.$router.push({path: '/order/list', query: {relatedResponse: res}});
+					}
 				});
     		},
 			//编辑
@@ -449,15 +536,24 @@
 						let para = Object.assign({}, this.editForm);
 						para.createTime = undefined;
 						para.updateTime = undefined;
-						editItem(qs.stringify(para)).then((res) => {
+						editItem(para).then((res) => {
 							this.editLoading = false;
-							this.$message({
-								message: '提交成功',
-								type: 'success'
-							});
-							this.getItems();
-							this.$refs['editForm'].resetFields();
 							this.editFormVisible = false;
+							let msg = res.data.msg;
+		                	let code = res.data.code;
+							if (code !== 200) {
+			                  this.$message({
+			                    message: msg,
+			                    type: 'error'
+			                  });
+			                } else {
+								this.$message({
+									message: '提交成功',
+									type: 'success'
+								});
+								this.getItems();
+								this.$refs['editForm'].resetFields();
+							}
 						});
 					}
 				});
@@ -468,15 +564,24 @@
 					if (valid) {
 						this.addLoading = true;
 						let para = Object.assign({}, this.addForm);
-						addItem(qs.stringify(para)).then((res) => {
+						addItem(para).then((res) => {
 							this.addLoading = false;
-							this.$message({
-								message: '提交成功',
-								type: 'success'
-							});
-							this.$refs['addForm'].resetFields();
 							this.addFormVisible = false;
-							this.getItems();
+							let msg = res.data.msg;
+		                	let code = res.data.code;
+							if (code !== 200) {
+			                  this.$message({
+			                    message: msg,
+			                    type: 'error'
+			                  });
+			                } else {
+								this.$message({
+									message: '提交成功',
+									type: 'success'
+								});
+								this.$refs['addForm'].resetFields();
+								this.getItems();
+							}
 						});
 					}
 				});
@@ -492,13 +597,22 @@
 				}).then(() => {
 					this.listLoading = true;
 					let para = { ids: ids };
-					batchRemoveItem(qs.stringify(para)).then((res) => {
+					batchRemoveItem(para).then((res) => {
 						this.listLoading = false;
-						this.$message({
-							message: '删除成功',
-							type: 'success'
-						});
-						this.getItems();
+						let msg = res.data.msg;
+	                	let code = res.data.code;
+						if (code !== 200) {
+		                  this.$message({
+		                    message: msg,
+		                    type: 'error'
+		                  });
+			                } else {
+							this.$message({
+								message: '删除成功',
+								type: 'success'
+							});
+							this.getItems();
+						}
 					});
 				}).catch(() => {
 

@@ -31,7 +31,6 @@
 
 <script>
 	import util from '../../common/js/util'
-	import qs from 'qs'
 	import echarts from 'echarts'
 	import { getStatistic } from '../../api/api';
 	export default {
@@ -93,13 +92,22 @@
 					};
 					this.queryLoading = true;
 					getStatistic(para).then((res) => {
-						if(res.data.data!=null){
-							this.totalSum = res.data.data.totalSum
-							this.bidSum = res.data.data.bidSum
-							this.feeSum = res.data.data.feeSum
-							this.gross = util.formatNumber(this.totalSum - this.bidSum - this.feeSum)
-							this.drawPieChart();
-							this.queryLoading = false;
+						this.queryLoading = false;
+						let msg = res.data.msg;
+	                	let code = res.data.code;
+						if (code !== 200) {
+		                  this.$message({
+		                    message: msg,
+		                    type: 'error'
+		                  });
+		                } else {
+							if(res.data.data!=null){
+								this.totalSum = res.data.data.totalSum
+								this.bidSum = res.data.data.bidSum
+								this.feeSum = res.data.data.feeSum
+								this.gross = util.formatNumber(this.totalSum - this.bidSum - this.feeSum)
+								this.drawPieChart();
+							}
 						}
 					});
 				}else{

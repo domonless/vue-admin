@@ -190,7 +190,7 @@
 				</el-table-column>
 				<el-table-column prop="logisticsSn" label="物流单号" width="100">
 				</el-table-column>
-				<el-table-column prop="deliveryTime" label="发货日期" width="90" :formatter="formatDeliveryDate">
+				<el-table-column prop="deliveryTime" label="发货日期" width="100" :formatter="formatDeliveryDate">
 				</el-table-column>
 				<!-- <el-table-column label="操作" width="80">
 					<template scope="scope">
@@ -235,7 +235,7 @@
 					</el-table-column>
 					<el-table-column prop="bidPrice" label="进价" width="100">
 						<template scope="scope">
-							<el-input type="number" size="mini" min="1" :key="scope.row.id" @input="handleBidPriceChange(scope.$index, scope.row, $event)" @keyup.enter.native="handleEditBidPrice(scope.$index, scope.row)"></el-input>
+							<el-input type="number" size="mini" min="1" :maxlength="10" :key="scope.row.id" @input="handleBidPriceChange(scope.$index, scope.row, $event)" @keyup.enter.native="handleEditBidPrice(scope.$index, scope.row)"></el-input>
 						</template>
 					</el-table-column>
 				</el-table>
@@ -256,7 +256,7 @@
 					<el-input v-model="sendForm.logisticsSn"></el-input>
 				</el-form-item>
 				<el-form-item label="其他费用" prop="fee">
-					<el-input type="number" v-model="sendForm.fee"></el-input>
+					<el-input type="number" v-model="sendForm.fee" :maxlength="10"></el-input>
 				</el-form-item>
 				<el-form-item label="备注" prop="remark">
 					<el-input type="textarea" v-model="sendForm.remark"></el-input>
@@ -335,7 +335,7 @@
 					<el-input v-model="invoiceForm.invoiceSn"></el-input>
 				</el-form-item>
 				<el-form-item label="发票金额" prop="money">
-					<el-input type="number" v-model="invoiceForm.money"></el-input>
+					<el-input type="number" v-model="invoiceForm.money" :maxlength="10"></el-input>
 				</el-form-item>
 				<!-- <el-form-item label="备注" prop="remark">
 					<el-input type="textarea" v-model="invoiceForm.remark"></el-input>
@@ -353,7 +353,6 @@
 <script>
 	import util from '../../common/js/util'
 	import pdf from 'vue-pdf'
-	import qs from 'qs'
 	import {getLodop} from '../../common/js/LodopFuncs'
 	//import NProgress from 'nprogress'
 	import { userId, getOrderList, editOrder, removeOrder, getOrderDetail, editOrderDetail, getProviderList, getPurchaserList, getPurchaserListByRole, fileOrderUpload} from '../../api/api';
@@ -463,6 +462,9 @@
 				editForm: {
 				},
 
+				//入库界面数据
+				inForm: {},
+
 				//开票界面
 				invoiceFormVisible: false,//开票界面是否显示
 				invoiceLoading: false,
@@ -511,6 +513,10 @@
 					]
 				},
 
+				//回款界面数据
+				returnForm: {
+				},
+
 				spanArr:[],
 
 				providers:[],
@@ -523,13 +529,13 @@
 			},
 			//下单日期转化
 			formatDate: function (row, column) {
-				// return util.formatDate.format(new Date(row.createTime),"yyyy-MM-dd");
-				return new Date(row.createTime).toLocaleDateString();
+				return util.formatDate.format(new Date(row.createTime),"yyyy-MM-dd");
 			},
 			//下单日期转化
 			formatDeliveryDate: function (row, column) {
-				// return util.formatDate.format(new Date(row.createTime),"yyyy-MM-dd");
-				return new Date(row.deliveryTime).toLocaleDateString();
+				if(row.deliveryTime){
+					return util.formatDate.format(new Date(row.deliveryTime),"yyyy-MM-dd");
+				}
 			},
 			//上传pdf
 			uploadPdf(content){
@@ -547,8 +553,17 @@
 		    	var formData = new FormData();
 		    	formData.append("file", content.file);
 		    	fileOrderUpload(formData).then((res) => {
-			        this.uploadFlag = false;
-					this.editForm.url = res.data.data;
+		        	this.uploadFlag = false;
+		    		let msg = res.data.msg;
+                	let code = res.data.code;
+					if (code !== 200) {
+	                  this.$message({
+	                    message: msg,
+	                    type: 'error'
+	                  });
+	                } else {
+						this.editForm.url = res.data.data;
+					}
 		    	});
 		    },
 			//获取请购人列表
@@ -557,7 +572,16 @@
 					role: 1
 				};
 				getPurchaserListByRole(para).then((res) => {
-					this.purchasers = res.data.data.list
+					let msg = res.data.msg;
+                	let code = res.data.code;
+					if (code !== 200) {
+	                  this.$message({
+	                    message: msg,
+	                    type: 'error'
+	                  });
+	                } else {
+						this.purchasers = res.data.data.list
+					}
 				});
 			},
 			//获取采购员列表
@@ -566,7 +590,16 @@
 					role: 2
 				};
 				getPurchaserListByRole(para).then((res) => {
-					this.buyers = res.data.data.list
+					let msg = res.data.msg;
+                	let code = res.data.code;
+					if (code !== 200) {
+	                  this.$message({
+	                    message: msg,
+	                    type: 'error'
+	                  });
+	                } else {
+						this.buyers = res.data.data.list
+					}
 				});
 			},
 			//获取仓库签字人列表
@@ -575,7 +608,16 @@
 					role: 3
 				};
 				getPurchaserListByRole(para).then((res) => {
-					this.stockers = res.data.data.list
+					let msg = res.data.msg;
+                	let code = res.data.code;
+					if (code !== 200) {
+	                  this.$message({
+	                    message: msg,
+	                    type: 'error'
+	                  });
+	                } else {
+						this.stockers = res.data.data.list
+					}
 				});
 			},
 			getStrByStatus(status){
@@ -615,7 +657,16 @@
 				let para = {
 				};
 				getProviderList(para).then((res) => {
-					this.providers = res.data.data.list
+					let msg = res.data.msg;
+                	let code = res.data.code;
+					if (code !== 200) {
+	                  this.$message({
+	                    message: msg,
+	                    type: 'error'
+	                  });
+	                } else {
+						this.providers = res.data.data.list
+					}
 				});
 			},
 			//获取订单列表
@@ -629,13 +680,20 @@
                     status:this.filters.status
 				};
 				this.listLoading = true;
-				//NProgress.start();
 				getOrderList(para).then((res) => {
-					this.orders = res.data.data.list
-                    this.page = res.data.data.pageNum == 0 ? res.data.data.pageNum +1 : res.data.data.pageNum
-                    this.total = res.data.data.total
 					this.listLoading = false
-					//NProgress.done();
+					let msg = res.data.msg;
+                	let code = res.data.code;
+					if (code !== 200) {
+	                  this.$message({
+	                    message: msg,
+	                    type: 'error'
+	                  });
+	                } else {
+	                	this.orders = res.data.data.list
+	                    this.page = res.data.data.pageNum == 0 ? res.data.data.pageNum +1 : res.data.data.pageNum
+	                    this.total = res.data.data.total
+	                }
 				});
 			},
 			//根据订单号获取物料签价列表
@@ -644,10 +702,19 @@
 					id: orderId 
 				};
 				this.itemsLoading = true;
-				getOrderDetail(qs.stringify(para)).then((res) => {
-					this.items = res.data.data
-					this.getSpanArr(res.data.data);
+				getOrderDetail(para).then((res) => {
 					this.itemsLoading = false;
+					let msg = res.data.msg;
+                	let code = res.data.code;
+					if (code !== 200) {
+	                  this.$message({
+	                    message: msg,
+	                    type: 'error'
+	                  });
+	                } else {
+						this.items = res.data.data
+						this.getSpanArr(res.data.data);
+					}
 				});
 			},
 			//查看送货单
@@ -686,14 +753,23 @@
 					this.listLoading = true;
 					//NProgress.start();
 					let para = { id: row.id, status: 0 };
-					editOrder(qs.stringify(para)).then((res) => {
+					editOrder(para).then((res) => {
 						this.listLoading = false;
-						//NProgress.done();
-						this.$message({
-							message: '删除成功',
-							type: 'success'
-						});
-						this.getOrders();
+						let msg = res.data.msg;
+	                	let code = res.data.code;
+						if (code !== 200) {
+		                  this.$message({
+		                    message: msg,
+		                    type: 'error'
+		                  });
+		                } else {
+							//NProgress.done();
+							this.$message({
+								message: '删除成功',
+								type: 'success'
+							});
+							this.getOrders();
+						}
 					});
 				}).catch(() => {
 
@@ -712,15 +788,24 @@
 					remark: this.editForm.remark,
 					url: this.editForm.url 
 				};
-				editOrder(qs.stringify(para)).then((res) => {
+				editOrder(para).then((res) => {
 					this.editLoading = false;
-					this.$message({
-						message: '提交成功',
-						type: 'success'
-					});
-					this.getOrders();
-					this.$refs['editForm'].resetFields();
 					this.editFormVisible = false;
+					let msg = res.data.msg;
+                	let code = res.data.code;
+					if (code !== 200) {
+	                  this.$message({
+	                    message: msg,
+	                    type: 'error'
+	                  });
+	                } else {
+						this.$message({
+							message: '提交成功',
+							type: 'success'
+						});
+						this.getOrders();
+						this.$refs['editForm'].resetFields();
+					}
 				});
 			},
 
@@ -744,14 +829,23 @@
 					//NProgress.start();
 					editOrderDetail(this.buyForm).then((res) => {
 						this.buyLoading = false;
-						//NProgress.done();
-						this.$message({
-							message: '提交成功',
-							type: 'success'
-						});
-						this.getOrders();
-						this.$refs['buyForm'].resetFields();
 						this.buyFormVisible = false;
+						let msg = res.data.msg;
+	                	let code = res.data.code;
+						if (code !== 200) {
+		                  this.$message({
+		                    message: msg,
+		                    type: 'error'
+		                  });
+		                } else {
+						//NProgress.done();
+							this.$message({
+								message: '提交成功',
+								type: 'success'
+							});
+							this.getOrders();
+							this.$refs['buyForm'].resetFields();
+						}
 					});
 				});
 			},
@@ -773,14 +867,23 @@
 							// let para = Object.assign({}, this.sendForm);
 							editOrderDetail(this.sendForm).then((res) => {
 								this.sendLoading = false;
-								//NProgress.done();
-								this.$message({
-									message: '提交成功',
-									type: 'success'
-								});
-								this.getOrders();
-								this.$refs['sendForm'].resetFields();
 								this.sendFormVisible = false;
+								let msg = res.data.msg;
+			                	let code = res.data.code;
+								if (code !== 200) {
+				                  this.$message({
+				                    message: msg,
+				                    type: 'error'
+				                  });
+				                } else {
+								//NProgress.done();
+									this.$message({
+										message: '提交成功',
+										type: 'success'
+									});
+									this.getOrders();
+									this.$refs['sendForm'].resetFields();
+								}
 							});
 						});
 					}
@@ -788,19 +891,30 @@
 			},
 			//入库处理
 			handleIn: function () {
-				this.sendForm.status = 4;
-				this.sendForm.itemList = this.sels;
+				this.inForm.id = this.sendForm.id;
+				this.inForm.cdSn = this.sendForm.cdSn;
+				this.inForm.status = 4;
+				this.inForm.itemList = this.sels;
 				this.$confirm('确认提交吗？', '提示', {}).then(() => {
 					this.sendLoading = true;
-					editOrderDetail(this.sendForm).then((res) => {
+					editOrderDetail(this.inForm).then((res) => {
 						this.sendLoading = false;
+						this.itemListVisible = false;
+						let msg = res.data.msg;
+	                	let code = res.data.code;
+						if (code !== 200) {
+		                  this.$message({
+		                    message: msg,
+		                    type: 'error'
+		                  });
+		                } else {
 						//NProgress.done();
-						this.$message({
-							message: '提交成功',
-							type: 'success'
-						});
-						this.getOrders();
-						this.$refs['sendForm'].resetFields();
+							this.$message({
+								message: '提交成功',
+								type: 'success'
+							});
+							this.getOrders();
+						}
 					});
 				});
 			},
@@ -823,13 +937,22 @@
 							this.repairLoading = true;
 							editOrder(this.repairForm).then((res) => {
 								this.repairLoading = false;
-								this.$message({
-									message: '提交成功',
-									type: 'success'
-								});
-								this.getOrders();
-								this.$refs['repairForm'].resetFields();
 								this.repairFormVisible = false;
+								let msg = res.data.msg;
+			                	let code = res.data.code;
+								if (code !== 200) {
+				                  this.$message({
+				                    message: msg,
+				                    type: 'error'
+				                  });
+				                } else {
+									this.$message({
+										message: '提交成功',
+										type: 'success'
+									});
+									this.getOrders();
+									this.$refs['repairForm'].resetFields();
+								}
 							});
 						});
 					}
@@ -845,27 +968,65 @@
 			invoiceSubmit: function () {
 				this.$refs.invoiceForm.validate((valid) => {
 					if (valid) {
-						this.invoiceForm.orderId = this.sendForm.id;
+						this.invoiceForm.id = this.sendForm.id;
+						this.invoiceForm.cdSn = this.sendForm.cdSn;
 						this.invoiceForm.itemList = this.items;
 						this.invoiceForm.status = 5;
 						this.$confirm('确认提交吗？', '提示', {}).then(() => {
 							this.invoiceLoading = true;
-							editOrderDetail(this.sendForm).then((res) => {
+							editOrderDetail(this.invoiceForm).then((res) => {
 								this.invoiceLoading = false;
-								//NProgress.done();
-								this.$message({
-									message: '提交成功',
-									type: 'success'
-								});
-								this.getOrders();
-								this.$refs['invoiceForm'].resetFields();
 								this.invoiceFormVisible = false;
+								let msg = res.data.msg;
+			                	let code = res.data.code;
+								if (code !== 200) {
+				                  this.$message({
+				                    message: msg,
+				                    type: 'error'
+				                  });
+				                } else {
+								//NProgress.done();
+									this.$message({
+										message: '提交成功',
+										type: 'success'
+									});
+									this.getOrders();
+									this.$refs['invoiceForm'].resetFields();
+								}
 							});
 						});
 					}
 				});
 			},
-			
+			//回款处理
+			handleReturn: function () {
+				this.returnForm.id = this.sendForm.id;
+				this.returnForm.cdSn = this.sendForm.cdSn;
+				this.returnForm.status = 6;
+				this.returnForm.itemList = this.sels;
+				this.$confirm('确认提交吗？', '提示', {}).then(() => {
+					this.sendLoading = true;
+					editOrderDetail(this.returnForm).then((res) => {
+						this.sendLoading = false;
+						this.itemListVisible = false;
+						let msg = res.data.msg;
+	                	let code = res.data.code;
+						if (code !== 200) {
+		                  this.$message({
+		                    message: msg,
+		                    type: 'error'
+		                  });
+		                } else {
+						//NProgress.done();
+							this.$message({
+								message: '提交成功',
+								type: 'success'
+							});
+							this.getOrders();
+						}
+					});
+				});
+			},
 			//多选
 			selsChange: function (sels) {
 				this.sels = sels;
@@ -1063,11 +1224,11 @@
 				LODOP.ADD_PRINT_LINE(page*this.height+258+25*k,95,page*this.height+258+25*k,701,0,1);
 
 				//表尾
-				LODOP.ADD_PRINT_TEXT(page*this.height+790,95,194,25,"供应商联系人： 杨世琪");
+				LODOP.ADD_PRINT_TEXT(page*this.height+790,95,194,25,"供应商联系人： " + this.sendForm.master);
 				LODOP.SET_PRINT_STYLEA(0,"FontSize",11);
-				LODOP.ADD_PRINT_TEXT(page*this.height+790,445,172,25,"联系电话：18378996547");
+				LODOP.ADD_PRINT_TEXT(page*this.height+790,445,172,25,"联系电话：" + this.sendForm.phone);
 				LODOP.SET_PRINT_STYLEA(0,"FontSize",11);
-				LODOP.ADD_PRINT_TEXT(page*this.height+816,95,300,25,"送货方地址：贵港市金田路213号");
+				LODOP.ADD_PRINT_TEXT(page*this.height+816,95,300,25,"送货方地址：" + this.sendForm.address);
 				LODOP.SET_PRINT_STYLEA(0,"FontSize",11);
 				LODOP.ADD_PRINT_TEXT(page*this.height+875,95,300,25,"供应商盖章：");
 				LODOP.SET_PRINT_STYLEA(0,"FontSize",11);
@@ -1093,6 +1254,7 @@
 		    }
 		},
 		mounted() {
+			this.getProviders();
 			let res = this.$route.query.relatedResponse;
 			if(res == undefined){
 				this.getOrders();
@@ -1101,8 +1263,6 @@
                 this.page = res.data.data.pageNum == 0 ? res.data.data.pageNum +1 : res.data.data.pageNum
             	this.total = res.data.data.total
 			}
-			
-			this.getProviders();
 		}
 	}
 

@@ -64,7 +64,6 @@
 
 <script>
 	import util from '../../common/js/util'
-	import qs from 'qs'
 	import { getDemanderList, addDemander, editDemander } from '../../api/api';
 	export default {
 		data() {
@@ -119,10 +118,19 @@
 				};
 				this.listLoading = true;
 				getDemanderList(para).then((res) => {
-					this.demanders = res.data.data.list
-                    this.page = res.data.data.pageNum == 0 ? res.data.data.pageNum +1 : res.data.data.pageNum
-                    this.total = res.data.data.total
 					this.listLoading = false;
+					let msg = res.data.msg;
+                	let code = res.data.code;
+					if (code !== 200) {
+	                  this.$message({
+	                    message: msg,
+	                    type: 'error'
+	                  });
+	                } else {
+						this.demanders = res.data.data.list
+	                    this.page = res.data.data.pageNum == 0 ? res.data.data.pageNum +1 : res.data.data.pageNum
+	                    this.total = res.data.data.total
+	                }
 				});
 			},
             
@@ -137,14 +145,23 @@
 						id: row.id,
 						status: 0
 					};
-					editDemander(qs.stringify(para)).then((res) => {
+					editDemander(para).then((res) => {
 						this.listLoading = false;
 						//NProgress.done();
-						this.$message({
-							message: '删除成功',
-							type: 'success'
-						});
-						this.getDemanders();
+						let msg = res.data.msg;
+	                	let code = res.data.code;
+						if (code !== 200) {
+		                  this.$message({
+		                    message: msg,
+		                    type: 'error'
+		                  });
+		                } else {
+							this.$message({
+								message: '删除成功',
+								type: 'success'
+							});
+							this.getDemanders();
+						}
 					});
 				}).catch(() => {
 
@@ -171,15 +188,24 @@
 					if (valid) {
 						this.editLoading = true;
 						let para = Object.assign({}, this.editForm);
-						editDemander(qs.stringify(para)).then((res) => {
+						editDemander(para).then((res) => {
 							this.editLoading = false;
-							this.$message({
-								message: '提交成功',
-								type: 'success'
-							});
-							this.getDemanders();
-							this.$refs['editForm'].resetFields();
 							this.editFormVisible = false;
+							let msg = res.data.msg;
+		                	let code = res.data.code;
+							if (code !== 200) {
+			                  this.$message({
+			                    message: msg,
+			                    type: 'error'
+			                  });
+			                } else {
+								this.$message({
+									message: '提交成功',
+									type: 'success'
+								});
+								this.getDemanders();
+								this.$refs['editForm'].resetFields();
+							}
 						});
 					}
 				});
@@ -191,16 +217,25 @@
 							this.addLoading = true;
 							//NProgress.start();
 							let para = Object.assign({}, this.addForm);
-							addDemander(qs.stringify(para)).then((res) => {
+							addDemander(para).then((res) => {
 								this.addLoading = false;
-								//NProgress.done();
-								this.$message({
-									message: '提交成功',
-									type: 'success'
-								});
-								this.$refs['addForm'].resetFields();
 								this.addFormVisible = false;
-								this.getDemanders();
+								//NProgress.done();
+								let msg = res.data.msg;
+			                	let code = res.data.code;
+								if (code !== 200) {
+				                  this.$message({
+				                    message: msg,
+				                    type: 'error'
+				                  });
+				                } else {
+									this.$message({
+										message: '提交成功',
+										type: 'success'
+									});
+									this.$refs['addForm'].resetFields();
+									this.getDemanders();
+								}
 							});
 					}
 				});

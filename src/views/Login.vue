@@ -7,7 +7,7 @@
     <el-form-item prop="password">
       <el-input type="password" v-model="ruleForm.password" auto-complete="off" placeholder="密码" @keyup.enter.native="handleSubmit"></el-input>
     </el-form-item>
-    <el-checkbox v-model="checked" checked class="remember">记住密码</el-checkbox>
+    <el-checkbox v-model="checked" checked class="remember">7天免登录</el-checkbox>
     <el-form-item style="width:100%;">
       <el-button type="primary" style="width:100%;" @click.native.prevent="handleSubmit" :loading="logining">登录</el-button>
       <!--<el-button @click.native.prevent="handleReset2">重置</el-button>-->
@@ -18,6 +18,7 @@
 <script>
   import { requestLogin, getRsa, login } from '../api/api';
   import qs from 'qs'
+  import Cookies from 'js-cookie'
   import { LoginUsers} from '../mock/data/user';
   import { BigInteger } from 'jsbn'
   import { JSEncrypt } from 'jsencrypt'
@@ -33,6 +34,7 @@
       data: passEncrypt.encrypt(password)
     })
   }
+  const tokenEncrypt = new JSEncrypt()
   export default {
     data() {
       return {
@@ -68,21 +70,30 @@
                 loginName: this.ruleForm.loginName, 
                 password: getPasswordByRsa(data.data.data,this.ruleForm.password),
                 m:data.data.data.m,
-                p:data.data.data.p
+                p:data.data.data.p,
+                cm: tokenEncrypt.getKey().n.toString(16),
+                cp: parseInt(tokenEncrypt.getKey().e).toString(16)
               })).then(data => {
                 this.logining = false;
                 let msg = data.data.message;
                 let code = data.data.code;
-                let user = data.data.data;
                 if (code !== 200) {
                   this.$message({
                     message: msg,
                     type: 'error'
                   });
                 } else {
-                  // sessionStorage.setItem('user', JSON.stringify(user));
-                  user.password = undefined;
-                  localStorage.user = JSON.stringify(user);
+                  let token = data.data.data.token
+                  data.data.data.token = tokenEncrypt.decrypt(hexabase({
+                      to: 'base64',
+                      data: token
+                    }))
+                  //存入cookies
+                  if(this.checked){
+                    Cookies.set('user_info',data.data.data,{ expires: 7 })
+                  }else{
+                    Cookies.set('user_info',data.data.data)
+                  }
                   this.$router.push({ path: '/' });
                 }
               });
