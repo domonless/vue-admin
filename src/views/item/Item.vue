@@ -69,11 +69,13 @@
 			</el-table-column>
 			<el-table-column prop="price" label="价格" width="80">
 			</el-table-column>
+			<el-table-column prop="providerId" label="供货商" width="100" :formatter="formatProvider">
+			</el-table-column>
 			<el-table-column prop="remark" label="备注" width="120">
 			</el-table-column>
 			<el-table-column prop="endTime" label="截止日期" width="120">
 			</el-table-column>
-			<el-table-column label="操作">
+			<el-table-column label="操作" width="400">
 				<template scope="scope">
 					<el-button size="mini" type="primary" @click="handleEdit(scope.$index, scope.row)">编辑</el-button>
 					<el-button size="mini" type="danger" @click="handleDel(scope.$index, scope.row)">删除</el-button>
@@ -295,6 +297,17 @@
 						document.getElementById("upload").click();
 					}
 				});
+			},
+			formatProvider: function (row, column) {
+				for(let i=0; i<this.providers.length; i++){
+					let provider = this.providers[i];
+					if(row.providerId == provider.id){
+						var reg1 = /(.+)区/g;
+						var reg2 = /(.+)市/g;
+						var reg3 = /五金(.+)/g;
+						return provider.name.replace(reg1,"").replace(reg2,"").replace(reg3,"");
+					}
+				}
 			},
 			//导入excel数据
 			importFromExcel: function(obj) {

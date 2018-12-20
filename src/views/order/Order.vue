@@ -63,7 +63,7 @@
 		        </el-form>
 		      </template>
 		    </el-table-column>
-			<el-table-column prop="cdSn" label="订单编号" width="130" sortable>
+			<el-table-column prop="cdSn" label="订单编号" width="140" sortable>
 			</el-table-column>
 			<!-- <el-table-column prop="qgSn" label="请购编号" width="120">
 			</el-table-column> -->
@@ -313,7 +313,7 @@
 				<br>
 
 				<el-form-item label="订单编号" prop="cdSn">
-					<el-input v-model="repairForm.cdSn" :maxlength="12"></el-input>
+					<el-input v-model="repairForm.cdSn" :maxlength="14"></el-input>
 				</el-form-item>
 				<el-form-item label="请购编号" prop="qgSn">
 					<el-input v-model="repairForm.qgSn" :maxlength="12"></el-input>

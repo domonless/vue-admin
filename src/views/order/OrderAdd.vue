@@ -63,7 +63,7 @@
 			<br>
 
 			<el-form-item label="订单编号" prop="cdSn">
-				<el-input v-model="addForm.cdSn" :maxlength="12"></el-input>
+				<el-input v-model="addForm.cdSn" :maxlength="14"></el-input>
 			</el-form-item>
 			<el-form-item label="请购编号" prop="qgSn">
 				<el-input v-model="addForm.qgSn" :maxlength="12"></el-input>
