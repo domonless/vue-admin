@@ -4,12 +4,22 @@
 		<el-col :span="24" class="toolbar" style="padding-bottom: 0px;">
 			<el-form :inline="true" :model="filters">
 				<el-form-item>
-					<el-input v-model="filters.name" placeholder="名称或编号" @input="getItems"></el-input>
+					<el-input v-model="filters.name" placeholder="名称或编号" @input="getItems" clearable></el-input>
 				</el-form-item>
 				<el-form-item>
 					<el-select v-model="filters.providerId" placeholder="抬头" @change="getItems" clearable>
 					    <el-option
 					      v-for="item in providers"
+					      :key="item.id"
+					      :label="item.name"
+					      :value="item.id">
+					    </el-option>
+					</el-select>
+				</el-form-item>
+				<el-form-item>
+					<el-select v-model="filters.areaId" placeholder="采购组织" @change="getItems" clearable>
+					    <el-option
+					      v-for="item in areas"
 					      :key="item.id"
 					      :label="item.name"
 					      :value="item.id">
@@ -33,9 +43,19 @@
 		<el-dialog title="批量导入" :visible.sync="isItemsBatAddShow" :close-on-click-modal="false" width="30%">
 			<el-form :model="batAddForm" label-width="80px" :rules="batAddFormRules" ref="batAddForm">
 				<el-form-item label="抬头" prop="providerId">
-					<el-select v-model="batAddForm.providerId" placeholder="请选择抬头" clearable>
+					<el-select v-model="batAddForm.providerId" placeholder="请选择" clearable>
 					    <el-option
 					      v-for="item in providers"
+					      :key="item.id"
+					      :label="item.name"
+					      :value="item.id">
+					    </el-option>
+					</el-select>
+				</el-form-item>
+				<el-form-item label="采购组织" prop="areaId">
+					<el-select v-model="batAddForm.areaId" placeholder="请选择" clearable>
+					    <el-option
+					      v-for="item in areas"
 					      :key="item.id"
 					      :label="item.name"
 					      :value="item.id">
@@ -65,22 +85,31 @@
 			</el-table-column>
 			<el-table-column prop="form" label="规格" width="200">
 			</el-table-column>
+			<el-table-column width="60">
+				<template scope="scope">
+					<i class="fa fa-copy" @click="copy(scope.row.form)"></i>
+				</template>
+			</el-table-column>
 			<el-table-column prop="unit" label="单位" width="80">
 			</el-table-column>
 			<el-table-column prop="price" label="价格" width="80">
 			</el-table-column>
-			<el-table-column prop="providerId" label="供货商" width="100" :formatter="formatProvider">
+			<el-table-column prop="bidPrice" label="最新进价" width="80">
+			</el-table-column>
+			<el-table-column prop="providerId" label="抬头" width="100" :formatter="formatProvider">
+			</el-table-column>
+			<el-table-column prop="areaId" label="采购组织" width="100" :formatter="formatArea">
 			</el-table-column>
 			<el-table-column prop="remark" label="备注" width="120">
 			</el-table-column>
 			<el-table-column prop="endTime" label="截止日期" width="120">
 			</el-table-column>
-			<el-table-column label="操作" width="400">
+			<el-table-column label="操作" width="300">
 				<template scope="scope">
-					<el-button size="mini" type="primary" @click="handleEdit(scope.$index, scope.row)">编辑</el-button>
-					<el-button size="mini" type="danger" @click="handleDel(scope.$index, scope.row)">删除</el-button>
-					<el-button size="mini" type="warning" :disabled="scope.row.imgurl==''" @click="handlePrint(scope.$index, scope.row)">打印</el-button>
-					<el-button size="mini" @click="handleRelated(scope.$index, scope.row)">相关订单</el-button>
+					<el-button size="small" type="warning" icon="fa fa-file-picture-o" :disabled="scope.row.imgurl==''" @click="handlePrint(scope.$index, scope.row)"></el-button>
+					<el-button size="small" type="primary" icon="el-icon-edit" @click="handleEdit(scope.$index, scope.row)"></el-button>
+					<el-button size="small" type="danger" icon="el-icon-delete" @click="handleDel(scope.$index, scope.row)"></el-button>
+					<el-button size="small" @click="handleRelated(scope.$index, scope.row)">相关订单</el-button>
 				</template>
 			</el-table-column>
 			<!-- <el-table-column label="签价单" width="100">
@@ -101,16 +130,6 @@
 		<!--编辑界面-->
 		<el-dialog title="编辑" :visible.sync="editFormVisible" :close-on-click-modal="false">
 			<el-form :model="editForm" label-width="80px" :rules="editFormRules" ref="editForm">
-				<el-form-item label="抬头" prop="providerId">
-					<el-select v-model="editForm.providerId" placeholder="抬头" @change="getItems" clearable>
-					    <el-option
-					      v-for="item in providers"
-					      :key="item.id"
-					      :label="item.name"
-					      :value="item.id">
-					    </el-option>
-					</el-select>
-				</el-form-item>
 				<el-form-item label="编号" prop="itemNumber">
 					<el-input v-model="editForm.itemNumber"></el-input>
 				</el-form-item>
@@ -142,10 +161,6 @@
 					  <el-progress v-if="this.uploadFlag" type="circle" :percentage="uploadPercent" style="margin-top:30px;"></el-progress>
 					</el-upload>
 				</el-form-item>
-
-				<el-form-item label="起始时间" prop="startTime">
-					<el-date-picker type="datetime" placeholder="选择日期" v-model="editForm.startTime" value-format="yyyy-MM-dd" format="yyyy-MM-dd"></el-date-picker>
-				</el-form-item>
 				<el-form-item label="截止时间" prop="endTime">
 					<el-date-picker type="datetime" placeholder="选择日期" v-model="editForm.endTime" value-format="yyyy-MM-dd"  format="yyyy-MM-dd"></el-date-picker>
 				</el-form-item>
@@ -163,6 +178,16 @@
 					<el-select v-model="addForm.providerId" placeholder="抬头" clearable>
 					    <el-option
 					      v-for="item in providers"
+					      :key="item.id"
+					      :label="item.name"
+					      :value="item.id">
+					    </el-option>
+					</el-select>
+				</el-form-item>
+				<el-form-item label="采购组织" prop="areaId">
+					<el-select v-model="addForm.areaId" placeholder="请选择" clearable>
+					    <el-option
+					      v-for="item in areas"
 					      :key="item.id"
 					      :label="item.name"
 					      :value="item.id">
@@ -187,8 +212,18 @@
 				<el-form-item label="价格" prop="price">
 					<el-input-number v-model="addForm.price" :min="0" :max="99999"></el-input-number>
 				</el-form-item>
-				<el-form-item label="起始时间" prop="startTime">
-					<el-date-picker type="datetime" placeholder="选择日期" v-model="addForm.startTime" value-format="yyyy-MM-dd" format="yyyy-MM-dd"></el-date-picker>
+				<el-form-item label="图片" prop="imgurl">
+					<el-upload
+					  class="avatar-uploader"
+					  action=""
+					  accept=".jpg,.jpeg,.png,.gif,.bmp,.pdf,.JPG,.JPEG,.PBG,.GIF,.BMP,.PDF"
+					  :http-request="uploadImg"
+					  :show-file-list="false">
+					  <pdf v-if="addForm.imgurl && this.uploadFlag == false && addForm.imgurl.endsWith('.pdf')" :src="addForm.imgurl" class="avatar"></pdf>
+					  <img v-if="addForm.imgurl && this.uploadFlag == false && !addForm.imgurl.endsWith('.pdf')" :src="addForm.imgurl" class="avatar">
+					  <i v-else-if="!addForm.imgurl && this.uploadFlag == false" class="el-icon-plus avatar-uploader-icon"></i>
+					  <el-progress v-if="this.uploadFlag" type="circle" :percentage="uploadPercent" style="margin-top:30px;"></el-progress>
+					</el-upload>
 				</el-form-item>
 				<el-form-item label="截止时间" prop="endTime">
 					<el-date-picker type="datetime" placeholder="选择日期" v-model="addForm.endTime" value-format="yyyy-MM-dd" format="yyyy-MM-dd"></el-date-picker>
@@ -206,7 +241,7 @@
 	import util from '../../common/js/util'
 	import pdf from 'vue-pdf'
 	//import NProgress from 'nprogress'
-	import { getItemList, addItem, editItem, removeItem, batAddItem, batchRemoveItem, getProviderList, getOrdersByItemId, fileItemUpload } from '../../api/api';
+	import { getItemList, addItem, editItem, batAddItem, batchRemoveItem, getProviderList, getOrdersByItemId, fileItemUpload, getAreaList } from '../../api/api';
 	export default {
 		components:
 		{
@@ -216,7 +251,8 @@
 			return {
 				filters: {
 					name: '',
-					providerId: ''
+					providerId: '',
+					areaId: ''
 				},
 				items: [],
 				total: 0,
@@ -228,6 +264,8 @@
 				uploadFlag: false,
 				uploadPercent:0,
 
+				//采购组织
+				areas: [],
 				//供应商
 				providers: [],
 
@@ -254,6 +292,9 @@
 					providerId: [
 						{ required: true, message: '请选择抬头', trigger: 'blur', type: 'number'}
 					],
+					areaId: [
+						{ required: true, message: '请选择采购组织', trigger: 'blur', type: 'number'}
+					],
 					itemNumber: [
 						{ required: true, message: '请输入编号', trigger: 'blur' }
 					],
@@ -263,24 +304,17 @@
 					unit: [
 						{ required: true, message: '请输入单位', trigger: 'blur' }
 					]
-					// price: [
-					// 	{ required: true, message: '请输入价格', trigger: 'change' }
-					// ],
-					// startTime: [
-					// 	{ required: true, message: '请输入起始日期', trigger: 'change' }
-					// ],
-					// endTime: [
-					// 	{ required: true, message: '请输入截止日期', trigger: 'change' }
-					// ]
 				},
 				//新增界面数据
 				addForm: {
 				},
 
-
 				batAddFormRules: {
 					providerId: [
 						{ required: true, message: '请选择抬头', trigger: 'blur', type: 'number'}
+					],
+					areaId: [
+						{ required: true, message: '请选择采购组织', trigger: 'blur', type: 'number'}
 					]
 				},
 				//批量新增界面数据
@@ -290,6 +324,15 @@
 			}
 		},
 		methods: {
+			copy(value) {
+		      var oInput = document.createElement("input");
+		      oInput.value = value;
+		      document.body.appendChild(oInput);
+		      oInput.select(); // 选择对象
+		      document.execCommand("Copy"); // 执行浏览器复制命令
+		      oInput.className = "oInput";
+		      oInput.style.display = "none";
+		    },
 			uploadClick(){
 				this.$refs.batAddForm.validate((valid) => {
 					if (valid) {
@@ -306,6 +349,14 @@
 						var reg2 = /(.+)市/g;
 						var reg3 = /五金(.+)/g;
 						return provider.name.replace(reg1,"").replace(reg2,"").replace(reg3,"");
+					}
+				}
+			},
+			formatArea: function (row, column) {
+				for(let i=0; i<this.areas.length; i++){
+					let area = this.areas[i];
+					if(row.areaId == area.id){
+						return area.name;
 					}
 				}
 			},
@@ -355,7 +406,7 @@
 		                    obj.price = v.price
 		                    obj.remark = v.remark
 		                    obj.providerId = _this.batAddForm.providerId
-		                    obj.startTime = v.startTime
+		                    obj.areaId = _this.batAddForm.areaId
 		                    obj.endTime = v.endTime
 		                    obj.status = 1
 		                    arr.push(obj)
@@ -372,11 +423,9 @@
 				                  type: 'success'
 				                });
 				                _this.getItems();
-				                
 				              }
 				              document.getElementById("upload").value = '';
 		                })
-		                
 		            }
 		            reader.readAsArrayBuffer(f);
 		        }
@@ -397,12 +446,11 @@
 		           }else{                 
 		           }          
 		        },100)
-
 		    	var formData = new FormData();
 		    	formData.append("file", content.file);
 		    	fileItemUpload(formData).then((res) => {
 			        this.uploadFlag = false;
-			        let msg = res.data.msg;
+			        let msg = res.data.message;
                 	let code = res.data.code;
 					if (code !== 200) {
 	                  this.$message({
@@ -410,6 +458,7 @@
 	                    type: 'error'
 	                  });
 	                } else {
+						this.addForm.imgurl = res.data.data;
 						this.editForm.imgurl = res.data.data;
 					}
 		    	});
@@ -418,18 +467,36 @@
 				this.page = val;
 				this.getItems();
 			},
+			//获取采购组织列表
+			getAreas() {
+				let para = {
+				};
+				getAreaList(para).then((res) => {
+					let msg = res.data.message;
+                	let code = res.data.code;
+					if (code !== 200) {
+	                  this.$message({
+	                    message: msg,
+	                    type: 'error'
+	                  });
+	                } else {
+						this.areas = res.data.data.list
+					}
+				});
+			},
 			//获取物料倩价列表
 			getItems() {
 				let para = {
 					page:this.page,
                     size:20,
                     name:this.filters.name,
-                    providerId:this.filters.providerId	
+                    providerId:this.filters.providerId,
+                    areaId:this.filters.areaId
 				};
 				this.listLoading = true;
 				getItemList(para).then((res) => {
 					this.listLoading = false;
-					let msg = res.data.msg;
+					let msg = res.data.message;
                 	let code = res.data.code;
 					if (code !== 200) {
 	                  this.$message({
@@ -448,7 +515,7 @@
 				let para = {
 				};
 				getProviderList(para).then((res) => {
-					let msg = res.data.msg;
+					let msg = res.data.message;
                 	let code = res.data.code;
 					if (code !== 200) {
 	                  this.$message({
@@ -471,7 +538,7 @@
 					editItem(para).then((res) => {
 						this.listLoading = false;
 						//NProgress.done();
-						let msg = res.data.msg;
+						let msg = res.data.message;
 	                	let code = res.data.code;
 						if (code !== 200) {
 		                  this.$message({
@@ -506,19 +573,20 @@
 					unit: '',
 					price: 0,
 					providerId: '',
-					startTime: new Date(),
+					areaId: '',
 					endTime: new Date(new Date().getTime() + 365*24*60*60*1000)
 				};
 			},
     		handlePrint: function (index, row) {
     			let newWindow=""
     			if(row.imgurl.endsWith('.pdf')){
-				    newWindow = window.open(row.imgurl);
-    			}else{
-    				var printHtml = "<img src='" + row.imgurl + "' />";
+    				var printHtml = "<iframe id='pdf' width='100%'' height='100%'' src='" + row.imgurl + "' />";
 					newWindow = window.open("",'newwindow');
 					newWindow.document.body.innerHTML = printHtml;
-					setTimeout(function(){ newWindow.print();}, 500);
+    			}else{
+    				var printHtml = "<img id='img' src='" + row.imgurl + "' />";
+					newWindow = window.open("",'newwindow');
+					newWindow.document.body.innerHTML = printHtml;
     			}
     		},
     		//物料相关订单
@@ -529,7 +597,7 @@
                     itemId:row.id
 				};
 				getOrdersByItemId(para).then((res) => {
-					let msg = res.data.msg;
+					let msg = res.data.message;
                 	let code = res.data.code;
 					if (code !== 200) {
 	                  this.$message({
@@ -552,7 +620,7 @@
 						editItem(para).then((res) => {
 							this.editLoading = false;
 							this.editFormVisible = false;
-							let msg = res.data.msg;
+							let msg = res.data.message;
 		                	let code = res.data.code;
 							if (code !== 200) {
 			                  this.$message({
@@ -580,7 +648,7 @@
 						addItem(para).then((res) => {
 							this.addLoading = false;
 							this.addFormVisible = false;
-							let msg = res.data.msg;
+							let msg = res.data.message;
 		                	let code = res.data.code;
 							if (code !== 200) {
 			                  this.$message({
@@ -612,7 +680,7 @@
 					let para = { ids: ids };
 					batchRemoveItem(para).then((res) => {
 						this.listLoading = false;
-						let msg = res.data.msg;
+						let msg = res.data.message;
 	                	let code = res.data.code;
 						if (code !== 200) {
 		                  this.$message({
@@ -635,12 +703,18 @@
 		mounted() {
 			this.getItems();
 			this.getProviders();
+			this.getAreas();
 		}
 	}
 
 </script>
 
 <style scoped>
+	i:hover{ 
+		color:#999;
+		cursor: pointer;
+	}
+
  .avatar-uploader{
  	width: 178px;
     height: 178px;
@@ -685,3 +759,4 @@
         margin: 0mm; /* this affects the margin in the printer settings */
     }
 </style>
+

@@ -23,6 +23,28 @@
 			  	</el-select>
 			</el-form-item>
 			<br>
+
+			<el-form-item label="采购组织" prop="areaId">
+				<el-select v-model="addForm.areaId" filterable placeholder="请选择" @change="areaChangeHandler" clearable>
+				    <el-option
+				      v-for="item in areas"
+				      :key="item.id"
+				      :label="item.name"
+				      :value="item.id">
+				    </el-option>
+			  	</el-select>
+			</el-form-item>
+			<el-form-item label="采购员" prop="purchaserId">
+				<el-select v-model="addForm.purchaserId" filterable placeholder="请选择" clearable>
+				    <el-option
+				      v-for="item in purchasers"
+				      :key="item.id"
+				      :label="item.name+item.phone"
+				      :value="item.id">
+				    </el-option>
+			  	</el-select>
+			</el-form-item>
+			<br>
 			<el-form-item label="备注" prop="remark">
 				<el-input type="textarea" placeholder="采购、请购人、区域" v-model="addForm.remark" clearable></el-input>
 			</el-form-item>
@@ -47,8 +69,6 @@
 					<el-table-column prop="price" label="价格" width="80">
 					</el-table-column>
 					<el-table-column prop="count" label="数量" width="80">
-					</el-table-column>
-					<el-table-column prop="startTime" label="起始日期" width="120">
 					</el-table-column>
 					<el-table-column prop="endTime" label="截止日期" width="120">
 					</el-table-column>
@@ -108,7 +128,7 @@
 <script>
 	import util from '../../common/js/util'
 	//import NProgress from 'nprogress'
-	import { addOrder, getItemList, getProviderList, getDemanderList} from '../../api/api';
+	import { addOrder, getItemList, getProviderList, getDemanderList, getPurchaserList, getAreaList} from '../../api/api';
 	export default {
 		data() {
 			return {
@@ -120,8 +140,12 @@
 				page: 1,
 				filters: {
 					name: '',
-					providerId: ''
+					providerId: '',
+					areaId: ''
 				},
+
+				//区域
+				areas: [],
 
 				//供应商
 				providers: [],
@@ -129,11 +153,8 @@
 				//需求公司
 				demanders: [],
 
-				//请购人
-				purchasers: [],
-
 				//采购员
-				buyers: [],
+				purchasers: [],
 
 				//仓库
 				stockers: [],
@@ -142,6 +163,15 @@
 				addFormRules: {
 					providerId: [
 						{ required: true, message: '请选择供应商', trigger: 'blur', type: 'number'}
+					],
+					demanderId: [
+						{ required: true, message: '请选择需求公司', trigger: 'blur', type: 'number'}
+					],
+					purchaserId: [
+						{ required: true, message: '请选择采购员', trigger: 'blur', type: 'number'}
+					],
+					areaId: [
+						{ required: true, message: '请选择采购组织', trigger: 'blur', type: 'number'}
 					],
 					demanderId: [
 						{ required: true, message: '请选择需求公司', trigger: 'blur', type: 'number'}
@@ -158,9 +188,7 @@
 					qgSn: '',
 					providerId: '',
 					demanderId: '',
-					purchaserId: 0,
-					buyerId: 0,
-					stockerId: 0,
+					purchaserId: '',
 					sum: 0,
 					org: '广西区域',
 					itemList: []
@@ -178,13 +206,14 @@
 					page:this.page,
                     size:20,
 					name: this.filters.name,
-					providerId:this.filters.providerId	
+					providerId:this.filters.providerId,
+					areaId: this.filters.areaId
 				};
 				this.itemsLoading = true;
 				//NProgress.start();
 				getItemList(para).then((res) => {
 					this.itemsLoading = false;
-					let msg = res.data.msg;
+					let msg = res.data.message;
                 	let code = res.data.code;
 					if (code !== 200) {
 	                  this.$message({
@@ -203,7 +232,7 @@
 				let para = {
 				};
 				getProviderList(para).then((res) => {
-					let msg = res.data.msg;
+					let msg = res.data.message;
                 	let code = res.data.code;
 					if (code !== 200) {
 	                  this.$message({
@@ -220,7 +249,7 @@
 				let para = {
 				};
 				getDemanderList(para).then((res) => {
-					let msg = res.data.msg;
+					let msg = res.data.message;
                 	let code = res.data.code;
 					if (code !== 200) {
 	                  this.$message({
@@ -229,6 +258,40 @@
 	                  });
 	                } else {
 						this.demanders = res.data.data.list
+					}
+				});
+			},
+			//获取采购员列表
+			getPurchasers() {
+				let para = {
+				};
+				getPurchaserList(para).then((res) => {
+					let msg = res.data.message;
+                	let code = res.data.code;
+					if (code !== 200) {
+	                  this.$message({
+	                    message: msg,
+	                    type: 'error'
+	                  });
+	                } else {
+						this.purchasers = res.data.data.list
+					}
+				});
+			},
+			//获取采购组织列表
+			getAreas() {
+				let para = {
+				};
+				getAreaList(para).then((res) => {
+					let msg = res.data.message;
+                	let code = res.data.code;
+					if (code !== 200) {
+	                  this.$message({
+	                    message: msg,
+	                    type: 'error'
+	                  });
+	                } else {
+						this.areas = res.data.data.list
 					}
 				});
 			},
@@ -249,7 +312,7 @@
 						addOrder(this.addForm).then((res) => {
 							//NProgress.done();
 							this.addLoading = false;
-							let msg = res.data.msg;
+							let msg = res.data.message;
 		                	let code = res.data.code;
 							if (code !== 200) {
 			                  this.$message({
@@ -316,11 +379,21 @@
 				this.addForm.itemList = [];
 				this.addForm.sum = 0;
 				this.count = 0;
+			},
+			areaChangeHandler(){
+				this.filters.areaId = this.addForm.areaId;
+				//清空选择的物料
+				this.addForm.itemList = [];
+				this.addForm.sum = 0;
+				this.count = 0;
 			}
+
 		},
 		mounted() {
 			this.getProviders();
 			this.getDemanders();
+			this.getPurchasers();
+			this.getAreas();
 		}
 	}
 

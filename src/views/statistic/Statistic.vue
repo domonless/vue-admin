@@ -25,6 +25,8 @@
 			<div id="chartPie" style="width:50%; height:400px;"></div>
 		</el-col>
 		毛利：{{gross}}元
+		<el-col>
+		</el-col>
 
 	</section>
 </template>
@@ -93,7 +95,7 @@
 					this.queryLoading = true;
 					getStatistic(para).then((res) => {
 						this.queryLoading = false;
-						let msg = res.data.msg;
+						let msg = res.data.message;
 	                	let code = res.data.code;
 						if (code !== 200) {
 		                  this.$message({

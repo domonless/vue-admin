@@ -22,38 +22,22 @@
 				    </el-option>
 			  	</el-select>
 			</el-form-item>
-			<el-form-item label="采购组织" prop="org">
-				<el-radio-group v-model="addForm.org">
-			      <el-radio-button label="广西区域"></el-radio-button>
-			      <el-radio-button label="采购中心"></el-radio-button>
-			    </el-radio-group>
-			</el-form-item>
 			<br>
 
-			<el-form-item label="请购人" prop="purchaserId">
+			<el-form-item label="采购组织" prop="areaId">
+				<el-select v-model="addForm.areaId" filterable placeholder="请选择" @change="areaChangeHandler" clearable>
+				    <el-option
+				      v-for="item in areas"
+				      :key="item.id"
+				      :label="item.name"
+				      :value="item.id">
+				    </el-option>
+			  	</el-select>
+			</el-form-item>
+			<el-form-item label="采购员" prop="purchaserId">
 				<el-select v-model="addForm.purchaserId" filterable placeholder="请选择" clearable>
 				    <el-option
 				      v-for="item in purchasers"
-				      :key="item.id"
-				      :label="item.name+item.phone"
-				      :value="item.id">
-				    </el-option>
-			  	</el-select>
-			</el-form-item>
-			<el-form-item label="采购员" prop="buyerId">
-				<el-select v-model="addForm.buyerId" filterable placeholder="请选择" clearable>
-				    <el-option
-				      v-for="item in buyers"
-				      :key="item.id"
-				      :label="item.name+item.phone"
-				      :value="item.id">
-				    </el-option>
-			  	</el-select>
-			</el-form-item>
-			<el-form-item label="仓库" prop="stockerId">
-				<el-select v-model="addForm.stockerId" filterable placeholder="请选择" clearable>
-				    <el-option
-				      v-for="item in stockers"
 				      :key="item.id"
 				      :label="item.name+item.phone"
 				      :value="item.id">
@@ -68,7 +52,7 @@
 			<el-form-item label="请购编号" prop="qgSn">
 				<el-input v-model="addForm.qgSn" :maxlength="12"></el-input>
 			</el-form-item>
-			<el-button type="primary" :disabled="!this.addForm.providerId" @click="showItemList">物料列表</el-button>
+			<el-button type="primary" :disabled="!this.addForm.providerId || !this.addForm.areaId" @click="showItemList">物料列表</el-button>
 
 			<!-- 订单物料列表 -->
 			<el-form-item label="物料列表" prop="itemList">
@@ -88,8 +72,6 @@
 					<el-table-column prop="price" label="价格" width="80">
 					</el-table-column>
 					<el-table-column prop="count" label="数量" width="80">
-					</el-table-column>
-					<el-table-column prop="startTime" label="起始日期" width="120">
 					</el-table-column>
 					<el-table-column prop="endTime" label="截止日期" width="120">
 					</el-table-column>
@@ -149,7 +131,7 @@
 <script>
 	import util from '../../common/js/util'
 	//import NProgress from 'nprogress'
-	import { addOrder, getItemList, getPurchaserList, getPurchaserListByRole, getProviderList, getDemanderList} from '../../api/api';
+	import { addOrder, getItemList, getPurchaserList, getProviderList, getDemanderList, getAreaList} from '../../api/api';
 	export default {
 		data() {
 			return {
@@ -161,7 +143,8 @@
 				page: 1,
 				filters: {
 					name: '',
-					providerId: ''
+					providerId: '',
+					areaId: ''
 				},
 
 				//供应商
@@ -170,14 +153,11 @@
 				//需求公司
 				demanders: [],
 
-				//请购人
+				//采购员
 				purchasers: [],
 
-				//采购员
-				buyers: [],
-
-				//仓库
-				stockers: [],
+				//采购组织
+				areas: [],
 
 				//校验规则
 				addFormRules: {
@@ -196,13 +176,10 @@
 						{ required: true, message: '请选择需求公司', trigger: 'blur', type: 'number' }
 					],
 					purchaserId: [
-						{ required: true, message: '请选择请购人', trigger: 'blur', type: 'number' }
-					],
-					buyerId: [
 						{ required: true, message: '请选择采购员', trigger: 'blur', type: 'number' }
 					],
-					stockerId: [
-						{ required: true, message: '请选择仓库签字人', trigger: 'blur', type: 'number' }
+					areaId: [
+						{ required: true, message: '请选择采购组织', trigger: 'blur', type: 'number' }
 					]
 				},
 
@@ -213,8 +190,7 @@
 					providerId: '',
 					demanderId: '',
 					purchaserId: '',
-					buyerId: '',
-					stockerId: '',
+					areaId: '',
 					sum: 0,
 					org: '广西区域',
 					itemList: []
@@ -233,13 +209,14 @@
 					page:this.page,
                     size:20,
 					name: this.filters.name,
-					providerId:this.filters.providerId	
+					providerId:this.filters.providerId,
+					areaId:this.filters.areaId
 				};
 				this.itemsLoading = true;
 				//NProgress.start();
 				getItemList(para).then((res) => {
 					this.itemsLoading = false;
-					let msg = res.data.msg;
+					let msg = res.data.message;
                 	let code = res.data.code;
 					if (code !== 200) {
 	                  this.$message({
@@ -253,13 +230,12 @@
 					}
 				});
 			},
-			//获取请购人列表
+			//获取采购员列表
 			getPurchasers() {
 				let para = {
-					role: 1
 				};
-				getPurchaserListByRole(para).then((res) => {
-					let msg = res.data.msg;
+				getPurchaserList(para).then((res) => {
+					let msg = res.data.message;
                 	let code = res.data.code;
 					if (code !== 200) {
 	                  this.$message({
@@ -271,13 +247,12 @@
 					}
 				});
 			},
-			//获取采购员列表
-			getBuyers() {
+			//获取采购组织列表
+			getAreas() {
 				let para = {
-					role: 2
 				};
-				getPurchaserListByRole(para).then((res) => {
-					let msg = res.data.msg;
+				getAreaList(para).then((res) => {
+					let msg = res.data.message;
                 	let code = res.data.code;
 					if (code !== 200) {
 	                  this.$message({
@@ -285,25 +260,7 @@
 	                    type: 'error'
 	                  });
 	                } else {
-						this.buyers = res.data.data.list
-					}
-				});
-			},
-			//获取仓库签字人列表
-			getStockers() {
-				let para = {
-					role: 3
-				};
-				getPurchaserListByRole(para).then((res) => {
-					let msg = res.data.msg;
-                	let code = res.data.code;
-					if (code !== 200) {
-	                  this.$message({
-	                    message: msg,
-	                    type: 'error'
-	                  });
-	                } else {
-						this.stockers = res.data.data.list
+						this.areas = res.data.data.list
 					}
 				});
 			},
@@ -312,7 +269,7 @@
 				let para = {
 				};
 				getProviderList(para).then((res) => {
-					let msg = res.data.msg;
+					let msg = res.data.message;
                 	let code = res.data.code;
 					if (code !== 200) {
 	                  this.$message({
@@ -329,7 +286,7 @@
 				let para = {
 				};
 				getDemanderList(para).then((res) => {
-					let msg = res.data.msg;
+					let msg = res.data.message;
                 	let code = res.data.code;
 					if (code !== 200) {
 	                  this.$message({
@@ -358,7 +315,7 @@
 						addOrder(this.addForm).then((res) => {
 							//NProgress.done();
 							this.addLoading = false;
-							let msg = res.data.msg;
+							let msg = res.data.message;
 		                	let code = res.data.code;
 							if (code !== 200) {
 			                  this.$message({
@@ -426,13 +383,19 @@
 				this.addForm.itemList = [];
 				this.addForm.sum = 0;
 				this.count = 0;
+			},
+			areaChangeHandler(){
+				this.filters.areaId = this.addForm.areaId;
+				//清空选择的物料
+				this.addForm.itemList = [];
+				this.addForm.sum = 0;
+				this.count = 0;
 			}
 		},
 		mounted() {
 			this.getProviders();
 			this.getPurchasers();
-			this.getBuyers();
-			this.getStockers();
+			this.getAreas();
 			this.getDemanders();
 		}
 	}

@@ -2,11 +2,12 @@ import axios from 'axios';
 import qs from 'qs'
 import md5 from 'js-md5';
 import Cookies from 'js-cookie';
+import { Message } from 'element-ui';
 
 axios.defaults.headers.common['Content-Type'] = 'application/json;charset=UTF-8';
 let base = 'http://bapi.kyb66.com';
 // let base = 'http://localhost:8080';
-// let base = 'http://192.168.1.5:8080';
+// let base = 'http://192.168.1.4:8080';
 
 const getSignStr = function(obj,token,timestamp){
   let values = ''
@@ -44,6 +45,57 @@ axios.interceptors.request.use(config => {
 	Promise.reject(error);
 })
 
+axios.interceptors.response.use(
+  response => {
+  	 const res = response.data;
+      if (res.code == 410) {
+        Message({
+          message: res.message,
+          type: 'error'
+        });
+      } else {
+        return response;
+      }
+  },
+    /**
+    * 下面的注释为通过response自定义code来标示请求状态，当code返回如下情况为权限有问题，登出并返回到登录页
+    * 如通过xmlhttprequest 状态码标识 逻辑可写在下面error中
+    */
+  //  const res = response.data;
+  //     if (res.code !== 20000) {
+  //       Message({
+  //         message: res.message,
+  //         type: 'error',
+  //         duration: 5 * 1000
+  //       });
+  //       // 50008:非法的token; 50012:其他客户端登录了;  50014:Token 过期了;
+  //       if (res.code === 50008 || res.code === 50012 || res.code === 50014) {
+  //         MessageBox.confirm('你已被登出，可以取消继续留在该页面，或者重新登录', '确定登出', {
+  //           confirmButtonText: '重新登录',
+  //           cancelButtonText: '取消',
+  //           type: 'warning'
+  //         }).then(() => {
+  //           store.dispatch('FedLogOut').then(() => {
+  //             location.reload();// 为了重新实例化vue-router对象 避免bug
+  //           });
+  //         })
+  //       }
+  //       return Promise.reject(error);
+  //     } else {
+  //       return response.data;
+  //     }}
+  error => {
+    console.log('err' + error);// for debug
+    Message({
+      message: '获取数据失败，请刷新重试',
+      type: 'error',
+      duration: 3 * 1000
+    });
+    return Promise.reject(error);
+  }
+)
+
+
 //rsa
 export const getRsa = params => { return axios.get(`${base}/auth/rsa`, { params: params }); };
 
@@ -63,8 +115,6 @@ export const addItem = params => { return axios.post(`${base}/item/add`, params)
 
 export const editItem = params => { return axios.post(`${base}/item/update`, params); };
 
-export const removeItem = params => { return axios.post(`${base}/item/delete`, params); };
-
 export const batAddItem = params => { return axios.post(`${base}/item/batAdd`, params); };
 
 export const batchRemoveItem = params => { return axios.post(`${base}/item/batDel`, params); };
@@ -82,8 +132,6 @@ export const addOrder = params => { return axios.post(`${base}/order/add`, param
 
 export const editOrder = params => { return axios.post(`${base}/order/update`, params); };
 
-export const removeOrder = params => { return axios.post(`${base}/order/delete`, params); };
-
 export const getOrderDetail = params => { return axios.get(`${base}/order/detail`, { params: params }); };
 
 export const editOrderDetail = params => { return axios.post(`${base}/order/detail/edit`, params); };
@@ -95,16 +143,12 @@ export const fileOrderUpload = params => { return axios.post(`${base}/file/order
 export const getDeliveryOrderList = params => { return axios.get(`${base}/deliveryOrder/list`, { params: params }); };
 
 
-//请购人
+//采购员
 export const getPurchaserList = params => { return axios.get(`${base}/purchaser/list`, { params: params }); };
-
-export const getPurchaserListByRole = params => { return axios.get(`${base}/purchaser/list/role`, { params: params }); };
 
 export const addPurchaser = params => { return axios.post(`${base}/purchaser/add`, params); };
 
 export const editPurchaser = params => { return axios.post(`${base}/purchaser/update`, params); };
-
-export const removePurchaser = params => { return axios.post(`${base}/purchaser/delete`, params); };
 
 
 //供应商
@@ -114,7 +158,13 @@ export const addProvider = params => { return axios.post(`${base}/provider/add`,
 
 export const editProvider = params => { return axios.post(`${base}/provider/update`, params); };
 
-export const removeProvider = params => { return axios.post(`${base}/provider/delete`, params); };
+
+//区域
+export const getAreaList = params => { return axios.get(`${base}/area/list`, { params: params }); };
+
+export const addArea = params => { return axios.post(`${base}/area/add`, params); };
+
+export const editArea = params => { return axios.post(`${base}/area/update`, params); };
 
 
 //需求公司

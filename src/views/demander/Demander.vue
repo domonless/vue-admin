@@ -119,7 +119,7 @@
 				this.listLoading = true;
 				getDemanderList(para).then((res) => {
 					this.listLoading = false;
-					let msg = res.data.msg;
+					let msg = res.data.message;
                 	let code = res.data.code;
 					if (code !== 200) {
 	                  this.$message({
@@ -148,7 +148,7 @@
 					editDemander(para).then((res) => {
 						this.listLoading = false;
 						//NProgress.done();
-						let msg = res.data.msg;
+						let msg = res.data.message;
 	                	let code = res.data.code;
 						if (code !== 200) {
 		                  this.$message({
@@ -191,7 +191,7 @@
 						editDemander(para).then((res) => {
 							this.editLoading = false;
 							this.editFormVisible = false;
-							let msg = res.data.msg;
+							let msg = res.data.message;
 		                	let code = res.data.code;
 							if (code !== 200) {
 			                  this.$message({
@@ -221,7 +221,7 @@
 								this.addLoading = false;
 								this.addFormVisible = false;
 								//NProgress.done();
-								let msg = res.data.msg;
+								let msg = res.data.message;
 			                	let code = res.data.code;
 								if (code !== 200) {
 				                  this.$message({
