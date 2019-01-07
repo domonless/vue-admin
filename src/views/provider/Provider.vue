@@ -2,13 +2,7 @@
 	<section>
 		<!--工具条-->
 		<el-col :span="24" class="toolbar" style="padding-bottom: 0px;">
-			<el-form :inline="true" :model="filters">
-				<el-form-item>
-					<el-input v-model="filters.name" placeholder="名称" @change="getProviders"></el-input>
-				</el-form-item>
-				<el-form-item>
-					<el-button type="primary" v-on:click="getProviders" >查询</el-button>
-				</el-form-item>
+			<el-form :inline="true">
 				<el-form-item>
 					<el-button type="warning" @click="handleAdd">新增</el-button>
 				</el-form-item>
@@ -93,9 +87,6 @@
 	export default {
 		data() {
 			return {
-				filters: {
-					name: ''
-				},
 				providers: [],
 				total: 0,
 				page: 1,
@@ -142,8 +133,7 @@
 			getProviders() {
 				let para = {
 					page:this.page,
-                    size:20,
-                    name:this.filters.name	
+                    size:20
 				};
 				this.listLoading = true;
 				getProviderList(para).then((res) => {

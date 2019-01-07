@@ -4,7 +4,7 @@
 		<el-col :span="24" class="toolbar" style="padding-bottom: 0px;">
 			<el-form :inline="true" :model="filters">
 				<el-form-item>
-					<el-input v-model="filters.name" placeholder="姓名" @input="getPurchasers"></el-input>
+					<el-input v-model="filters.name" placeholder="姓名" @input="getPurchasers" clearable></el-input>
 				</el-form-item>
 				<el-form-item>
 					<el-button type="primary" v-on:click="getPurchasers" >查询</el-button>
@@ -21,8 +21,6 @@
 			<el-table-column prop="name" label="姓名" >
 			</el-table-column>
 			<el-table-column prop="phone" label="电话" >
-			</el-table-column>
-			<el-table-column prop="areaId" label="区域" :formatter="formatArea">
 			</el-table-column>
 			<el-table-column label="操作" width="150">
 				<template scope="scope">
@@ -41,16 +39,6 @@
 		<!--编辑界面-->
 		<el-dialog title="编辑" :visible.sync="editFormVisible" :close-on-click-modal="false">
 			<el-form :model="editForm" label-width="80px" :rules="editFormRules" ref="editForm">
-				<el-form-item label="采购组织" prop="areaId">
-					<el-select v-model="editForm.areaId" filterable placeholder="请选择" clearable>
-					    <el-option
-					      v-for="item in areas"
-					      :key="item.id"
-					      :label="item.name"
-					      :value="item.id">
-					    </el-option>
-				  	</el-select>
-				</el-form-item>
 				<el-form-item label="姓名" prop="name">
 					<el-input v-model="editForm.name"></el-input>
 				</el-form-item>
@@ -67,16 +55,6 @@
 		<!--新增界面-->
 		<el-dialog title="新增" :visible.sync="addFormVisible" :close-on-click-modal="false">
 			<el-form :model="addForm" label-width="80px" :rules="addFormRules" ref="addForm">
-				<el-form-item label="采购组织" prop="areaId">
-					<el-select v-model="addForm.areaId" filterable placeholder="请选择" clearable>
-					    <el-option
-					      v-for="item in areas"
-					      :key="item.id"
-					      :label="item.name"
-					      :value="item.id">
-					    </el-option>
-				  	</el-select>
-				</el-form-item>
 				<el-form-item label="姓名" prop="name">
 					<el-input v-model="addForm.name"></el-input>
 				</el-form-item>
@@ -94,7 +72,7 @@
 
 <script>
 	import util from '../../common/js/util'
-	import { getPurchaserList, addPurchaser, editPurchaser, getAreaList } from '../../api/api';
+	import { getPurchaserList, addPurchaser, editPurchaser } from '../../api/api';
 	export default {
 		data() {
 			return {
@@ -102,8 +80,6 @@
 					name: ''
 				},
 				purchasers: [],
-				//采购组织
-				areas: [],
 				total: 0,
 				page: 1,
 				listLoading: false,
@@ -111,9 +87,6 @@
 				editFormVisible: false,//编辑界面是否显示
 				editLoading: false,
 				editFormRules: {
-					areaId: [
-						{ required: true, message: '请选择采购组织', trigger: 'blur', type: 'number' }
-					],
 					name: [
 						{ required: true, message: '请输入姓名', trigger: 'blur' }
 					],
@@ -129,9 +102,6 @@
 				addFormVisible: false,//新增界面是否显示
 				addLoading: false,
 				addFormRules: {
-					areaId: [
-						{ required: true, message: '请选择采购组织', trigger: 'blur', type: 'number' }
-					],
 					name: [
 						{ required: true, message: '请输入姓名', trigger: 'blur' }
 					],
@@ -149,14 +119,6 @@
 			handleCurrentChange(val) {
 				this.page = val;
 				this.getPurchasers();
-			},
-			formatArea: function (row, column) {
-				for(let i=0; i<this.areas.length; i++){
-					let area = this.areas[i];
-					if(row.areaId == area.id){
-						return area.name;
-					}
-				}
 			},
 			//获取请购人列表
 			getPurchasers() {
@@ -180,23 +142,6 @@
 	                    this.page = res.data.data.pageNum == 0 ? res.data.data.pageNum +1 : res.data.data.pageNum
 	                    this.total = res.data.data.total
 	                }
-				});
-			},
-			//获取采购组织列表
-			getAreas() {
-				let para = {
-				};
-				getAreaList(para).then((res) => {
-					let msg = res.data.message;
-                	let code = res.data.code;
-					if (code !== 200) {
-	                  this.$message({
-	                    message: msg,
-	                    type: 'error'
-	                  });
-	                } else {
-						this.areas = res.data.data.list
-					}
 				});
 			},
 			//删除
@@ -239,8 +184,7 @@
 				this.editForm = {
 					id: row.id,
 					name: row.name,
-					phone: row.phone,
-					areaId: row.areaId
+					phone: row.phone
 				};
 			},
 			//显示新增界面
@@ -248,8 +192,7 @@
 				this.addFormVisible = true;
 				this.addForm = {
 					name: '',
-					phone: '',
-					areaId: ''
+					phone: ''
 				};
 			},
 			//编辑
@@ -314,7 +257,6 @@
 		},
 		mounted() {
 			this.getPurchasers();
-			this.getAreas();
 		}
 	}
 

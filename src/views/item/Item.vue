@@ -123,6 +123,7 @@
 		<!--工具条-->
 		<el-col :span="24" class="toolbar">
 			<el-button type="danger" @click="batchRemove" :disabled="this.sels.length===0">批量删除</el-button>
+			<el-button type="info" @click="handleBatUpdateImg" :disabled="this.sels.length===0">批量更新图片</el-button>
 			<el-pagination layout="prev, pager, next" @current-change="handleCurrentChange" :page-size="20" :total="total" style="float:right;">
 			</el-pagination>
 		</el-col>
@@ -168,6 +169,29 @@
 			<div slot="footer" class="dialog-footer">
 				<el-button @click.native="editFormVisible = false">取消</el-button>
 				<el-button type="primary" @click.native="editSubmit" :loading="editLoading">提交</el-button>
+			</div>
+		</el-dialog>
+
+		<!--批量更新图片界面-->
+		<el-dialog title="批量更新图片" :visible.sync="batUpdateImgFormVisible" :close-on-click-modal="false">
+			<el-form :model="batUpdateImgForm" label-width="80px" :rules="batUpdateImgFormRules" ref="batUpdateImgForm">
+				<el-form-item label="图片" prop="imgurl">
+					<el-upload
+					  class="avatar-uploader"
+					  action=""
+					  accept=".jpg,.jpeg,.png,.gif,.bmp,.pdf,.JPG,.JPEG,.PBG,.GIF,.BMP,.PDF"
+					  :http-request="uploadImg"
+					  :show-file-list="false">
+					  <pdf v-if="batUpdateImgForm.imgurl && this.uploadFlag == false && batUpdateImgForm.imgurl.endsWith('.pdf')" :src="editForm.imgurl" class="avatar"></pdf>
+					  <img v-if="batUpdateImgForm.imgurl && this.uploadFlag == false && !batUpdateImgForm.imgurl.endsWith('.pdf')" :src="editForm.imgurl" class="avatar">
+					  <i v-else-if="!batUpdateImgForm.imgurl && this.uploadFlag == false" class="el-icon-plus avatar-uploader-icon"></i>
+					  <el-progress v-if="this.uploadFlag" type="circle" :percentage="uploadPercent" style="margin-top:30px;"></el-progress>
+					</el-upload>
+				</el-form-item>
+			</el-form>
+			<div slot="footer" class="dialog-footer">
+				<el-button @click.native="batUpdateImgFormVisible = false">取消</el-button>
+				<el-button type="primary" @click.native="batUpdateImgSubmit" :loading="batUpdateImgLoading">提交</el-button>
 			</div>
 		</el-dialog>
 
@@ -241,7 +265,7 @@
 	import util from '../../common/js/util'
 	import pdf from 'vue-pdf'
 	//import NProgress from 'nprogress'
-	import { getItemList, addItem, editItem, batAddItem, batchRemoveItem, getProviderList, getOrdersByItemId, fileItemUpload, getAreaList } from '../../api/api';
+	import { getItemList, addItem, editItem, batAddItem, batchRemoveItem, batUpdateImgurl, getProviderList, getOrdersByItemId, fileItemUpload, getAreaList } from '../../api/api';
 	export default {
 		components:
 		{
@@ -284,6 +308,17 @@
 				},
 				//编辑界面数据
 				editForm: {
+				},
+
+				batUpdateImgFormVisible: false,//批量更新图片界面是否显示
+				batUpdateImgLoading: false,
+				batUpdateImgFormRules: {
+					imgurl: [
+						{ required: true, message: '请上传图片', trigger: 'blur' }
+					]
+				},
+				//批量更新图片界面数据
+				batUpdateImgForm: {
 				},
 
 				addFormVisible: false,//新增界面是否显示
@@ -348,7 +383,8 @@
 						var reg1 = /(.+)区/g;
 						var reg2 = /(.+)市/g;
 						var reg3 = /五金(.+)/g;
-						return provider.name.replace(reg1,"").replace(reg2,"").replace(reg3,"");
+						var reg4 = /石材(.+)/g;
+						return provider.name.replace(reg1,"").replace(reg2,"").replace(reg3,"").replace(reg4,"");
 					}
 				}
 			},
@@ -460,6 +496,7 @@
 	                } else {
 						this.addForm.imgurl = res.data.data;
 						this.editForm.imgurl = res.data.data;
+						this.batUpdateImgForm.imgurl = res.data.data;
 					}
 		    	});
 		    },
@@ -562,6 +599,10 @@
 				this.editFormVisible = true;
 				this.editForm = Object.assign({}, row);
 			},
+			//显示批量上传图片界面
+			handleBatUpdateImg: function (index, row) {
+				this.batUpdateImgFormVisible = true;
+			},
 			//显示新增界面
 			handleAdd: function () {
 				this.addFormVisible = true;
@@ -634,6 +675,37 @@
 								});
 								this.getItems();
 								this.$refs['editForm'].resetFields();
+							}
+						});
+					}
+				});
+			},
+			//批量更新图片
+			batUpdateImgSubmit: function () {
+				this.$refs.batUpdateImgForm.validate((valid) => {
+					if (valid) {
+						this.batUpdateImgLoading = true;
+						let para = {
+							ids: this.sels.map(item => item.id),
+							imgurl: this.batUpdateImgForm.imgurl
+						};
+						batUpdateImgurl(para).then((res) => {
+							this.batUpdateImgLoading = false;
+							this.batUpdateImgFormVisible = false;
+							let msg = res.data.message;
+		                	let code = res.data.code;
+							if (code !== 200) {
+			                  this.$message({
+			                    message: msg,
+			                    type: 'error'
+			                  });
+			                } else {
+								this.$message({
+									message: '提交成功',
+									type: 'success'
+								});
+								this.getItems();
+								this.$refs['batUpdateImgForm'].resetFields();
 							}
 						});
 					}

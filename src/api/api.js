@@ -119,6 +119,8 @@ export const batAddItem = params => { return axios.post(`${base}/item/batAdd`, p
 
 export const batchRemoveItem = params => { return axios.post(`${base}/item/batDel`, params); };
 
+export const batUpdateImgurl = params => { return axios.post(`${base}/item/batUpdateImg`, params); };
+
 export const getOrdersByItemId = params => { return axios.get(`${base}/item/orders`, { params: params }); };
 
 //上传物料图片
