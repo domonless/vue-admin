@@ -124,7 +124,7 @@
 		<el-col :span="24" class="toolbar">
 			<el-button type="danger" @click="batchRemove" :disabled="this.sels.length===0">批量删除</el-button>
 			<el-button type="info" @click="handleBatUpdateImg" :disabled="this.sels.length===0">批量更新图片</el-button>
-			<el-pagination layout="prev, pager, next" @current-change="handleCurrentChange" :page-size="20" :total="total" style="float:right;">
+			<el-pagination layout="total, sizes, prev, pager, next" @size-change="handleSizeChange" @current-change="handleCurrentChange" :page-size="pageSize" :total="total" style="float:right;">
 			</el-pagination>
 		</el-col>
 
@@ -281,6 +281,7 @@
 				items: [],
 				total: 0,
 				page: 1,
+				pageSize: 20,
 				listLoading: false,
 				sels: [],//列表选中列
 
@@ -500,8 +501,14 @@
 					}
 		    	});
 		    },
+		    //页数变化处理
 			handleCurrentChange(val) {
 				this.page = val;
+				this.getItems();
+			},
+			//页大小变化处理
+			handleSizeChange(val){
+				this.pageSize = val;
 				this.getItems();
 			},
 			//获取采购组织列表
@@ -525,7 +532,7 @@
 			getItems() {
 				let para = {
 					page:this.page,
-                    size:20,
+                    size:this.pageSize,
                     name:this.filters.name,
                     providerId:this.filters.providerId,
                     areaId:this.filters.areaId
