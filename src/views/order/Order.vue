@@ -51,9 +51,6 @@
 		          <el-form-item label="采购员:">
 		            <span>{{ props.row.purchaser }}</span>
 		          </el-form-item>
-		          <el-form-item label="供货商:">
-		            <span>{{ props.row.provider }}</span>
-		          </el-form-item>
 		        </el-form>
 		      </template>
 		    </el-table-column>
@@ -63,13 +60,15 @@
 			</el-table-column> -->
 			<el-table-column prop="demander" label="需求公司" width="300" sortable>
 			</el-table-column>
+			<el-table-column prop="provider" label="供货商" width="100" :formatter="formatProvider">
+			</el-table-column>
 			<el-table-column prop="sum" label="总金额" width="90">
 			</el-table-column>
 			<el-table-column prop="createTime" label="下单时间" width="100" :formatter="formatDate">
 			</el-table-column>
 			<el-table-column prop="status" label="订单状态" width="90" :formatter="formatStatus">
 			</el-table-column>
-			<el-table-column prop="remark" label="备注" width="200">
+			<el-table-column prop="remark" label="备注" width="150">
 			</el-table-column>
 			<el-table-column label="操作" width="330">
 				<template scope="scope">
@@ -506,6 +505,16 @@
 			//下单日期转化
 			formatDate: function (row, column) {
 				return util.formatDate.format(new Date(row.createTime),"yyyy-MM-dd");
+			},
+			//供货商转化
+			formatProvider: function (row, column) {
+				var reg1 = /(.+)区/g;
+				var reg2 = /(.+)市/g;
+				var reg3 = /有限公司(.+)/g;
+				var reg4 = /经营部(.+)/g;
+				var reg5 = /五金(.+)/g;
+				var reg6 = /石材(.+)/g;
+				return row.provider.replace(reg1,"").replace(reg2,"").replace(reg3,"").replace(reg4,"").replace(reg5,"").replace(reg6,"");
 			},
 			//下单日期转化
 			formatDeliveryDate: function (row, column) {
