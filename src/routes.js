@@ -13,6 +13,7 @@ import Purchaser from './views/purchaser/Purchaser.vue'
 import Provider from './views/provider/Provider.vue'
 import Demander from './views/demander/Demander.vue'
 import Statistic from './views/statistic/Statistic.vue'
+import Invoice from './views/invoice/Invoice.vue'
 
 
 let routes = [
@@ -80,6 +81,16 @@ let routes = [
         ]
     },
     {
+        path: '/invoice',
+        component: Home,
+        name: '发票管理',
+        iconCls: 'fa fa-money',//图标样式class
+        redirect: '/invoice/list',
+        children: [
+            { path: '/invoice/list', component: Invoice, name: '发票管理' },
+        ]
+    },
+    {
         path: '/statistic',
         component: Home,
         name: '数据统计',
@@ -90,26 +101,6 @@ let routes = [
             // { path: '/statistic/echarts', component: echarts, name: '插入' },
         ]
     },
-    // {
-    //     path: '/provider',
-    //     component: Home,
-    //     name: '供应商管理',
-    //     iconCls: 'fa fa-address-book',//图标样式class
-    //     redirect: '/provider/list',
-    //     children: [
-    //         { path: '/provider/list', component: Provider, name: '供应商列表' },
-    //     ]
-    // },
-    // {
-    //     path: '/demander',
-    //     component: Home,
-    //     name: '需求公司管理',
-    //     iconCls: 'fa fa-address-book',//图标样式class
-    //     redirect: '/demander/list',
-    //     children: [
-    //         { path: '/demander/list', component: Demander, name: '需求公司列表' },
-    //     ]
-    // },
     {
         path: '*',
         hidden: true,

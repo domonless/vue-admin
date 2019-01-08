@@ -64,7 +64,7 @@
 			</el-table-column>
 			<el-table-column prop="sum" label="总金额" width="90">
 			</el-table-column>
-			<el-table-column prop="createTime" label="下单时间" width="100" :formatter="formatDate">
+			<el-table-column prop="createTime" label="下单时间" width="100">
 			</el-table-column>
 			<el-table-column prop="status" label="订单状态" width="90" :formatter="formatStatus">
 			</el-table-column>
@@ -318,9 +318,12 @@
 				<el-form-item label="发票金额" prop="money">
 					<el-input type="number" v-model="invoiceForm.money" :maxlength="10"></el-input>
 				</el-form-item>
-				<!-- <el-form-item label="备注" prop="remark">
+				<el-form-item label="填开日期" prop="invoiceDate">
+					<el-date-picker type="date" placeholder="选择日期" v-model="invoiceForm.invoiceDate" value-format="yyyy-MM-dd"  format="yyyy-MM-dd"></el-date-picker>
+				</el-form-item>
+				<el-form-item label="备注" prop="remark">
 					<el-input type="textarea" v-model="invoiceForm.remark"></el-input>
-				</el-form-item> -->
+				</el-form-item>
 			</el-form>
 			<div slot="footer" class="dialog-footer">
 				<el-button @click.native="invoiceFormVisible = false">取消</el-button>
@@ -501,10 +504,6 @@
 			//状态转化
 			formatStatus: function (row, column) {
 				return this.getStrByStatus(row.status);
-			},
-			//下单日期转化
-			formatDate: function (row, column) {
-				return util.formatDate.format(new Date(row.createTime),"yyyy-MM-dd");
 			},
 			//供货商转化
 			formatProvider: function (row, column) {

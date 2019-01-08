@@ -179,6 +179,12 @@ export const editDemander = params => { return axios.post(`${base}/demander/upda
 export const removeDemander = params => { return axios.post(`${base}/demander/delete`, params); };
 
 
+//发票管理
+export const getInvoiceList = params => { return axios.get(`${base}/invoice/list`, { params: params }); };
+
+export const editInvoice = params => { return axios.post(`${base}/invoice/update`, params); };
+
+
 //统计
 export const getStatistic = params => { return axios.get(`${base}/statistic/query`, { params: params }); };
 
