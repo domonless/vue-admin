@@ -193,7 +193,6 @@
 				<el-button type="primary" v-if="this.selectStatus===2 && this.sels.length>0" @click.native="handleSend" :loading="sendLoading">发货</el-button>
 				<el-button type="primary" v-if="this.selectStatus===3 && this.sels.length>0 && this.sendForm.status!=9" @click.native="handleIn" :loading="sendLoading">入库</el-button>
 				<el-button type="primary" v-if="this.selectStatus===3 && this.sels.length>0 && this.sendForm.status==9" @click.native="handleRepair">补单</el-button>
-				<el-button type="primary" v-if="this.selectStatus===4 && this.sels.length>0" @click.native="handleInvoice" :loading="sendLoading">开票</el-button>
 				<el-button type="primary" v-if="this.selectStatus===5 && this.sels.length>0" @click.native="handleReturn" :loading="sendLoading">回款</el-button>
 				<!-- <el-button type="danger" @click.native="itemListVisible=false">取消</el-button> -->
 			</div>
@@ -260,7 +259,7 @@
 					</el-table-column>
 					<el-table-column prop="count" label="数量" width="100">
 						<template scope="scope">
-							<el-input type="number"  v-enter-number v-model="scope.row.count" size="mini" :min="1" :maxlength="10" :key="scope.row.id" @input="handleItemCountChange(scope.$index, scope.row, $event)"></el-input>
+							<el-input type="number" v-model="scope.row.count" size="mini" :min="1" :maxlength="10" :key="scope.row.id" @input="handleItemCountChange(scope.$index, scope.row, $event)"></el-input>
 						</template>
 					</el-table-column>
 				</el-table>
@@ -306,28 +305,6 @@
 			<div slot="footer" class="dialog-footer">
 				<el-button @click.native="repairFormVisible = false">取消</el-button>
 				<el-button type="primary" @click.native="repairSubmit" :loading="sendLoading">提交</el-button>
-			</div>
-		</el-dialog>
-
-		<!--开票界面-->
-		<el-dialog title="开票" :visible.sync="invoiceFormVisible" :close-on-click-modal="false">
-			<el-form :model="invoiceForm" label-width="80px" :rules="invoiceFormRules" ref="invoiceForm" :inline="true">
-				<el-form-item label="发票号" prop="invoiceSn">
-					<el-input v-model="invoiceForm.invoiceSn"></el-input>
-				</el-form-item>
-				<el-form-item label="发票金额" prop="money">
-					<el-input type="number" v-model="invoiceForm.money" :maxlength="10"></el-input>
-				</el-form-item>
-				<el-form-item label="填开日期" prop="invoiceDate">
-					<el-date-picker type="date" placeholder="选择日期" v-model="invoiceForm.invoiceDate" value-format="yyyy-MM-dd"  format="yyyy-MM-dd"></el-date-picker>
-				</el-form-item>
-				<el-form-item label="备注" prop="remark">
-					<el-input type="textarea" v-model="invoiceForm.remark"></el-input>
-				</el-form-item>
-			</el-form>
-			<div slot="footer" class="dialog-footer">
-				<el-button @click.native="invoiceFormVisible = false">取消</el-button>
-				<el-button type="primary" @click.native="invoiceSubmit" :loading="sendLoading">提交</el-button>
 			</div>
 		</el-dialog>
 
@@ -452,21 +429,6 @@
 
 				//入库界面数据
 				inForm: {},
-
-				//开票界面
-				invoiceFormVisible: false,//开票界面是否显示
-				invoiceLoading: false,
-				//开票界面数据
-				invoiceForm: {},
-				//校验规则
-				invoiceFormRules: {
-					invoiceSn: [
-						{ required: true, message: '请填写发票号', trigger: 'blur' }
-					],
-					money: [
-						{ required: true, message: '请填写发票金额', trigger: 'blur' }
-					],
-				},
 
 				//补单界面
 				repairFormVisible: false,//补单界面是否显示
@@ -1000,46 +962,7 @@
 					}
 				});
 			},
-			//显示开票界面
-			handleInvoice: function (){
-				this.itemListVisible = false;
-				this.invoiceFormVisible = true;
-				this.items = this.sels;
-			},
-			//开票提交处理
-			invoiceSubmit: function () {
-				this.$refs.invoiceForm.validate((valid) => {
-					if (valid) {
-						this.invoiceForm.id = this.sendForm.id;
-						this.invoiceForm.cdSn = this.sendForm.cdSn;
-						this.invoiceForm.itemList = this.items;
-						this.invoiceForm.status = 5;
-						this.$confirm('确认提交吗？', '提示', {}).then(() => {
-							this.invoiceLoading = true;
-							editOrderDetail(this.invoiceForm).then((res) => {
-								this.invoiceLoading = false;
-								this.invoiceFormVisible = false;
-								let msg = res.data.message;
-			                	let code = res.data.code;
-								if (code !== 200) {
-				                  this.$message({
-				                    message: msg,
-				                    type: 'error'
-				                  });
-				                } else {
-								//NProgress.done();
-									this.$message({
-										message: '提交成功',
-										type: 'success'
-									});
-									this.getOrders();
-									this.$refs['invoiceForm'].resetFields();
-								}
-							});
-						});
-					}
-				});
-			},
+			
 			//回款处理
 			handleReturn: function () {
 				this.returnForm.id = this.sendForm.id;

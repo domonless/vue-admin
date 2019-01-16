@@ -14,6 +14,7 @@ import Provider from './views/provider/Provider.vue'
 import Demander from './views/demander/Demander.vue'
 import Statistic from './views/statistic/Statistic.vue'
 import Invoice from './views/invoice/Invoice.vue'
+import InvoiceAdd from './views/invoice/InvoiceAdd.vue'
 
 
 let routes = [
@@ -87,7 +88,8 @@ let routes = [
         iconCls: 'fa fa-money',//图标样式class
         redirect: '/invoice/list',
         children: [
-            { path: '/invoice/list', component: Invoice, name: '发票管理' },
+            { path: '/invoice/list', component: Invoice, name: '发票列表' },
+            { path: '/invoice/add', component: InvoiceAdd, name: '发票填开' },
         ]
     },
     {
@@ -98,7 +100,6 @@ let routes = [
         redirect: '/statistic/query',
         children: [
             { path: '/statistic/query', component: Statistic, name: '收支汇总' },
-            // { path: '/statistic/echarts', component: echarts, name: '插入' },
         ]
     },
     {

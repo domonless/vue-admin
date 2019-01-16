@@ -182,6 +182,8 @@ export const removeDemander = params => { return axios.post(`${base}/demander/de
 //发票管理
 export const getInvoiceList = params => { return axios.get(`${base}/invoice/list`, { params: params }); };
 
+export const addInvoice = params => { return axios.post(`${base}/invoice/add`, params); };
+
 export const editInvoice = params => { return axios.post(`${base}/invoice/update`, params); };
 
 

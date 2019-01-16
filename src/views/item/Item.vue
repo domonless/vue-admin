@@ -72,7 +72,7 @@
 		</el-dialog>
 
 		<!--列表-->
-		<el-table :data="items" highlight-current-row v-loading="listLoading" @selection-change="selsChange" style="width: 100%;">
+		<el-table :data="items" @row-click="clickRow" ref="tb" highlight-current-row v-loading="listLoading" @selection-change="selsChange" style="width: 100%;">
 			<el-table-column type="selection" width="55">
 			</el-table-column>
 			<el-table-column type="index" width="50">
@@ -377,6 +377,11 @@
 					}
 				});
 			},
+			clickRow(row,event){
+				if(event.toElement.localName == "div" || event.toElement.localName == "td"){
+					this.$refs.tb.toggleRowSelection(row);
+				};
+            },
 			formatProvider: function (row, column) {
 				for(let i=0; i<this.providers.length; i++){
 					let provider = this.providers[i];
