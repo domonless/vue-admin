@@ -122,8 +122,10 @@
 
 		<!--工具条-->
 		<el-col :span="24" class="toolbar">
+			<el-button type="primary" @click="handleAllSelect">全选</el-button>
 			<el-button type="danger" @click="batchRemove" :disabled="this.sels.length===0">批量删除</el-button>
-			<el-button type="info" @click="handleBatUpdateImg" :disabled="this.sels.length===0">批量更新图片</el-button>
+			<el-button type="info" @click="handleBatUpdateImg" :disabled="this.sels.length===0">批量更新选中图片</el-button>
+			<el-button type="warning" @click="handleNoImgSelect" :disabled="this.itemsNoImg.length==0">更新本页没有图片的项</el-button>
 			<el-pagination layout="total, sizes, prev, pager, next" @size-change="handleSizeChange" @current-change="handleCurrentChange" :page-size="pageSize" :total="total" style="float:right;">
 			</el-pagination>
 		</el-col>
@@ -284,6 +286,7 @@
 				pageSize: 20,
 				listLoading: false,
 				sels: [],//列表选中列
+				itemsNoImg: [],//没有
 
 				//图片上传
 				uploadFlag: false,
@@ -556,6 +559,13 @@
 						this.items = res.data.data.list
 	                    this.page = res.data.data.pageNum == 0 ? res.data.data.pageNum +1 : res.data.data.pageNum
 	                    this.total = res.data.data.total
+	                    //筛选没有图片的物料
+	                    this.itemsNoImg = []
+	                    for(let i=0;i<this.items.length;i++){
+	                    	if(this.items[i].imgurl==''){
+	                    		this.itemsNoImg.push(this.items[i]);
+	                    	}
+	                    }
 	                }
 				});
 			},
@@ -614,6 +624,21 @@
 			//显示批量上传图片界面
 			handleBatUpdateImg: function (index, row) {
 				this.batUpdateImgFormVisible = true;
+			},
+			handleNoImgSelect: function () {
+				if (this.itemsNoImg) {
+		          this.itemsNoImg.forEach(row => {
+		            this.$refs.tb.toggleRowSelection(row);
+		          });
+		          this.batUpdateImgFormVisible = true;
+		        }
+			},
+			handleAllSelect: function () {
+				if (this.items) {
+		          this.items.forEach(row => {
+		            this.$refs.tb.toggleRowSelection(row);
+		          });
+		        }
 			},
 			//显示新增界面
 			handleAdd: function () {

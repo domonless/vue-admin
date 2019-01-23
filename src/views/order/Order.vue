@@ -187,9 +187,9 @@
 			</el-table>
 			<div id="footer"></div>
 			<div slot="footer" class="dialog-footer">
-				<el-button type="primary" v-if="this.selectStatus===1 && this.sels.length>0" @click.native="handleBuy" :loading="sendLoading">进货</el-button>
-				<el-button type="warning" v-if="this.selectStatus===1 && this.sels.length>0" @click.native="handleEditCount" :loading="editItemLoading">修改</el-button>
-				<el-button type="danger" v-if="this.selectStatus===1 && this.sels.length>0" @click.native="handleDeleteItem" :loading="editItemLoading">删除</el-button>
+				<el-button type="primary" v-if="this.selectStatus==1 && this.sels.length>0" @click.native="handleBuy" :loading="sendLoading">进货</el-button>
+				<el-button type="warning" v-if="this.selectStatus<3 && this.sels.length>0" @click.native="handleEditCount" :loading="editItemLoading">修改</el-button>
+				<el-button type="danger" v-if="this.selectStatus<3 && this.sels.length>0" @click.native="handleDeleteItem" :loading="editItemLoading">删除</el-button>
 				<el-button type="primary" v-if="this.selectStatus===2 && this.sels.length>0" @click.native="handleSend" :loading="sendLoading">发货</el-button>
 				<el-button type="primary" v-if="this.selectStatus===3 && this.sels.length>0 && this.sendForm.status!=9" @click.native="handleIn" :loading="sendLoading">入库</el-button>
 				<el-button type="primary" v-if="this.selectStatus===3 && this.sels.length>0 && this.sendForm.status==9" @click.native="handleRepair">补单</el-button>

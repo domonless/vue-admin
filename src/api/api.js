@@ -123,6 +123,10 @@ export const batUpdateImgurl = params => { return axios.post(`${base}/item/batUp
 
 export const getOrdersByItemId = params => { return axios.get(`${base}/item/orders`, { params: params }); };
 
+//获取备货中物料
+export const getPrepareItemList = params => { return axios.get(`${base}/item/prepare`, { params: params }); };
+
+
 //上传物料图片
 export const fileItemUpload = params => { return axios.post(`${base}/file/item/upload`, params); };
 

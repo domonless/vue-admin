@@ -5,6 +5,7 @@ import Main from './views/Main.vue'
 import echarts from './views/charts/echarts.vue'
 import Stock from './views/stock/Stock.vue'
 import Item from './views/item/Item.vue'
+import PrepareItem from './views/item/PrepareItem.vue'
 import Order from './views/order/Order.vue'
 import OrderAdd from './views/order/OrderAdd.vue'
 import OrderAddPre from './views/order/OrderAddPre.vue'
@@ -44,6 +45,7 @@ let routes = [
         redirect: '/item/list',
         children: [
             { path: '/item/list', component: Item, name: '物料签价列表' },
+            { path: '/item/prepare', component: PrepareItem, name: '备货列表' },
         ]
     },
     {
