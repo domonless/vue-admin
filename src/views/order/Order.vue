@@ -316,7 +316,7 @@
 	import pdf from 'vue-pdf'
 	import {getLodop} from '../../common/js/LodopFuncs'
 	//import NProgress from 'nprogress'
-	import { userId, getOrderList, editOrder, getOrderDetail, editOrderDetail, getProviderList, getPurchaserList, fileOrderUpload} from '../../api/api';
+	import { userId, getOrderList, editOrder, getOrderDetail, editOrderDetail, getProviderList, getPurchaserList, fileOrderUpload, delOrderDetail} from '../../api/api';
 
 	var LODOP
 	export default {
@@ -763,12 +763,11 @@
 				this.editItemForm.cdSn = this.sendForm.cdSn;
 				this.editItemForm.sum = this.sendForm.sum - this.countSelsSum();
 				this.editItemForm.itemList = this.sels;
-				this.editItemForm.status = 0;
 				this.$confirm('确认删除吗?', '提示', {
 					type: 'warning'
 				}).then(() => {
 					this.editItemLoading = true;
-					editOrderDetail(this.editItemForm).then((res) => {
+					delOrderDetail(this.editItemForm).then((res) => {
 						this.editItemLoading = false;
 						this.itemListVisible = false;
 						let msg = res.data.message;

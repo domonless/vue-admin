@@ -16,7 +16,7 @@
 					    </el-option>
 					</el-select>
 				</el-form-item>
-				<el-form-item>
+				<el-form-item v-if="isAread">
 					<el-select v-model="filters.areaId" placeholder="采购组织" @change="getItems" clearable>
 					    <el-option
 					      v-for="item in areas"
@@ -52,7 +52,7 @@
 					    </el-option>
 					</el-select>
 				</el-form-item>
-				<el-form-item label="采购组织" prop="areaId">
+				<el-form-item v-if="isAread" label="采购组织" prop="areaId">
 					<el-select v-model="batAddForm.areaId" placeholder="请选择" clearable>
 					    <el-option
 					      v-for="item in areas"
@@ -98,7 +98,7 @@
 			</el-table-column>
 			<el-table-column prop="providerId" label="抬头" width="100" :formatter="formatProvider">
 			</el-table-column>
-			<el-table-column prop="areaId" label="采购组织" width="100" :formatter="formatArea">
+			<el-table-column prop="areaId" v-if="isAread" label="采购组织" width="100" :formatter="formatArea">
 			</el-table-column>
 			<el-table-column prop="remark" label="备注" width="120">
 			</el-table-column>
@@ -210,7 +210,7 @@
 					    </el-option>
 					</el-select>
 				</el-form-item>
-				<el-form-item label="采购组织" prop="areaId">
+				<el-form-item v-if="isAread" label="采购组织" prop="areaId">
 					<el-select v-model="addForm.areaId" placeholder="请选择" clearable>
 					    <el-option
 					      v-for="item in areas"
@@ -266,6 +266,7 @@
 <script>
 	import util from '../../common/js/util'
 	import pdf from 'vue-pdf'
+	import Cookies from 'js-cookie'
 	//import NProgress from 'nprogress'
 	import { getItemList, addItem, editItem, batAddItem, batchRemoveItem, batUpdateImgurl, getProviderList, getOrdersByItemId, fileItemUpload, getAreaList } from '../../api/api';
 	export default {
@@ -275,6 +276,7 @@
 		},
 		data() {
 			return {
+				isAread: Cookies.get('is_aread')==1,
 				filters: {
 					name: '',
 					providerId: '',

@@ -142,6 +142,8 @@ export const getOrderDetail = params => { return axios.get(`${base}/order/detail
 
 export const editOrderDetail = params => { return axios.post(`${base}/order/detail/edit`, params); };
 
+export const delOrderDetail = params => { return axios.post(`${base}/order/detail/del`, params); };
+
 export const fileOrderUpload = params => { return axios.post(`${base}/file/order/upload`, params); };
 
 

@@ -91,8 +91,10 @@
                   //存入cookies
                   if(this.checked){
                     Cookies.set('user_info',data.data.data,{ expires: 7 })
+                    Cookies.set('is_aread',data.data.data.isAread,{ expires: 7 })
                   }else{
                     Cookies.set('user_info',data.data.data)
+                    Cookies.set('is_aread',data.data.data.isAread)
                   }
                   this.$router.push({ path: '/' });
                 }
