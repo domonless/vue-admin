@@ -225,7 +225,7 @@
 					</el-table-column>
 					<el-table-column prop="bidPrice" label="进价" width="100">
 						<template scope="scope">
-							<el-input type="number" size="mini" min="1" :maxlength="10" :key="scope.row.id" @input="handleBidPriceChange(scope.$index, scope.row, $event)" @keyup.enter.native="handleEditBidPrice(scope.$index, scope.row)"></el-input>
+							<el-input type="number" size="mini" min="1" :maxlength="10" :key="scope.row.id" @input="handleBidPriceChange(scope.$index, scope.row, $event)"></el-input>
 						</template>
 					</el-table-column>
 				</el-table>
@@ -648,7 +648,7 @@
 					newWindow = window.open("",'newwindow');
 					newWindow.document.body.innerHTML = printHtml;
     			}else{
-    				var printHtml = "<img id='img' src='" + row.imgurl + "' />";
+    				var printHtml = "<img id='img' src='" + row.imgurl + "' width='1190px' height='1684px'/>";
 					newWindow = window.open("",'newwindow');
 					newWindow.document.body.innerHTML = printHtml;
     			}
@@ -858,6 +858,7 @@
 			handleSend: function (){
 				this.itemListVisible = false;
 				this.sendFormVisible = true;
+				this.sendForm.remark ='';
 				this.items = this.sels;
 			},
 			//发货提交处理
@@ -1230,7 +1231,7 @@
 
 		    	//遍历set
 		    	data.forEach(d => {
-    				imgHtml += "<img id='img' src='" + d + "' />";
+    				imgHtml += "<img id='img' src='" + d + "' width='1190px' height='1684px'/>";
 		    	});
 		    	let imgWindow = "";
 		    	imgWindow = window.open("",'imgWindow');

@@ -664,7 +664,7 @@
 					newWindow = window.open("",'newwindow');
 					newWindow.document.body.innerHTML = printHtml;
     			}else{
-    				var printHtml = "<img id='img' src='" + row.imgurl + "' />";
+    				var printHtml = "<img id='img' src='" + row.imgurl + "' width='1190px' height='1684px' />";
 					newWindow = window.open("",'newwindow');
 					newWindow.document.body.innerHTML = printHtml;
     			}

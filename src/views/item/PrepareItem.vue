@@ -37,24 +37,69 @@
 			<el-table-column label="操作" width="300">
 				<template scope="scope">
 					<el-button size="small" @click="handleRelated(scope.$index, scope.row)">相关订单</el-button>
+					<el-button size="small" type="warning" @click="handleBuy(scope.$index, scope.row)">进货</el-button>
 				</template>
 			</el-table-column>
 		</el-table>
+
+		<!--进货界面-->
+		<el-dialog title="进货" :visible.sync="buyFormVisible" :close-on-click-modal="false">
+			<el-form :model="buyForm" label-width="80px" ref="buyForm" :inline="true">
+				<el-form-item label="订单编号" prop="cdSn">
+					<el-input v-model="buyForm.cdSn" disabled></el-input>
+				</el-form-item>
+				<el-table :data="buyItems" highlight-current-row v-loading="listLoading" style="width: 100%;" >
+					<el-table-column type="index" width="50">
+					</el-table-column>
+					<el-table-column prop="itemNumber" label="编号" width="65">
+					</el-table-column>
+					<el-table-column prop="name" label="物料名称" width="100">
+					</el-table-column>
+					<el-table-column prop="brand" label="品牌" width="70">
+					</el-table-column>
+					<el-table-column prop="form" label="规格" width="150">
+					</el-table-column>
+					<el-table-column prop="unit" label="单位" width="65">
+					</el-table-column>
+					<el-table-column prop="price" label="单价" width="70">
+					</el-table-column>
+					<el-table-column prop="count" label="数量" width="70">
+					</el-table-column>
+					<el-table-column prop="bidPrice" label="进价" width="100">
+						<template scope="scope">
+							<el-input type="number" size="mini" min="1" :maxlength="10" :key="scope.row.id" @input="handleBidPriceChange(scope.$index, scope.row, $event)" @keyup.enter.native="handleEditBidPrice(scope.$index, scope.row)"></el-input>
+						</template>
+					</el-table-column>
+				</el-table>
+			</el-form>
+			<div slot="footer" class="dialog-footer">
+				<el-button @click.native="buyFormVisible = false">取消</el-button>
+				<el-button type="primary" @click.native="buySubmit" :loading="buyLoading">提交</el-button>
+			</div>
+		</el-dialog>
 
 	</section>
 </template>
 
 <script>
 	import util from '../../common/js/util'
-	import { getPrepareItemList, getOrderList } from '../../api/api';
+	import { getPrepareItemList, getOrderList, editOrderDetail } from '../../api/api';
 	export default {
 		data() {
 			return {
 				filters: {
 					name: ''
 				},
+				item: {},
 				items: [],
+				buyItems: [],
 				listLoading: false,
+
+				//进货界面
+				buyFormVisible: false,//发货界面是否显示
+				buyLoading: false,
+				//进货界面数据
+				buyForm: {},
 			}
 		},
 		methods: {
@@ -106,6 +151,54 @@
 					}
 				});
     		},
+    		//显示进货界面
+			handleBuy: function (index, row){
+				this.buyItems=[];
+				this.item.id=row.id;
+				this.item.itemNumber=row.itemNumber;
+				this.item.name=row.name;
+				this.item.brand=row.brand;
+				this.item.form=row.form;
+				this.item.unit=row.unit;
+				this.item.price=row.price;
+				this.buyItems.push(this.item);
+				this.buyForm.id=row.orderId;
+				this.buyForm.cdSn=row.cdSn;
+				this.buyForm.orderItemList=this.buyItems;
+				this.buyForm.status = 2;
+				this.buyFormVisible = true;
+			},
+			//进货提交处理
+			buySubmit: function () {
+				this.$confirm('确认提交吗？', '提示', {}).then(() => {
+					this.buyLoading = true;
+					//NProgress.start();
+					editOrderDetail(this.buyForm).then((res) => {
+						this.buyLoading = false;
+						this.buyFormVisible = false;
+						let msg = res.data.message;
+	                	let code = res.data.code;
+						if (code !== 200) {
+		                  this.$message({
+		                    message: msg,
+		                    type: 'error'
+		                  });
+		                } else {
+						//NProgress.done();
+							this.$message({
+								message: '提交成功',
+								type: 'success'
+							});
+							this.getPrepareItems();
+							this.$refs['buyForm'].resetFields();
+						}
+					});
+				});
+			},
+			//处理进价
+			handleBidPriceChange: function(index, row, e){
+				row.bidPrice = Number(e);
+			},
     		export2Excel() {
 			　require.ensure([], () => {
 			　　　const { export_json_to_excel } = require('../../excel/Export2Excel');
