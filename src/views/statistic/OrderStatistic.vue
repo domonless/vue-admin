@@ -55,7 +55,7 @@
 <script>
 	import util from '../../common/js/util'
 	import echarts from 'echarts'
-	import { getStatistic, getProviderList} from '../../api/api';
+	import { getOrderStatistic, getProviderList} from '../../api/api';
 	export default {
 		data() {
 			return {
@@ -135,7 +135,7 @@
 						endTime: end,
 					};
 					this.queryLoading = true;
-					getStatistic(para).then((res) => {
+					getOrderStatistic(para).then((res) => {
 						this.queryLoading = false;
 						let msg = res.data.message;
 	                	let code = res.data.code;
@@ -150,7 +150,7 @@
 								this.bidSum = res.data.data.bidSum
 								this.feeSum = res.data.data.feeSum
 								this.gross = util.formatNumber(this.totalSum - this.bidSum - this.feeSum)
-								this.statistics = res.data.data.statistics
+								this.statistics = res.data.data.orderStatistics
 							}else{
 								this.totalSum = 0
 								this.bidSum = 0

@@ -4,23 +4,26 @@
 		<el-col :span="24" class="toolbar" style="padding-bottom: 0px;">
 			<el-form :inline="true" :model="filters">
 				<el-form-item>
-					<el-input v-model="filters.name" placeholder="姓名" @input="getPurchasers" clearable></el-input>
+					<el-input v-model="filters.detail" placeholder="" @input="getExpenses" clearable></el-input>
 				</el-form-item>
 				<el-form-item>
-					<el-button type="primary" v-on:click="getPurchasers" >查询</el-button>
+					<el-button type="primary" v-on:click="getExpenses" >查询</el-button>
 				</el-form-item>
 				<el-form-item>
 					<el-button type="warning" @click="handleAdd">新增</el-button>
 				</el-form-item>
 			</el-form>
 		</el-col>
+
 		<!--列表-->
-		<el-table :data="purchasers" highlight-current-row v-loading="listLoading" style="width: 100%;">
+		<el-table :data="expenses" show-summary highlight-current-row v-loading="listLoading" style="width: 100%;">
 			<el-table-column type="index" label="序号" width="100">
 			</el-table-column>
-			<el-table-column prop="name" label="姓名" >
+			<el-table-column prop="detail" label="开销明细" >
 			</el-table-column>
-			<el-table-column prop="phone" label="电话" >
+			<el-table-column prop="money" label="金额" >
+			</el-table-column>
+			<el-table-column prop="createTime" label="登记时间" >
 			</el-table-column>
 			<el-table-column label="操作" width="150">
 				<template scope="scope">
@@ -39,11 +42,11 @@
 		<!--编辑界面-->
 		<el-dialog title="编辑" :visible.sync="editFormVisible" :close-on-click-modal="false">
 			<el-form :model="editForm" label-width="80px" :rules="editFormRules" ref="editForm">
-				<el-form-item label="姓名" prop="name">
-					<el-input v-model="editForm.name"></el-input>
+				<el-form-item label="开销明细" prop="detail">
+					<el-input v-model="editForm.detail"></el-input>
 				</el-form-item>
-				<el-form-item label="电话" prop="phone">
-					<el-input v-model="editForm.phone" :maxlength="11" ></el-input>
+				<el-form-item label="金额" prop="money">
+					<el-input type="number" v-model="editForm.money" :maxlength="10" ></el-input>
 				</el-form-item>
 			</el-form>
 			<div slot="footer" class="dialog-footer">
@@ -55,11 +58,21 @@
 		<!--新增界面-->
 		<el-dialog title="新增" :visible.sync="addFormVisible" :close-on-click-modal="false">
 			<el-form :model="addForm" label-width="80px" :rules="addFormRules" ref="addForm">
-				<el-form-item label="姓名" prop="name">
-					<el-input v-model="addForm.name"></el-input>
+				<el-form-item label="开销类型" prop="type">
+					<el-select v-model="addForm.type" placeholder="请选择" clearable >
+					    <el-option
+					      v-for="item in types"
+					      :key="item.id"
+					      :label="item.label"
+					      :value="item.label">
+					    </el-option>
+					</el-select>
 				</el-form-item>
-				<el-form-item label="电话" prop="phone">
-					<el-input v-model="addForm.phone" :maxlength="11" ></el-input>
+				<el-form-item label="开销明细" prop="detail">
+					<el-input v-model="addForm.detail"></el-input>
+				</el-form-item>
+				<el-form-item label="金额" prop="money">
+					<el-input type="number" v-model="addForm.money" :maxlength="10" ></el-input>
 				</el-form-item>
 			</el-form>
 			<div slot="footer" class="dialog-footer">
@@ -72,14 +85,14 @@
 
 <script>
 	import util from '../../common/js/util'
-	import { getPurchaserList, addPurchaser, editPurchaser } from '../../api/api';
+	import { getExpensesList, addExpenses, editExpenses } from '../../api/api';
 	export default {
 		data() {
 			return {
 				filters: {
-					name: ''
+					detail: ''
 				},
-				purchasers: [],
+				expenses: [],
 				total: 0,
 				page: 1,
 				listLoading: false,
@@ -87,12 +100,11 @@
 				editFormVisible: false,//编辑界面是否显示
 				editLoading: false,
 				editFormRules: {
-					name: [
-						{ required: true, message: '请输入姓名', trigger: 'blur' }
+					detail: [
+						{ required: true, message: '请输入开销明细', trigger: 'blur' }
 					],
-					phone: [
-						{ required: true, message: '请输入电话', trigger: 'blur' },
-						{ min: 11, message: '请输入11位手机号'}
+					money: [
+						{ required: true, message: '请输入金额', trigger: 'blur' }
 					]
 				},
 				//编辑界面数据
@@ -102,33 +114,65 @@
 				addFormVisible: false,//新增界面是否显示
 				addLoading: false,
 				addFormRules: {
-					name: [
-						{ required: true, message: '请输入姓名', trigger: 'blur' }
+					type: [
+						{ required: true, message: '请选择类型', trigger: 'blur' }
 					],
-					phone: [
-						{ required: true, message: '请输入电话', trigger: 'blur' },
-						{ min: 11, message: '请输入11位手机号'}
+					detail: [
+						{ required: true, message: '请输入开销明细', trigger: 'blur' }
+					],
+					money: [
+						{ required: true, message: '请输入金额', trigger: 'blur' }
 					]
 				},
 				//新增界面数据
 				addForm: {
-				}
+				},
+
+				//开销类型
+				types:[
+					{
+						value: 1,
+						label: '耗材'
+					},
+					{
+						value: 2,
+						label: '顺丰'
+					},{
+						value: 3,
+						label: '生活缴费'
+					},{
+						value: 4,
+						label: '退货'
+					},{
+						value: 5,
+						label: '加油'
+					},{
+						value: 6,
+						label: '房租'
+					},{
+						value: 7,
+						label: '工资'
+					},{
+						value: 8,
+						label: '其他'
+					},
+				]
 			}
 		},
 		methods: {
 			handleCurrentChange(val) {
 				this.page = val;
-				this.getPurchasers();
+				this.getExpenses();
 			},
-			//获取请购人列表
-			getPurchasers() {
+			//获取开支列表
+			getExpenses() {
 				let para = {
 					page:this.page,
                     size:20,
-                    name:this.filters.name	
+                    detail:this.filters.detail	
 				};
 				this.listLoading = true;
-				getPurchaserList(para).then((res) => {
+				getExpensesList(para).then((res) => {
 					this.listLoading = false;
 					let msg = res.data.message;
                 	let code = res.data.code;
@@ -138,7 +182,7 @@
 	                    type: 'error'
 	                  });
 	                } else {
-						this.purchasers = res.data.data.list
+						this.expenses = res.data.data.list
 	                    this.page = res.data.data.pageNum == 0 ? res.data.data.pageNum +1 : res.data.data.pageNum
 	                    this.total = res.data.data.total
 	                }
@@ -155,7 +199,7 @@
 						id: row.id,
 						status: 0
 					};
-					editPurchaser(para).then((res) => {
+					editExpenses(para).then((res) => {
 						this.listLoading = false;
 						//NProgress.done();
 						let msg = res.data.message;
@@ -170,7 +214,7 @@
 								message: '删除成功',
 								type: 'success'
 							});
-							this.getPurchasers();
+							this.getExpenses();
 						}
 					});
 				}).catch(() => {
@@ -182,16 +226,16 @@
 				this.editFormVisible = true;
 				this.editForm = {
 					id: row.id,
-					name: row.name,
-					phone: row.phone
+					detail: row.detail,
+					money: row.money
 				};
 			},
 			//显示新增界面
 			handleAdd: function () {
 				this.addFormVisible = true;
 				this.addForm = {
-					name: '',
-					phone: ''
+					detail: '',
+					money: ''
 				};
 			},
 			//编辑
@@ -200,7 +244,7 @@
 					if (valid) {
 						this.editLoading = true;
 						let para = Object.assign({}, this.editForm);
-						editPurchaser(para).then((res) => {
+						editExpenses(para).then((res) => {
 							this.editLoading = false;
 							this.editFormVisible = false;
 							let msg = res.data.message;
@@ -215,7 +259,7 @@
 									message: '提交成功',
 									type: 'success'
 								});
-								this.getPurchasers();
+								this.getExpenses();
 								this.$refs['editForm'].resetFields();
 							}
 						});
@@ -228,8 +272,10 @@
 					if (valid) {
 							this.addLoading = true;
 							//NProgress.start();
+							this.addForm.detail = this.addForm.type +"-"+ this.addForm.detail
 							let para = Object.assign({}, this.addForm);
-							addPurchaser(para).then((res) => {
+							console.log(para)
+							addExpenses(para).then((res) => {
 								this.addLoading = false;
 								this.addFormVisible = false;
 								let msg = res.data.message;
@@ -246,7 +292,7 @@
 										type: 'success'
 									});
 									this.$refs['addForm'].resetFields();
-									this.getPurchasers();
+									this.getExpenses();
 								}
 							});
 					}
@@ -255,7 +301,7 @@
 
 		},
 		mounted() {
-			this.getPurchasers();
+			this.getExpenses();
 		}
 	}
 

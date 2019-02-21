@@ -13,7 +13,9 @@ import Area from './views/area/Area.vue'
 import Purchaser from './views/purchaser/Purchaser.vue'
 import Provider from './views/provider/Provider.vue'
 import Demander from './views/demander/Demander.vue'
-import Statistic from './views/statistic/Statistic.vue'
+import OrderStatistic from './views/statistic/OrderStatistic.vue'
+import Expenses from './views/expenses/Expenses.vue'
+import InvoiceStatistic from './views/statistic/InvoiceStatistic.vue'
 import Invoice from './views/invoice/Invoice.vue'
 import InvoiceAdd from './views/invoice/InvoiceAdd.vue'
 
@@ -91,7 +93,7 @@ let routes = [
         redirect: '/invoice/list',
         children: [
             { path: '/invoice/list', component: Invoice, name: '发票列表' },
-            { path: '/invoice/add', component: InvoiceAdd, name: '发票填开' },
+            { path: '/invoice/add', component: InvoiceAdd, name: '待开票订单' },
         ]
     },
     {
@@ -99,9 +101,11 @@ let routes = [
         component: Home,
         name: '数据统计',
         iconCls: 'fa fa-calculator',//图标样式class
-        redirect: '/statistic/query',
+        redirect: '/statistic/order',
         children: [
-            { path: '/statistic/query', component: Statistic, name: '收支汇总' },
+            { path: '/statistic/order', component:OrderStatistic, name: '订单统计' },
+            // { path: '/statistic/invoice', component:InvoiceStatistic, name: '发票统计' },
+            { path: '/expenses/list', component:Expenses, name: '开销统计' },
         ]
     },
     {

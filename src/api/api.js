@@ -194,7 +194,16 @@ export const editInvoice = params => { return axios.post(`${base}/invoice/update
 
 
 //统计
-export const getStatistic = params => { return axios.get(`${base}/statistic/query`, { params: params }); };
+export const getOrderStatistic = params => { return axios.get(`${base}/statistic/order`, { params: params }); };
 
+export const getInvoiceStatistic = params => { return axios.get(`${base}/statistic/invoice`, { params: params }); };
+
+
+//日常开销
+export const getExpensesList = params => { return axios.get(`${base}/expenses/list`, { params: params }); };
+
+export const addExpenses = params => { return axios.post(`${base}/expenses/add`, params); };
+
+export const editExpenses = params => { return axios.post(`${base}/expenses/update`, params); };
 
 

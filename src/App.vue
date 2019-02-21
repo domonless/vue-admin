@@ -4,15 +4,18 @@
 		            mode="out-in">
 			<router-view></router-view>
 		</transition>
+		<scroll-top></scroll-top>
 	</div>
 </template>
 
 <script language="javascript" src="LodopFuncs.js"></script>
 
 <script>
+import ScrollTop from './components/ScrollTop.vue'
 export default {
 	name: 'app',
 	components: {
+		'scroll-top':ScrollTop,
 	}
 }
 

@@ -140,6 +140,10 @@
 					</template>
 				</el-table-column>
 			</el-table>
+
+			<!-- 打印插件安装提示 -->
+			<div id="footer"></div>
+
 			<div slot="footer" class="dialog-footer">
 				<!-- <el-button type="warning" @click.native="handleDesign()">设计</el-button>  -->
 				<el-button type="warning" :disabled="this.sels.length==0" @click="handlePrint()">打印送货单</el-button>
@@ -648,16 +652,18 @@
 					newWindow = window.open("",'newwindow');
 					newWindow.document.body.innerHTML = printHtml;
     			}else{
-    				var printHtml = "<img id='img' src='" + row.imgurl + "' width='868px' height='1228px'/>";
+    				var printHtml = "<img id='img' src='" + row.imgurl + "' width='868px' height='1195px'/>";
 					newWindow = window.open("",'newwindow');
 					newWindow.document.body.innerHTML = printHtml;
     			}
     		},
     		handlePdfPrint: function (index, row) {
-    			let newWindow=""
-    			var printHtml = "<iframe width='100%' height='100%' src='" + row.url + "' />";
-				newWindow = window.open("",'newwindow');
-				newWindow.document.body.innerHTML = printHtml;
+    // 			let newWindow=""
+    // 			var printHtml = "<iframe width='100%' height='100%' src='" + row.url + "' />";
+				// newWindow = window.open("",'newwindow');
+				// newWindow.document.body.innerHTML = printHtml;
+				//方便pdf下载
+				window.open(row.url);
     		},
 			//删除
 			handleDel: function (index, row) {
@@ -1231,7 +1237,7 @@
 
 		    	//遍历set
 		    	data.forEach(d => {
-    				imgHtml += "<img id='img' src='" + d + "' width='868px' height='1228px'/>";
+    				imgHtml += "<img id='img' src='" + d + "' width='868px' height='1195px'/>";
 		    	});
 		    	let imgWindow = "";
 		    	imgWindow = window.open("",'imgWindow');
@@ -1248,7 +1254,8 @@
 			            img_start++;
 			            console.info(img_start);
 			            if(img_start == img_length){
-			                imgWindow.print();
+			            	setTimeout(function(){ imgWindow.print();}, 1000);
+			                // imgWindow.print();
 			            }
 			        };
 			    }

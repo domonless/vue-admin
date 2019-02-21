@@ -27,6 +27,9 @@
 					</el-select>
 				</el-form-item>
 				<el-form-item>
+					<el-checkbox v-model="imgurlNull">图片为空</el-checkbox>
+				</el-form-item>
+				<el-form-item>
 					<el-button type="primary" v-on:click="getItems" >查询</el-button>
 				</el-form-item>
 				<el-form-item>
@@ -260,6 +263,7 @@
 				<el-button type="primary" @click.native="addSubmit" :loading="addLoading">提交</el-button>
 			</div>
 		</el-dialog>
+
 	</section>
 </template>
 
@@ -276,6 +280,8 @@
 		},
 		data() {
 			return {
+				imgurlNull:false,
+				btnFlag:false,
 				isAread: Cookies.get('is_aread')==1,
 				filters: {
 					name: '',
@@ -395,7 +401,10 @@
 						var reg2 = /(.+)市/g;
 						var reg3 = /五金(.+)/g;
 						var reg4 = /石材(.+)/g;
-						return provider.name.replace(reg1,"").replace(reg2,"").replace(reg3,"").replace(reg4,"");
+						var reg5 = /日杂(.+)/g;
+						var reg6 = /副食(.+)/g;
+						var reg7 = /农副(.+)/g;
+						return provider.name.replace(reg1,"").replace(reg2,"").replace(reg3,"").replace(reg4,"").replace(reg5,"").replace(reg6,"").replace(reg7,"");
 					}
 				}
 			},
@@ -545,7 +554,8 @@
                     size:this.pageSize,
                     name:this.filters.name,
                     providerId:this.filters.providerId,
-                    areaId:this.filters.areaId
+                    areaId:this.filters.areaId,
+                    imgurlNull:this.imgurlNull
 				};
 				this.listLoading = true;
 				getItemList(para).then((res) => {
@@ -630,7 +640,7 @@
 			handleNoImgSelect: function () {
 				if (this.itemsNoImg) {
 		          this.itemsNoImg.forEach(row => {
-		            this.$refs.tb.toggleRowSelection(row);
+	            	this.$refs.tb.toggleRowSelection(row);
 		          });
 		          this.batUpdateImgFormVisible = true;
 		        }
@@ -664,7 +674,7 @@
 					newWindow = window.open("",'newwindow');
 					newWindow.document.body.innerHTML = printHtml;
     			}else{
-    				var printHtml = "<img id='img' src='" + row.imgurl + "' width='868px' height='1228px' />";
+    				var printHtml = "<img id='img' src='" + row.imgurl + "' width='868px' height='1195px' />";
 					newWindow = window.open("",'newwindow');
 					newWindow.document.body.innerHTML = printHtml;
     			}
@@ -815,7 +825,7 @@
 			this.getItems();
 			this.getProviders();
 			this.getAreas();
-		}
+		},
 	}
 
 </script>
@@ -862,6 +872,7 @@
   	width:100%;
   	height:100%;
   }
+
 </style>
 
 <style media="print">
