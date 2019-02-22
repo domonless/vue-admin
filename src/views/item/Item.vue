@@ -27,7 +27,7 @@
 					</el-select>
 				</el-form-item>
 				<el-form-item>
-					<el-checkbox v-model="imgurlNull">图片为空</el-checkbox>
+					<el-checkbox v-model="imgurlNull" @change="getItems">图片为空</el-checkbox>
 				</el-form-item>
 				<el-form-item>
 					<el-button type="primary" v-on:click="getItems" >查询</el-button>
@@ -97,7 +97,7 @@
 			</el-table-column>
 			<el-table-column prop="price" label="价格" width="80">
 			</el-table-column>
-			<el-table-column prop="bidPrice" label="最新进价" width="80">
+			<el-table-column prop="bidPrice" v-if="isAdmin" label="最新进价" width="80">
 			</el-table-column>
 			<el-table-column prop="providerId" label="抬头" width="100" :formatter="formatProvider">
 			</el-table-column>
@@ -283,6 +283,7 @@
 				imgurlNull:false,
 				btnFlag:false,
 				isAread: Cookies.get('is_aread')==1,
+				isAdmin: Cookies.get('user_type')==1,
 				filters: {
 					name: '',
 					providerId: '',

@@ -92,11 +92,14 @@
                   if(this.checked){
                     Cookies.set('user_info',data.data.data,{ expires: 7 })
                     Cookies.set('is_aread',data.data.data.isAread,{ expires: 7 })
+                    Cookies.set('user_type',data.data.data.userType,{ expires: 7 })
                   }else{
                     Cookies.set('user_info',data.data.data)
                     Cookies.set('is_aread',data.data.data.isAread)
+                    Cookies.set('user_type',data.data.data.userType,{ expires: 7 })
                   }
                   this.$router.push({ path: '/' });
+                  location.reload();
                 }
               });
             });

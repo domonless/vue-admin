@@ -100,7 +100,16 @@ axios.interceptors.response.use(
 export const getRsa = params => { return axios.get(`${base}/auth/rsa`, { params: params }); };
 
 //用户
+export const getUserList = params => { return axios.get(`${base}/user/list`, { params: params }); };
+
+export const addUser = params => { return axios.post(`${base}/user/add`, params); };
+
+export const editUser = params => { return axios.post(`${base}/user/update`, params); };
+
 export const editPassword = params => { return axios.post(`${base}/user/password`, params); };
+
+export const resetPwd = params => { return axios.post(`${base}/user/resetPwd`, params); };
+
 
 //登陆
 export const login = params => { return axios.post(`${base}/auth/login`, params); };

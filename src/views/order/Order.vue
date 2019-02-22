@@ -173,7 +173,7 @@
 				</el-table-column>
 				<el-table-column prop="count" label="数量" width="65">
 				</el-table-column>
-				<el-table-column prop="bidPrice" label="进价" width="70">
+				<el-table-column prop="bidPrice" v-if="isAdmin" label="进价" width="70">
 				</el-table-column>
 				<el-table-column prop="status" label="状态" :formatter="formatStatus" width="70">
 				</el-table-column>
@@ -193,7 +193,7 @@
 			<div slot="footer" class="dialog-footer">
 				<el-button type="primary" v-if="this.selectStatus==1 && this.sels.length>0" @click.native="handleBuy" :loading="sendLoading">进货</el-button>
 				<el-button type="warning" v-if="this.selectStatus<3 && this.sels.length>0" @click.native="handleEditCount" :loading="editItemLoading">修改</el-button>
-				<el-button type="danger" v-if="this.selectStatus<3 && this.sels.length>0" @click.native="handleDeleteItem" :loading="editItemLoading">删除</el-button>
+				<el-button type="danger" v-if="this.selectStatus<4 && this.sels.length>0" @click.native="handleDeleteItem" :loading="editItemLoading">删除</el-button>
 				<el-button type="primary" v-if="this.selectStatus===2 && this.sels.length>0" @click.native="handleSend" :loading="sendLoading">发货</el-button>
 				<el-button type="primary" v-if="this.selectStatus===3 && this.sels.length>0 && this.sendForm.status!=9" @click.native="handleIn" :loading="sendLoading">入库</el-button>
 				<el-button type="primary" v-if="this.selectStatus===3 && this.sels.length>0 && this.sendForm.status==9" @click.native="handleRepair">补单</el-button>
@@ -318,6 +318,7 @@
 <script>
 	import util from '../../common/js/util'
 	import pdf from 'vue-pdf'
+	import Cookies from 'js-cookie'
 	import {getLodop} from '../../common/js/LodopFuncs'
 	//import NProgress from 'nprogress'
 	import { userId, getOrderList, editOrder, getOrderDetail, editOrderDetail, getProviderList, getPurchaserList, fileOrderUpload, delOrderDetail} from '../../api/api';
@@ -334,6 +335,8 @@
 				height:1089,
 				pageSize:20,
 				pages:0,
+
+				isAdmin: Cookies.get('user_type')==1,
 
 				purchasers:[],
 				filters: {

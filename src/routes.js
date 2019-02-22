@@ -18,6 +18,8 @@ import Expenses from './views/expenses/Expenses.vue'
 import InvoiceStatistic from './views/statistic/InvoiceStatistic.vue'
 import Invoice from './views/invoice/Invoice.vue'
 import InvoiceAdd from './views/invoice/InvoiceAdd.vue'
+import Employee from './views/employee/Employee.vue'
+import Cookies from 'js-cookie';
 
 
 let routes = [
@@ -106,6 +108,17 @@ let routes = [
             { path: '/statistic/order', component:OrderStatistic, name: '订单统计' },
             // { path: '/statistic/invoice', component:InvoiceStatistic, name: '发票统计' },
             { path: '/expenses/list', component:Expenses, name: '开销统计' },
+        ]
+    },
+    {
+        path: '/employee',
+        hidden: Cookies.get('user_type')==0,
+        component: Home,
+        name: '员工管理',
+        iconCls: 'fa fa-group',//图标样式class
+        redirect: '/employee/list',
+        children: [
+            { path: '/employee/list', component:Employee, name: '员工列表' },
         ]
     },
     {

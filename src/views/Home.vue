@@ -91,7 +91,6 @@
 <script>
 	import { getRsa, editPassword } from '../api/api';
 	import Cookies from 'js-cookie'
-	import qs from 'qs'
 	import { BigInteger } from 'jsbn'
 	import { JSEncrypt } from 'jsencrypt'
 	import hexabase from 'hexabase'
@@ -197,7 +196,7 @@
 			                m:data.data.data.m,
 			                p:data.data.data.p,
 			              }).then(data => {
-			              	this.modPwdVisible = false;
+			              	
 			                this.modPwdLoading = false;
 			                let msg = data.data.message;
 			                let code = data.data.code;
@@ -206,7 +205,14 @@
 			                    message: msg,
 			                    type: 'error'
 			                  });
-			                } 
+			                } else {
+			                	this.modPwdVisible = false;
+								this.$message({
+									message: '修改成功',
+									type: 'success'
+								});
+								this.$refs['modPwdForm'].resetFields();
+							}
 			              });
 			            });
 			          } else {
