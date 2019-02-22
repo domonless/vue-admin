@@ -10,7 +10,7 @@
 					<el-input v-model="filters.cdSn" placeholder="订单号" @input="getInvoices" clearable></el-input>
 				</el-form-item>
 				<el-form-item prop="providerId">
-					<el-select v-model="filters.providerId" placeholder="供货商" @change="getInvoices" clearable >
+					<el-select v-model="filters.providerId" filterable placeholder="供货商" @change="getInvoices" clearable >
 					    <el-option
 					      v-for="item in providers"
 					      :key="item.id"
@@ -22,6 +22,16 @@
 				<el-form-item>
 					<el-input v-model="filters.demander" placeholder="需求公司" @input="getInvoices" clearable></el-input>
 				</el-form-item>
+				<el-form-item prop="status">
+					<el-select v-model="filters.status" placeholder="是否回款" @change="getInvoices" clearable >
+					    <el-option
+					      v-for="item in status"
+					      :key="item.value"
+					      :label="item.label"
+					      :value="item.value">
+					    </el-option>
+					</el-select>
+				</el-form-item>
 				<el-form-item>
 					<el-button type="primary" v-on:click="getInvoices" >查询</el-button>
 				</el-form-item>
@@ -29,16 +39,10 @@
 		</el-col>
 
 		<!--列表-->
-		<el-table :data="invoices" :span-method="objectSpanMethod" highlight-current-row v-loading="listLoading" style="width: 100%;">
-			<el-table-column type="index" width="60">
+		<el-table :data="invoices" show-summary highlight-current-row v-loading="listLoading" style="width: 100%;">
+			<el-table-column prop="invoiceSn" label="发票号" width="120" :formatter="formatInvoiceSn">
 			</el-table-column>
-			<el-table-column prop="invoiceSn" label="发票号" width="100">
-			</el-table-column>
-			<el-table-column prop="cdSn" label="订单编号" width="140">
-			</el-table-column>
-			<el-table-column prop="sum" label="订单金额" width="90">
-			</el-table-column>
-			<el-table-column prop="money" label="发票金额" width="90">
+			<el-table-column prop="money" label="发票金额" width="120">
 			</el-table-column>
 			<el-table-column prop="demander" label="需求公司" width="300">
 			</el-table-column>
@@ -46,11 +50,16 @@
 			</el-table-column>
 			<el-table-column prop="invoiceDate" label="填开日期" width="100">
 			</el-table-column>
-			<el-table-column prop="remark" label="备注" width="150" >
+			<el-table-column prop="incomeDate" label="回款日期" width="100">
+			</el-table-column>
+			<el-table-column prop="remark" label="备注" width="200" >
 			</el-table-column>
 			<el-table-column label="操作" width="330">
 				<template scope="scope">
-					<el-button type="warning" size="small" @click="handleEdit(scope.$index, scope.row)">编辑</el-button>
+					<el-button v-if="scope.row.incomeDate == undefined" type="primary" size="small" @click="handleEdit(scope.$index, scope.row)">编辑</el-button>
+					<el-button v-if="scope.row.incomeDate == undefined" type="warning" size="small" @click="handleReturn(scope.$index, scope.row)">回款</el-button>
+					<el-button v-if="scope.row.incomeDate != undefined" size="small">已回款</el-button>
+					<el-button size="small" @click="handleRelated(scope.$index, scope.row)">相关订单</el-button>
 				</template>
 			</el-table-column>
 		</el-table>
@@ -87,7 +96,7 @@
 
 <script>
 	import util from '../../common/js/util'
-	import { getInvoiceList, getProviderList, editInvoice} from '../../api/api';
+	import { getInvoiceList, getProviderList, editInvoice, getOrdersByInvoiceId} from '../../api/api';
 
 	export default {
 		data() {
@@ -104,6 +113,7 @@
 					cdSn: '',
 					providerId: '',
 					demander: '',
+					status:''
 				},
 
 				//发票列表
@@ -125,11 +135,23 @@
 				editForm: {
 				},
 
-				//合并单元格
-				spanArr:[],
+				//回款数据
+				returnForm: {
+				},
 
 				//供货商
-				providers:[]
+				providers:[],
+
+				status:[
+					{
+						value:0,
+						label:'未回款'
+					},
+					{
+						value:1,
+						label:'已回款'
+					}
+				],
 			}
 		},
 		methods: {
@@ -141,7 +163,12 @@
 				var reg4 = /经营部(.+)/g;
 				var reg5 = /五金(.+)/g;
 				var reg6 = /石材(.+)/g;
+				console.log();
 				return row.provider.replace(reg1,"").replace(reg2,"").replace(reg3,"").replace(reg4,"").replace(reg5,"").replace(reg6,"");
+			},
+			//发票号转化
+			formatInvoiceSn: function(row, column){
+				return "No." + row.invoiceSn;
 			},
 
 			//分页
@@ -174,7 +201,8 @@
                     invoiceSn:this.filters.invoiceSn,
                     cdSn:this.filters.cdSn,
                     providerId:this.filters.providerId,
-                    demander:this.filters.demander
+                    demander:this.filters.demander,
+                    status:this.filters.status
 				};
 				this.listLoading = true;
 				getInvoiceList(para).then((res) => {
@@ -188,7 +216,6 @@
 	                  });
 	                } else {
 	                	this.invoices = res.data.data.list
-	                	this.getSpanArr(res.data.data.list);
 	                    this.page = res.data.data.pageNum == 0 ? res.data.data.pageNum +1 : res.data.data.pageNum
 	                    this.total = res.data.data.total
 	                }
@@ -232,45 +259,61 @@
 					}
 				});
 			},
-
-			//合并单元格
-			getSpanArr(data){
-				let contactDot = 0;
-				this.spanArr=[];
-		        data.forEach( (item,index) => {
-		            if(index===0){
-		                this.spanArr.push(1)
-		            }else{
-		                if(item.invoiceSn!='' && item.invoiceSn === data[index-1].invoiceSn){
-		                    this.spanArr[contactDot] += 1;
-		                    this.spanArr.push(0)
-		                }else{
-		                    contactDot = index
-		                    this.spanArr.push(1)
-		                }
-		            }
-		        })
+			//回款处理
+			handleReturn: function (index, row) {
+				this.returnForm.id = row.id;
+				this.$confirm('确认提交吗？', '提示', {}).then(() => {
+					editInvoice(this.returnForm).then((res) => {
+						let msg = res.data.message;
+	                	let code = res.data.code;
+						if (code !== 200) {
+		                  this.$message({
+		                    message: msg,
+		                    type: 'error'
+		                  });
+		                } else {
+							this.$message({
+								message: '提交成功',
+								type: 'success'
+							});
+							this.$refs['returnForm'].resetFields();
+							this.getInvoices();
+						}
+					});
+				});
 			},
-			objectSpanMethod({row, column, rowIndex, columnIndex}){
-		        if(columnIndex === 1 || columnIndex === 4){
-		            if(this.spanArr[rowIndex]){
-		                return {
-		                    rowspan:this.spanArr[rowIndex],
-		                    colspan:1
-		                }
-		            }else{
-		                return {
-		                    rowspan: 0,
-		                    colspan: 0
-		                }
-		            }
-		        }
-		    },
-		    
+			//发票相关订单
+    		handleRelated: function (index, row) {
+    			let para = {
+					page:this.page,
+                    size:20,
+                    invoiceId:row.id
+				};
+				getOrdersByInvoiceId(para).then((res) => {
+					let msg = res.data.message;
+                	let code = res.data.code;
+					if (code !== 200) {
+	                  this.$message({
+	                    message: msg,
+	                    type: 'error'
+	                  });
+	                } else {
+						this.$router.push({path: '/order/list', query: {relatedResponse: res}});
+					}
+				});
+    		},
+
 		},
 		mounted() {
 			this.getProviders();
-			this.getInvoices();
+			let res = this.$route.query.relatedResponse;
+			if(res == undefined){
+				this.getInvoices();
+			}else{
+				this.invoices = res.data.data.list
+                this.page = res.data.data.pageNum == 0 ? res.data.data.pageNum +1 : res.data.data.pageNum
+                this.total = res.data.data.total
+			}
 		}
 	}
 

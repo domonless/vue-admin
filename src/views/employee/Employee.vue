@@ -21,6 +21,8 @@
 			</el-table-column>
 			<el-table-column prop="username" label="用户名" >
 			</el-table-column>
+			<el-table-column prop="loginname" label="登录名" >
+			</el-table-column>
 			<el-table-column label="操作">
 				<template scope="scope">
 					<el-button type="primary" size="small" @click="handleEdit(scope.$index, scope.row)">编辑</el-button>
@@ -240,10 +242,10 @@
 					if (valid) {
 						getRsa().then(data => {
 							this.addLoading = true;
-							this.addForm.password = getPasswordByRsa(data.data.data,this.addForm.password);
 							this.addForm.m = data.data.data.m;
 							this.addForm.p = data.data.data.p;
 							let para = Object.assign({}, this.addForm);
+							para.password = getPasswordByRsa(data.data.data,this.addForm.password);
 							addUser(para).then((res) => {
 								this.addLoading = false;
 								this.addFormVisible = false;

@@ -4,7 +4,7 @@
 		<el-col :span="24" class="toolbar" style="padding-bottom: 0px;">
 			<el-form :inline="true" :model="filters">
 				<el-form-item prop="providerId">
-					<el-select v-model="filters.providerId" placeholder="供货商" @change="getOrders" clearable >
+					<el-select v-model="filters.providerId" filterable placeholder="供货商" @change="getOrders" clearable >
 					    <el-option
 					      v-for="item in providers"
 					      :key="item.id"
@@ -244,9 +244,10 @@
 						for(let i=0;i<this.sels.length;i++){
 							orderIds.push(this.sels[i].id);
 						}
-						console.log(orderIds);
 						this.invoiceForm.orderIdList = orderIds;
 						this.invoiceForm.status = 5;
+						this.invoiceForm.providerId = this.sels[0].providerId;
+						this.invoiceForm.demanderId = this.sels[0].demanderId;
 						this.$confirm('确认提交吗？', '提示', {}).then(() => {
 							this.invoiceLoading = true;
 							addInvoice(this.invoiceForm).then((res) => {

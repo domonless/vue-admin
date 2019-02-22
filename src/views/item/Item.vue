@@ -7,7 +7,7 @@
 					<el-input v-model="filters.name" placeholder="名称或编号" @input="getItems" clearable></el-input>
 				</el-form-item>
 				<el-form-item>
-					<el-select v-model="filters.providerId" placeholder="抬头" @change="getItems" clearable>
+					<el-select v-model="filters.providerId" filterable placeholder="抬头" @change="getItems" clearable>
 					    <el-option
 					      v-for="item in providers"
 					      :key="item.id"
@@ -17,7 +17,7 @@
 					</el-select>
 				</el-form-item>
 				<el-form-item v-if="isAread">
-					<el-select v-model="filters.areaId" placeholder="采购组织" @change="getItems" clearable>
+					<el-select v-model="filters.areaId" filterable placeholder="采购组织" @change="getItems" clearable>
 					    <el-option
 					      v-for="item in areas"
 					      :key="item.id"
@@ -280,6 +280,7 @@
 		},
 		data() {
 			return {
+				//图片是否为空
 				imgurlNull:false,
 				btnFlag:false,
 				isAread: Cookies.get('is_aread')==1,

@@ -155,6 +155,8 @@ export const delOrderDetail = params => { return axios.post(`${base}/order/detai
 
 export const fileOrderUpload = params => { return axios.post(`${base}/file/order/upload`, params); };
 
+export const getInvoicesByOrderId = params => { return axios.get(`${base}/order/invoices`, { params: params }); };
+
 
 //送货单
 export const getDeliveryOrderList = params => { return axios.get(`${base}/deliveryOrder/list`, { params: params }); };
@@ -200,6 +202,8 @@ export const getInvoiceList = params => { return axios.get(`${base}/invoice/list
 export const addInvoice = params => { return axios.post(`${base}/invoice/add`, params); };
 
 export const editInvoice = params => { return axios.post(`${base}/invoice/update`, params); };
+
+export const getOrdersByInvoiceId = params => { return axios.get(`${base}/invoice/orders`, { params: params }); };
 
 
 //统计

@@ -7,7 +7,7 @@
 					<el-input v-model="filters.cdSn" placeholder="订单号" @input="getOrders" clearable></el-input>
 				</el-form-item>
 				<el-form-item prop="providerId">
-					<el-select v-model="filters.providerId" placeholder="供货商" @change="getOrders" clearable >
+					<el-select v-model="filters.providerId" filterable placeholder="供货商" @change="getOrders" clearable>
 					    <el-option
 					      v-for="item in providers"
 					      :key="item.id"
@@ -29,6 +29,31 @@
 					    </el-option>
 					</el-select>
 				</el-form-item>
+				<br>
+
+				<el-form-item prop="purchaserId">
+					<el-select v-model="filters.purchaserId" filterable placeholder="采购员" @change="getOrders" clearable>
+					    <el-option
+					      v-for="item in purchasers"
+					      :key="item.id"
+					      :label="item.name+item.phone"
+					      :value="item.id">
+					    </el-option>
+					</el-select>
+				</el-form-item>
+				<el-form-item v-if="isAread" label="采购组织" prop="areaId">
+					<el-select v-model="filters.areaId" filterable placeholder="请选择" @change="getOrders" clearable>
+					    <el-option
+					      v-for="item in areas"
+					      :key="item.id"
+					      :label="item.name"
+					      :value="item.id">
+					    </el-option>
+					</el-select>
+				</el-form-item>
+				<el-form-item>
+					<el-checkbox v-model="filters.isAgent" @change="getOrders">代购</el-checkbox>
+				</el-form-item>
 				<el-form-item>
 					<el-button type="primary" v-on:click="getOrders" >查询</el-button>
 				</el-form-item>
@@ -40,27 +65,19 @@
 
 		<!--列表-->
 		<el-table :data="orders" highlight-current-row v-loading="listLoading" style="width: 100%;">
-			<el-table-column type="index" width="60">
-			</el-table-column>
-			<el-table-column type="expand">
-		      <template slot-scope="props">
-		        <el-form label-position="left" inline class="demo-table-expand">
-		          <el-form-item label="采购组织:">
-		            <span>{{ props.row.area }}</span>
-		          </el-form-item>
-		          <el-form-item label="采购员:">
-		            <span>{{ props.row.purchaser }}</span>
-		          </el-form-item>
-		        </el-form>
-		      </template>
-		    </el-table-column>
+			<!-- <el-table-column type="index" width="60"> -->
+			<!-- </el-table-column> -->
 			<el-table-column prop="cdSn" label="订单编号" width="140" sortable>
 			</el-table-column>
 			<!-- <el-table-column prop="qgSn" label="请购编号" width="120">
 			</el-table-column> -->
 			<el-table-column prop="demander" label="需求公司" width="300" sortable>
 			</el-table-column>
-			<el-table-column prop="provider" label="供货商" width="100" :formatter="formatProvider">
+			<el-table-column prop="area" label="采购组织" width="80">
+			</el-table-column>
+			<el-table-column prop="purchaser" label="采购员" width="150">
+			</el-table-column>
+			<el-table-column prop="provider" label="供货商" width="80" :formatter="formatProvider">
 			</el-table-column>
 			<el-table-column prop="sum" label="总金额" width="90">
 			</el-table-column>
@@ -70,7 +87,7 @@
 			</el-table-column>
 			<el-table-column prop="remark" label="备注" width="150">
 			</el-table-column>
-			<el-table-column label="操作" width="330">
+			<el-table-column label="操作" width="400">
 				<template scope="scope">
 					<!-- <el-button type="warning" @click.native="handleDesign()">设计</el-button>  -->
 					<el-button type="warning" size="small" @click="handleDeliveryOrder(scope.$index, scope.row)">送货单</el-button>
@@ -78,6 +95,7 @@
 					<el-button type="info" size="small" @click="handleView(scope.$index, scope.row)" icon="el-icon-search"></el-button>
 					<el-button type="primary" size="small" @click="handleRemark(scope.$index, scope.row)" icon="el-icon-edit"></el-button>
 					<el-button type="danger" size="small" @click="handleDel(scope.$index, scope.row)" icon="el-icon-delete"></el-button>
+					<el-button v-if="scope.row.status==5 || scope.row.status==6" size="small" @click="handleRelated(scope.$index, scope.row)">发票</el-button>
 				</template>
 			</el-table-column>
 		</el-table>
@@ -102,6 +120,10 @@
 					  <i v-else-if="!editForm.url && this.uploadFlag == false" class="el-icon-plus avatar-uploader-icon"></i>
 					  <el-progress v-if="this.uploadFlag" type="circle" :percentage="uploadPercent" style="margin-top:30px;"></el-progress>
 					</el-upload>
+				</el-form-item>
+				<el-form-item label="是否代购" prop="isAgent">
+					<el-radio v-model="editForm.isAgent" label="1">是</el-radio>
+  					<el-radio v-model="editForm.isAgent" label="0">否</el-radio>
 				</el-form-item>
 				<el-form-item label="备注" prop="remark">
 					<el-input v-model="editForm.remark"></el-input>
@@ -154,8 +176,8 @@
 
 		<!--查看界面-->
 		<el-dialog title="查看" :visible.sync="itemListVisible" :close-on-click-modal="false">
-			<el-table :data="items" ref="viewTable" :span-method="objectSpanMethod" highlight-current-row v-loading="itemsLoading" @selection-change="selsChange" style="width: 100%;" >
-				<el-table-column type="selection" :selectable="checkSelectable" :disable="false" width="40">
+			<el-table :data="items" ref="viewTable" :span-method="objectSpanMethod" highlight-current-row v-loading="itemsLoading" @selection-change="selsChange" style="width: 100%;">
+				<el-table-column type="selection" :selectable="checkSelectable" :disable="false" width="40" v-if="this.sendForm.status<4 || this.sendForm.status==9">
 			    </el-table-column>
 			    <el-table-column  type="index" width="55">
 				</el-table-column>
@@ -197,7 +219,6 @@
 				<el-button type="primary" v-if="this.selectStatus===2 && this.sels.length>0" @click.native="handleSend" :loading="sendLoading">发货</el-button>
 				<el-button type="primary" v-if="this.selectStatus===3 && this.sels.length>0 && this.sendForm.status!=9" @click.native="handleIn" :loading="sendLoading">入库</el-button>
 				<el-button type="primary" v-if="this.selectStatus===3 && this.sels.length>0 && this.sendForm.status==9" @click.native="handleRepair">补单</el-button>
-				<el-button type="primary" v-if="this.selectStatus===5 && this.sels.length>0" @click.native="handleReturn" :loading="sendLoading">回款</el-button>
 				<!-- <el-button type="danger" @click.native="itemListVisible=false">取消</el-button> -->
 			</div>
 		</el-dialog>
@@ -223,7 +244,7 @@
 					</el-table-column>
 					<el-table-column prop="price" label="单价" width="70">
 					</el-table-column>
-					<el-table-column prop="latestBidPrice" label="最新进价" width="80">
+					<el-table-column v-if="isAdmin" prop="latestBidPrice" label="最新进价" width="80">
 					</el-table-column>
 					<el-table-column prop="count" label="数量" width="70">
 					</el-table-column>
@@ -321,7 +342,7 @@
 	import Cookies from 'js-cookie'
 	import {getLodop} from '../../common/js/LodopFuncs'
 	//import NProgress from 'nprogress'
-	import { userId, getOrderList, editOrder, getOrderDetail, editOrderDetail, getProviderList, getPurchaserList, fileOrderUpload, delOrderDetail} from '../../api/api';
+	import { userId, getOrderList, editOrder, getOrderDetail, editOrderDetail, getProviderList, getPurchaserList, fileOrderUpload, delOrderDetail, getInvoicesByOrderId, getAreaList} from '../../api/api';
 
 	var LODOP
 	export default {
@@ -336,14 +357,19 @@
 				pageSize:20,
 				pages:0,
 
+				isAread: Cookies.get('is_aread')==1,
 				isAdmin: Cookies.get('user_type')==1,
 
 				purchasers:[],
+				areas:[],
 				filters: {
 					cdSn: '',
 					providerId: '',
 					demander: '',
-					status: ''
+					purchaserId: '',
+					status: '',
+					isAgent: false,
+					areaId:''
 				},
 				status:[
 					{
@@ -457,10 +483,6 @@
 					]
 				},
 
-				//回款界面数据
-				returnForm: {
-				},
-
 				spanArr:[],
 
 				providers:[],
@@ -536,7 +558,24 @@
 					}
 				});
 			},
-			
+			//获取采购组织列表
+			getAreas() {
+				let para = {
+				};
+				getAreaList(para).then((res) => {
+					let msg = res.data.message;
+                	let code = res.data.code;
+					if (code !== 200) {
+	                  this.$message({
+	                    message: msg,
+	                    type: 'error'
+	                  });
+	                } else {
+						this.areas = res.data.data.list
+					}
+				});
+			},
+			//格式化状态
 			getStrByStatus(status){
 				let statusStr = '';
 				if(status == 1){
@@ -594,7 +633,10 @@
                     cdSn:this.filters.cdSn,
                     providerId:this.filters.providerId,
                     demander:this.filters.demander,
-                    status:this.filters.status
+                    purchaserId:this.filters.purchaserId,
+                    status:this.filters.status,
+                    isAgent:this.filters.isAgent,
+                    areaId:this.filters.areaId
 				};
 				this.listLoading = true;
 				getOrderList(para).then((res) => {
@@ -709,6 +751,7 @@
 				let para = { 
 					id: this.editForm.id, 
 					remark: this.editForm.remark,
+					isAgent: this.editForm.isAgent,
 					url: this.editForm.url 
 				};
 				editOrder(para).then((res) => {
@@ -972,35 +1015,6 @@
 				});
 			},
 			
-			//回款处理
-			handleReturn: function () {
-				this.returnForm.id = this.sendForm.id;
-				this.returnForm.cdSn = this.sendForm.cdSn;
-				this.returnForm.status = 6;
-				this.returnForm.itemList = this.sels;
-				this.$confirm('确认提交吗？', '提示', {}).then(() => {
-					this.sendLoading = true;
-					editOrderDetail(this.returnForm).then((res) => {
-						this.sendLoading = false;
-						this.itemListVisible = false;
-						let msg = res.data.message;
-	                	let code = res.data.code;
-						if (code !== 200) {
-		                  this.$message({
-		                    message: msg,
-		                    type: 'error'
-		                  });
-		                } else {
-						//NProgress.done();
-							this.$message({
-								message: '提交成功',
-								type: 'success'
-							});
-							this.getOrders();
-						}
-					});
-				});
-			},
 			//多选
 			selsChange: function (sels) {
 				this.sels = sels;
@@ -1262,10 +1276,32 @@
 			            }
 			        };
 			    }
-		    }
+		    },
+		    //订单相关发票
+    		handleRelated: function (index, row) {
+    			let para = {
+					page:this.page,
+                    size:20,
+                    orderId:row.id
+				};
+				getInvoicesByOrderId(para).then((res) => {
+					let msg = res.data.message;
+                	let code = res.data.code;
+					if (code !== 200) {
+	                  this.$message({
+	                    message: msg,
+	                    type: 'error'
+	                  });
+	                } else {
+						this.$router.push({path: '/invoice/list', query: {relatedResponse: res}});
+					}
+				});
+    		},
 		},
 		mounted() {
 			this.getProviders();
+			this.getPurchasers();
+			this.getAreas();
 			let res = this.$route.query.relatedResponse;
 			if(res == undefined){
 				this.getOrders();

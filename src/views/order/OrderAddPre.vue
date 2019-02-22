@@ -48,6 +48,10 @@
 			<el-form-item label="备注" prop="remark">
 				<el-input type="textarea" placeholder="采购、请购人、区域" v-model="addForm.remark" clearable></el-input>
 			</el-form-item>
+			<el-form-item label="是否代购" prop="isAgent">
+				<el-radio v-model="addForm.isAgent" label="1">是</el-radio>
+				<el-radio v-model="addForm.isAgent" label="0">否</el-radio>
+			</el-form-item>
 			
 			<el-button type="primary" :disabled="!this.addForm.providerId" @click="showItemList">物料列表</el-button>
 
@@ -190,7 +194,7 @@
 					demanderId: '',
 					purchaserId: '',
 					sum: 0,
-					org: '广西区域',
+					isAgent: '0',
 					itemList: []
 				},
 				count:0

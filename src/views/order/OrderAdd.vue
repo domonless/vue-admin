@@ -3,7 +3,7 @@
 		<el-form :model="addForm" label-width="80px" :rules="addFormRules" ref="addForm" :inline="true">
 			<br>
 			<el-form-item label="供应商" prop="providerId">
-				<el-select v-model="addForm.providerId" placeholder="请选择" @change="providerChangeHandler" clearable>
+				<el-select v-model="addForm.providerId" filterable placeholder="请选择" @change="providerChangeHandler" clearable>
 				    <el-option
 				      v-for="item in providers"
 				      :key="item.id"
@@ -43,6 +43,10 @@
 				      :value="item.id">
 				    </el-option>
 			  	</el-select>
+			</el-form-item>
+			<el-form-item label="是否代购" prop="isAgent">
+				<el-radio v-model="addForm.isAgent" label="1">是</el-radio>
+					<el-radio v-model="addForm.isAgent" label="0">否</el-radio>
 			</el-form-item>
 			<br>
 
@@ -191,8 +195,8 @@
 					demanderId: '',
 					purchaserId: '',
 					areaId: '',
+					isAgent:'0',
 					sum: 0,
-					org: '广西区域',
 					itemList: []
 				},
 
