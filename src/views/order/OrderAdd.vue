@@ -57,6 +57,11 @@
 				<el-input v-model="addForm.qgSn" :maxlength="12"></el-input>
 			</el-form-item>
 			<el-button type="primary" :disabled="!this.addForm.providerId || !this.addForm.areaId" @click="showItemList">物料列表</el-button>
+			<br>
+
+			<el-form-item label="备注" prop="remark">
+				<el-input type="textarea" placeholder="项目" v-model="addForm.remark" clearable></el-input>
+			</el-form-item>
 
 			<!-- 订单物料列表 -->
 			<el-form-item label="物料列表" prop="itemList">
@@ -81,6 +86,7 @@
 					</el-table-column>
 					<el-table-column label="操作" width="150">
 						<template scope="scope">
+							<el-button type="primary" size="small" @click="handleEdit(scope.$index, scope.row)">编辑</el-button>
 							<el-button type="danger" size="small" @click="handleDel(scope.$index, scope.row)">删除</el-button>
 						</template>
 					</el-table-column>
@@ -200,7 +206,11 @@
 					itemList: []
 				},
 
-				count:0
+				count:0,
+
+				isEdit:false,
+				editIndex:'',
+				editRow:'',
 			}
 		},
 		methods: {
@@ -345,6 +355,8 @@
 
 			//弹出物料列表
 			showItemList: function(){
+				this.filters.name='';
+				this.items=[];
 				this.getItems();
 				this.itemsVisible = true;
 			},
@@ -361,14 +373,31 @@
 					row.count++;
 				}
 				let addItem = Object.assign({}, row);
-				//加入订单队列
-				this.addForm.itemList.push(addItem);
+
+				if(this.isEdit){
+					//删除物料
+					this.handleDel(this.editIndex,this.editRow);
+					//指定位置加入订单队列
+					this.addForm.itemList.splice(this.editIndex,0,row);
+					this.isEdit=false;
+					this.itemsVisible=false;
+				}else{
+					//加入订单队列
+					this.addForm.itemList.push(addItem);
+				}
+				
 				//计算金额
 				let sum = this.addForm.sum + (addItem.price * addItem.count);
 				this.count += row.count;
 				this.addForm.sum = util.formatNumber(sum);
 			},
-
+			//修改物料
+			handleEdit: function(index, row){
+				this.isEdit = true;
+				this.editIndex = index;
+				this.editRow = row;
+				this.showItemList();
+			},
 			//将物料从订单移除
 			handleDel: function(index, row){
 				//移除订单列表

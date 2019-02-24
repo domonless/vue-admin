@@ -16,6 +16,9 @@
 				<el-form-item>
 					<el-input v-model="filters.demander" placeholder="需求公司" @input="getOrders" clearable></el-input>
 				</el-form-item>
+				<el-form-item>
+					<el-input v-model="filters.remark" placeholder="项目名" @input="getOrders" clearable></el-input>
+				</el-form-item>
 			</el-form>
 		</el-col>
 
@@ -23,7 +26,7 @@
 		<el-table :data="orders" highlight-current-row v-loading="listLoading" @selection-change="selsChange" style="width: 100%;">
 			<el-table-column type="selection" width="55">
 			</el-table-column>
-			<el-table-column type="index" width="60">
+			<el-table-column type="index" width="50">
 			</el-table-column>
 			<el-table-column type="expand">
 		      <template slot-scope="props">
@@ -120,7 +123,8 @@
 
 				filters: {
 					providerId: '',
-					demander: ''
+					demander: '',
+					remark: ''
 				},
 				orders: [],
 				total: 0,
@@ -183,6 +187,7 @@
                     size:20,
                     providerId:this.filters.providerId,
                     demander:this.filters.demander,
+                    remark:this.filters.remark,
                     status:4
 				};
 				this.listLoading = true;

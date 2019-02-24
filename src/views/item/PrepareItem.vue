@@ -42,6 +42,12 @@
 			</el-table-column>
 		</el-table>
 
+		<!--工具条-->
+		<el-col :span="24" class="toolbar">
+			<el-pagination layout="total, sizes, prev, pager, next" @size-change="handleSizeChange" @current-change="handleCurrentChange" :page-size="pageSize" :total="total" style="float:right;">
+			</el-pagination>
+		</el-col>
+
 		<!--进货界面-->
 		<el-dialog title="进货" :visible.sync="buyFormVisible" :close-on-click-modal="false">
 			<el-form :model="buyForm" label-width="80px" ref="buyForm" :inline="true">
@@ -90,6 +96,9 @@
 				filters: {
 					name: ''
 				},
+				total: 0,
+				page: 1,
+				pageSize: 20,
 				item: {},
 				items: [],
 				buyItems: [],
@@ -106,16 +115,18 @@
 		    //页数变化处理
 			handleCurrentChange(val) {
 				this.page = val;
-				this.getItems();
+				this.getPrepareItems();
 			},
 			//页大小变化处理
 			handleSizeChange(val){
 				this.pageSize = val;
-				this.getItems();
+				this.getPrepareItems();
 			},
-			//获取物料倩价列表
+			//获取物料列表
 			getPrepareItems() {
 				let para = {
+					page:this.page,
+                    size:this.pageSize,
 					name:this.filters.name
 				};
 				this.listLoading = true;
@@ -129,7 +140,9 @@
 	                    type: 'error'
 	                  });
 	                } else {
-						this.items = res.data.data
+						this.items = res.data.data.list
+	                    this.page = res.data.data.pageNum == 0 ? res.data.data.pageNum +1 : res.data.data.pageNum
+	                    this.total = res.data.data.total
 	                }
 				});
 			},
@@ -200,16 +213,34 @@
 				row.bidPrice = Number(e);
 			},
     		export2Excel() {
-			　require.ensure([], () => {
-			　　　const { export_json_to_excel } = require('../../excel/Export2Excel');
-			　　　const tHeader = ['名称','品牌','规格','单位','数量','价格','订单编号','请购人'];
-			　　　// 上面设置Excel的表格第一行的标题
-			　　　const filterVal = ['name','brand','form','unit','count','price','cdSn',''];
-			　　　// 上面的index、phone_Num、school_Name是tableData里对象的属性
-			　　　const list = this.items;  //把data里的tableData存到list
-			　　　const data = this.formatJson(filterVal, list);
-			　　　export_json_to_excel(tHeader, data, '未送物料清单');
-			　　})
+    			let exportItems=[];
+    			let para = {
+					name:this.filters.name
+				};
+				this.listLoading = true;
+				getPrepareItemList(para).then((res) => {
+					this.listLoading = false;
+					let msg = res.data.message;
+	            	let code = res.data.code;
+					if (code !== 200) {
+	                  this.$message({
+	                    message: msg,
+	                    type: 'error'
+	                  });
+	                } else {
+						exportItems = res.data.data.list
+						require.ensure([], () => {
+					　　　const { export_json_to_excel } = require('../../excel/Export2Excel');
+					　　　const tHeader = ['名称','品牌','规格','单位','数量','价格','订单编号','请购人'];
+					　　　// 上面设置Excel的表格第一行的标题
+					　　　const filterVal = ['name','brand','form','unit','count','price','cdSn',''];
+					　　　// 上面的index、phone_Num、school_Name是tableData里对象的属性
+					　　　const list = exportItems;  //把data里的tableData存到list
+					　　　const data = this.formatJson(filterVal, list);
+					　　　export_json_to_excel(tHeader, data, '待进货物料清单');
+					　})
+	                }
+				});
 			},
 		　　formatJson(filterVal, jsonData) {
 		     return jsonData.map(v => filterVal.map(j => v[j]))

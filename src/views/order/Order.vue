@@ -31,6 +31,16 @@
 				</el-form-item>
 				<br>
 
+				<el-form-item v-if="isAread" label="采购组织" prop="areaId">
+					<el-select v-model="filters.areaId" filterable placeholder="请选择" @change="getOrders" clearable>
+					    <el-option
+					      v-for="item in areas"
+					      :key="item.id"
+					      :label="item.name"
+					      :value="item.id">
+					    </el-option>
+					</el-select>
+				</el-form-item>
 				<el-form-item prop="purchaserId">
 					<el-select v-model="filters.purchaserId" filterable placeholder="采购员" @change="getOrders" clearable>
 					    <el-option
@@ -41,15 +51,8 @@
 					    </el-option>
 					</el-select>
 				</el-form-item>
-				<el-form-item v-if="isAread" label="采购组织" prop="areaId">
-					<el-select v-model="filters.areaId" filterable placeholder="请选择" @change="getOrders" clearable>
-					    <el-option
-					      v-for="item in areas"
-					      :key="item.id"
-					      :label="item.name"
-					      :value="item.id">
-					    </el-option>
-					</el-select>
+				<el-form-item>
+					<el-input v-model="filters.remark" placeholder="备注" @input="getOrders" clearable></el-input>
 				</el-form-item>
 				<el-form-item>
 					<el-checkbox v-model="filters.isAgent" @change="getOrders">代购</el-checkbox>
@@ -71,15 +74,15 @@
 			</el-table-column>
 			<!-- <el-table-column prop="qgSn" label="请购编号" width="120">
 			</el-table-column> -->
-			<el-table-column prop="demander" label="需求公司" width="300" sortable>
+			<el-table-column prop="demander" label="需求公司" width="315" sortable>
 			</el-table-column>
-			<el-table-column prop="area" label="采购组织" width="80">
+			<el-table-column prop="area" label="采购组织" width="105">
 			</el-table-column>
 			<el-table-column prop="purchaser" label="采购员" width="150">
 			</el-table-column>
 			<el-table-column prop="provider" label="供货商" width="80" :formatter="formatProvider">
 			</el-table-column>
-			<el-table-column prop="sum" label="总金额" width="90">
+			<el-table-column prop="sum" label="总金额" width="80">
 			</el-table-column>
 			<el-table-column prop="createTime" label="下单时间" width="100">
 			</el-table-column>
@@ -369,7 +372,8 @@
 					purchaserId: '',
 					status: '',
 					isAgent: false,
-					areaId:''
+					areaId:'',
+					remark:''
 				},
 				status:[
 					{
@@ -504,7 +508,9 @@
 				var reg4 = /经营部(.+)/g;
 				var reg5 = /五金(.+)/g;
 				var reg6 = /石材(.+)/g;
-				return row.provider.replace(reg1,"").replace(reg2,"").replace(reg3,"").replace(reg4,"").replace(reg5,"").replace(reg6,"");
+				var reg7 = /副食(.+)/g;
+				var reg8 = /农副(.+)/g;	
+				return row.provider.replace(reg1,"").replace(reg2,"").replace(reg3,"").replace(reg4,"").replace(reg5,"").replace(reg6,"").replace(reg7,"").replace(reg8,"");
 			},
 			//下单日期转化
 			formatDeliveryDate: function (row, column) {
@@ -636,7 +642,8 @@
                     purchaserId:this.filters.purchaserId,
                     status:this.filters.status,
                     isAgent:this.filters.isAgent,
-                    areaId:this.filters.areaId
+                    areaId:this.filters.areaId,
+                    remark:this.filters.remark
 				};
 				this.listLoading = true;
 				getOrderList(para).then((res) => {

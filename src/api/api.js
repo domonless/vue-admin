@@ -203,6 +203,8 @@ export const addInvoice = params => { return axios.post(`${base}/invoice/add`, p
 
 export const editInvoice = params => { return axios.post(`${base}/invoice/update`, params); };
 
+export const delInvoice = params => { return axios.post(`${base}/invoice/delete`, params); };
+
 export const getOrdersByInvoiceId = params => { return axios.get(`${base}/invoice/orders`, { params: params }); };
 
 

@@ -7,7 +7,7 @@
 					<el-input v-model="filters.invoiceSn" placeholder="发票号" @input="getInvoices" clearable></el-input>
 				</el-form-item>
 				<el-form-item>
-					<el-input v-model="filters.cdSn" placeholder="订单号" @input="getInvoices" clearable></el-input>
+					<el-input v-model="filters.money" placeholder="发票金额" @input="getInvoices" clearable></el-input>
 				</el-form-item>
 				<el-form-item prop="providerId">
 					<el-select v-model="filters.providerId" filterable placeholder="供货商" @change="getInvoices" clearable >
@@ -42,7 +42,7 @@
 		<el-table :data="invoices" show-summary highlight-current-row v-loading="listLoading" style="width: 100%;">
 			<el-table-column prop="invoiceSn" label="发票号" width="120" :formatter="formatInvoiceSn">
 			</el-table-column>
-			<el-table-column prop="money" label="发票金额" width="120">
+			<el-table-column prop="money" label="发票金额" width="90">
 			</el-table-column>
 			<el-table-column prop="demander" label="需求公司" width="300">
 			</el-table-column>
@@ -56,9 +56,10 @@
 			</el-table-column>
 			<el-table-column label="操作" width="330">
 				<template scope="scope">
-					<el-button v-if="scope.row.incomeDate == undefined" type="primary" size="small" @click="handleEdit(scope.$index, scope.row)">编辑</el-button>
 					<el-button v-if="scope.row.incomeDate == undefined" type="warning" size="small" @click="handleReturn(scope.$index, scope.row)">回款</el-button>
 					<el-button v-if="scope.row.incomeDate != undefined" size="small">已回款</el-button>
+					<el-button v-if="scope.row.incomeDate == undefined" type="primary" size="small" @click="handleEdit(scope.$index, scope.row)" icon="el-icon-edit"></el-button>
+					<el-button v-if="scope.row.incomeDate == undefined" type="danger" size="small" @click="handleEdit(scope.$index, scope.row)" icon="el-icon-delete"></el-button>
 					<el-button size="small" @click="handleRelated(scope.$index, scope.row)">相关订单</el-button>
 				</template>
 			</el-table-column>
@@ -96,7 +97,7 @@
 
 <script>
 	import util from '../../common/js/util'
-	import { getInvoiceList, getProviderList, editInvoice, getOrdersByInvoiceId} from '../../api/api';
+	import { getInvoiceList, getProviderList, editInvoice, delInvoice, getOrdersByInvoiceId} from '../../api/api';
 
 	export default {
 		data() {
@@ -110,7 +111,7 @@
 				//筛选
 				filters: {
 					invoiceSn: '',
-					cdSn: '',
+					money: '',
 					providerId: '',
 					demander: '',
 					status:''
@@ -199,7 +200,7 @@
 					page:this.page,
                     size:20,
                     invoiceSn:this.filters.invoiceSn,
-                    cdSn:this.filters.cdSn,
+                    money:this.filters.money,
                     providerId:this.filters.providerId,
                     demander:this.filters.demander,
                     status:this.filters.status
@@ -259,6 +260,27 @@
 					}
 				});
 			},
+			//删除处理
+			handleDel: function (index, row) {
+				this.$confirm('确认删除吗？', '提示', {}).then(() => {
+					delInvoice(row.id).then((res) => {
+						let msg = res.data.message;
+	                	let code = res.data.code;
+						if (code !== 200) {
+		                  this.$message({
+		                    message: msg,
+		                    type: 'error'
+		                  });
+		                } else {
+							this.$message({
+								message: '删除成功',
+								type: 'success'
+							});
+							this.getInvoices();
+						}
+					});
+				});
+			},
 			//回款处理
 			handleReturn: function (index, row) {
 				this.returnForm.id = row.id;
@@ -276,8 +298,8 @@
 								message: '提交成功',
 								type: 'success'
 							});
-							this.$refs['returnForm'].resetFields();
 							this.getInvoices();
+							this.$refs['returnForm'].resetFields();
 						}
 					});
 				});
