@@ -59,7 +59,7 @@
 					<el-button v-if="scope.row.incomeDate == undefined" type="warning" size="small" @click="handleReturn(scope.$index, scope.row)">回款</el-button>
 					<el-button v-if="scope.row.incomeDate != undefined" size="small">已回款</el-button>
 					<el-button v-if="scope.row.incomeDate == undefined" type="primary" size="small" @click="handleEdit(scope.$index, scope.row)" icon="el-icon-edit"></el-button>
-					<el-button v-if="scope.row.incomeDate == undefined" type="danger" size="small" @click="handleEdit(scope.$index, scope.row)" icon="el-icon-delete"></el-button>
+					<el-button v-if="scope.row.incomeDate == undefined" type="danger" size="small" @click="handleDel(scope.$index, scope.row)" icon="el-icon-delete"></el-button>
 					<el-button size="small" @click="handleRelated(scope.$index, scope.row)">相关订单</el-button>
 				</template>
 			</el-table-column>
