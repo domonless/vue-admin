@@ -72,6 +72,12 @@ export default {
     },
     formatNumber: function(num){
         return Number(Number(num).toFixed(2));
+    },
+    plus: function(a,b){
+        return (a*100+b*100)/100;
+    },
+    minus: function(a,b){
+        return (a*100-b*100)/100;
     }
 
 };

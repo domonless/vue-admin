@@ -46,6 +46,11 @@
 			</el-table-column>
 			<el-table-column prop="sum" label="订单总额" width="90">
 			</el-table-column>
+			<el-table-column prop="" label="差额" width="80">
+				<template scope="scope">
+					{{(scope.row.money*100-scope.row.sum*100)/100}}
+				</template>
+			</el-table-column>
 			<el-table-column prop="demander" label="需求公司" width="300">
 			</el-table-column>
 			<el-table-column prop="provider" label="供货商" width="100" :formatter="formatProvider">
@@ -256,7 +261,6 @@
 									message: '提交成功',
 									type: 'success'
 								});
-								this.getInvoices();
 								this.$refs['editForm'].resetFields();
 							}
 						});
@@ -323,6 +327,8 @@
 	                    type: 'error'
 	                  });
 	                } else {
+	                	res.data.data.url = '/invoice/list';
+	                	res.data.data.filters = this.filters;
 						this.$router.push({path: '/order/list', query: {relatedResponse: res}});
 					}
 				});
@@ -335,9 +341,14 @@
 			if(res == undefined){
 				this.getInvoices();
 			}else{
-				this.invoices = res.data.data.list
-                this.page = res.data.data.pageNum == 0 ? res.data.data.pageNum +1 : res.data.data.pageNum
-                this.total = res.data.data.total
+				if(res.data.data.filters != undefined){
+					this.filters = res.data.data.filters;
+					this.getInvoices();
+				}else{
+					this.invoices = res.data.data.list
+                	this.page = res.data.data.pageNum == 0 ? res.data.data.pageNum +1 : res.data.data.pageNum
+                	this.total = res.data.data.total
+				}
 			}
 		}
 	}

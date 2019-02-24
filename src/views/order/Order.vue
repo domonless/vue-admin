@@ -107,6 +107,7 @@
 		<el-col :span="24" class="toolbar">
 			<el-pagination layout="total, prev, pager, next" @current-change="handleCurrentChange" :page-size="20" :total="total" style="float:right;">
 			</el-pagination>
+			<el-button type="primary" v-if="canHistory" @click="goHistory">返回</el-button>
 		</el-col>
 
 		<!--编辑界面-->
@@ -492,7 +493,9 @@
 				providers:[],
 
 				beforeEditSum: 0,
-				afterEditSum: 0
+				afterEditSum: 0,
+
+				canHistory: false
 			}
 		},
 		methods: {
@@ -776,7 +779,6 @@
 							message: '提交成功',
 							type: 'success'
 						});
-						this.getOrders();
 						this.$refs['editForm'].resetFields();
 					}
 				});
@@ -1304,6 +1306,11 @@
 					}
 				});
     		},
+    		goHistory(){
+    			let res = this.$route.query.relatedResponse;
+    			let path = res.data.data.url;
+    			this.$router.push({path: path, query: {relatedResponse: res}});
+    		}
 		},
 		mounted() {
 			this.getProviders();
@@ -1313,6 +1320,7 @@
 			if(res == undefined){
 				this.getOrders();
 			}else{
+				this.canHistory=true
 				this.orders = res.data.data.list
                 this.page = res.data.data.pageNum == 0 ? res.data.data.pageNum +1 : res.data.data.pageNum
             	this.total = res.data.data.total
