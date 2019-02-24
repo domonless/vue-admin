@@ -44,6 +44,8 @@
 			</el-table-column>
 			<el-table-column prop="money" label="发票金额" width="90">
 			</el-table-column>
+			<el-table-column prop="sum" label="订单总额" width="90">
+			</el-table-column>
 			<el-table-column prop="demander" label="需求公司" width="300">
 			</el-table-column>
 			<el-table-column prop="provider" label="供货商" width="100" :formatter="formatProvider">
@@ -236,7 +238,8 @@
 							id: this.editForm.id, 
 							invoiceSn: this.editForm.invoiceSn,
 							money: this.editForm.money,
-							invoiceDate: this.editForm.invoiceDate
+							invoiceDate: this.editForm.invoiceDate,
+							remark:this.editForm.remark
 						};
 						editInvoice(para).then((res) => {
 							this.editLoading = false;

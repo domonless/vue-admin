@@ -281,7 +281,7 @@
 				}
 			}
 			.logo-width{
-				width:230px;
+				width:200px;
 			}
 			.logo-collapse-width{
 				width:60px
@@ -302,8 +302,8 @@
 			bottom: 0px;
 			overflow: hidden;
 			aside {
-				flex:0 0 230px;
-				width: 230px;
+				flex:0 0 200px;
+				width: 200px;
 				// position: absolute;
 				// top: 0px;
 				// bottom: 0px;
@@ -331,8 +331,8 @@
 				width: 60px;
 			}
 			.menu-expanded{
-				flex:0 0 230px;
-				width: 230px;
+				flex:0 0 200px;
+				width: 200px;
 			}
 			.content-container {
 				// background: #f1f2f7;
