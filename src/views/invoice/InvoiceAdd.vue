@@ -98,6 +98,18 @@
 				<el-form-item label="填开日期" prop="invoiceDate">
 					<el-date-picker type="date" placeholder="选择日期" v-model="invoiceForm.invoiceDate" value-format="yyyy-MM-dd"  format="yyyy-MM-dd"></el-date-picker>
 				</el-form-item>
+				<el-form-item label="图片" prop="imgurl">
+					<el-upload
+					  class="avatar-uploader"
+					  action=""
+					  accept=".jpg,.jpeg,.png,.gif,.bmp,.pdf,.JPG,.JPEG,.PBG,.GIF,.BMP"
+					  :http-request="uploadImg"
+					  :show-file-list="false">
+					  <img v-if="invoiceForm.imgurl && this.uploadFlag == false" :src="invoiceForm.imgurl" class="avatar">
+					  <i v-else-if="!invoiceForm.imgurl && this.uploadFlag == false" class="el-icon-plus avatar-uploader-icon"></i>
+					  <el-progress v-if="this.uploadFlag" type="circle" :percentage="uploadPercent" style="margin-top:30px;"></el-progress>
+					</el-upload>
+				</el-form-item>
 				<el-form-item label="备注" prop="remark">
 					<el-input type="textarea" v-model="invoiceForm.remark"></el-input>
 				</el-form-item>
@@ -113,7 +125,7 @@
 
 <script>
 	import util from '../../common/js/util'
-	import { getOrderList, getOrderDetail, editOrderDetail, getProviderList, getPurchaserList, addInvoice} from '../../api/api';
+	import { getOrderList, getOrderDetail, editOrderDetail, getProviderList, getPurchaserList, addInvoice, fileInvoiceUpload} from '../../api/api';
 
 	export default {
 		data() {
@@ -152,6 +164,10 @@
 					],
 				},
 				providers:[],
+
+				//图片上传
+				uploadFlag: false,
+				uploadPercent:0,
 
 			}
 		},
@@ -284,6 +300,34 @@
 			selsChange: function (sels) {
 				this.sels = sels;
 			},
+
+			uploadImg(content){
+		    	this.uploadPercent = 0;
+			    this.uploadFlag = true;
+			    let _this = this;
+			    clearInterval(this.time);
+			    this.time = setInterval(function(){  
+		           if(_this.uploadPercent<100){
+		               _this.uploadPercent += 25;//进程条
+		           }else{                 
+		           }          
+		        },100)
+		    	var formData = new FormData();
+		    	formData.append("file", content.file);
+		    	fileInvoiceUpload(formData).then((res) => {
+			        this.uploadFlag = false;
+			        let msg = res.data.message;
+                	let code = res.data.code;
+					if (code !== 200) {
+	                  this.$message({
+	                    message: msg,
+	                    type: 'error'
+	                  });
+	                } else {
+						this.invoiceForm.imgurl = res.data.data;
+					}
+		    	});
+		    },
 		},
 		mounted() {
 			this.getProviders();
@@ -292,4 +336,52 @@
 	}
 
 </script>
+
+<style scoped>
+  .demo-table-expand {
+    font-size: 0;
+  }
+  .demo-table-expand label {
+    width: 90px;
+    color: #99a9bf;
+  }
+  .demo-table-expand .el-form-item {
+    margin-right: 0;
+    margin-bottom: 0;
+    width: 50%;
+  }
+
+  .avatar-uploader{
+ 	width: 178px;
+    height: 178px;
+    border: 1px dashed #d9d9d9;
+    border-radius: 6px;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+  }
+  .avatar-uploader:hover {
+    border-color: #409EFF;
+  }
+  .avatar-uploader-icon {
+    font-size: 28px;
+    color: #8c939d;
+    width: 178px;
+    height: 178px;
+    line-height: 178px;
+    text-align: center;
+  }
+  .avatar {
+    width: 178px;
+    height: 178px;
+    display: block;
+  }
+  .signImg {
+    width: 50px;
+    height: 80px;
+  }
+  .el-upload {
+  	margin-left: 25px;
+  }
+</style>
 

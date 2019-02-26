@@ -207,6 +207,9 @@ export const delInvoice = params => { return axios.post(`${base}/invoice/delete`
 
 export const getOrdersByInvoiceId = params => { return axios.get(`${base}/invoice/orders`, { params: params }); };
 
+//上传发票图片
+export const fileInvoiceUpload = params => { return axios.post(`${base}/file/invoice/upload`, params); };
+
 
 //统计
 export const getOrderStatistic = params => { return axios.get(`${base}/statistic/order`, { params: params }); };

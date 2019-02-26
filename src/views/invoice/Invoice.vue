@@ -75,11 +75,12 @@
 			</el-table-column>
 			<el-table-column prop="remark" label="备注" width="200" >
 			</el-table-column>
-			<el-table-column label="操作" width="330">
+			<el-table-column label="操作" width="400">
 				<template scope="scope">
+					<el-button size="small" type="info" icon="fa fa-file-picture-o" :disabled="scope.row.imgurl==''" @click="showImg(scope.$index, scope.row)"></el-button>
 					<el-button v-if="scope.row.incomeDate == undefined" type="warning" size="small" @click="handleReturn(scope.$index, scope.row)">回款</el-button>
-					<el-button v-if="scope.row.incomeDate != undefined" size="small">已回款</el-button>
-					<el-button v-if="scope.row.incomeDate == undefined" type="primary" size="small" @click="handleEdit(scope.$index, scope.row)" icon="el-icon-edit"></el-button>
+					<el-button v-if="scope.row.incomeDate != undefined" size="small">已回</el-button>
+					<el-button type="primary" size="small" @click="handleEdit(scope.$index, scope.row)" icon="el-icon-edit"></el-button>
 					<el-button v-if="scope.row.incomeDate == undefined" type="danger" size="small" @click="handleDel(scope.$index, scope.row)" icon="el-icon-delete"></el-button>
 					<el-button size="small" @click="handleRelated(scope.$index, scope.row)">相关订单</el-button>
 				</template>
@@ -104,6 +105,18 @@
 				<el-form-item label="填开日期" prop="invoiceDate">
 					<el-date-picker type="date" placeholder="选择日期" v-model="editForm.invoiceDate" value-format="yyyy-MM-dd"  format="yyyy-MM-dd"></el-date-picker>
 				</el-form-item>
+				<el-form-item label="图片" prop="imgurl">
+					<el-upload
+					  class="avatar-uploader"
+					  action=""
+					  accept=".jpg,.jpeg,.png,.gif,.bmp,.pdf,.JPG,.JPEG,.PBG,.GIF,.BMP"
+					  :http-request="uploadImg"
+					  :show-file-list="false">
+					  <img v-if="editForm.imgurl && this.uploadFlag == false" :src="editForm.imgurl" class="avatar">
+					  <i v-else-if="!editForm.imgurl && this.uploadFlag == false" class="el-icon-plus avatar-uploader-icon"></i>
+					  <el-progress v-if="this.uploadFlag" type="circle" :percentage="uploadPercent" style="margin-top:30px;"></el-progress>
+					</el-upload>
+				</el-form-item>
 				<el-form-item label="备注" prop="remark">
 					<el-input type="textarea" v-model="editForm.remark"></el-input>
 				</el-form-item>
@@ -118,7 +131,7 @@
 
 <script>
 	import util from '../../common/js/util'
-	import { getInvoiceList, getProviderList, editInvoice, delInvoice, getOrdersByInvoiceId} from '../../api/api';
+	import { getInvoiceList, getProviderList, editInvoice, delInvoice, getOrdersByInvoiceId, fileInvoiceUpload} from '../../api/api';
 
 	export default {
 		data() {
@@ -211,6 +224,9 @@
 		            }
 		          }]
 		        },
+		        //图片上传
+				uploadFlag: false,
+				uploadPercent:0,
 			}
 		},
 		methods: {
@@ -247,7 +263,6 @@
 					start = util.formatDate.format(this.filters.dates[0],"yyyy-MM-dd");
 					end = util.formatDate.format(this.filters.dates[1],"yyyy-MM-dd");
 				}
-				console.log(start);
 				let para = {
 					page:this.page,
                     size:20,
@@ -291,7 +306,8 @@
 							invoiceSn: this.editForm.invoiceSn,
 							money: this.editForm.money,
 							invoiceDate: this.editForm.invoiceDate,
-							remark:this.editForm.remark
+							remark:this.editForm.remark,
+							imgurl:this.editForm.imgurl
 						};
 						editInvoice(para).then((res) => {
 							this.editLoading = false;
@@ -381,6 +397,40 @@
 					}
 				});
     		},
+    		showImg: function (index, row) {
+    			let newWindow=""
+    			console.log(row.imgurl);
+    			var printHtml = "<img id='img' src='" + row.imgurl + "'/>";
+				newWindow = window.open("",'newwindow');
+				newWindow.document.body.innerHTML = printHtml;
+    		},
+    		uploadImg(content){
+		    	this.uploadPercent = 0;
+			    this.uploadFlag = true;
+			    let _this = this;
+			    clearInterval(this.time);
+			    this.time = setInterval(function(){  
+		           if(_this.uploadPercent<100){
+		               _this.uploadPercent += 25;//进程条
+		           }else{                 
+		           }          
+		        },100)
+		    	var formData = new FormData();
+		    	formData.append("file", content.file);
+		    	fileInvoiceUpload(formData).then((res) => {
+			        this.uploadFlag = false;
+			        let msg = res.data.message;
+                	let code = res.data.code;
+					if (code !== 200) {
+	                  this.$message({
+	                    message: msg,
+	                    type: 'error'
+	                  });
+	                } else {
+						this.editForm.imgurl = res.data.data;
+					}
+		    	});
+		    },
 
 		},
 		mounted() {
