@@ -80,7 +80,7 @@
 			</el-table-column>
 			<el-table-column prop="purchaser" label="采购员" width="150">
 			</el-table-column>
-			<el-table-column prop="provider" label="供货商" width="80" :formatter="formatProvider">
+			<el-table-column prop="provider" label="供货商" width="90" :formatter="formatProvider">
 			</el-table-column>
 			<el-table-column prop="sum" label="总金额" width="80">
 			</el-table-column>
@@ -92,7 +92,7 @@
 			</el-table-column>
 			<el-table-column label="操作" width="400">
 				<template scope="scope">
-					<!-- <el-button type="warning" @click.native="handleDesign()">设计</el-button>  -->
+					
 					<el-button type="warning" size="small" @click="handleDeliveryOrder(scope.$index, scope.row)">送货单</el-button>
 					<el-button type="danger" size="small" icon="fa fa-file-pdf-o" :disabled="scope.row.url==''" @click="handlePdfPrint(scope.$index, scope.row)"></el-button>
 					<el-button type="info" size="small" @click="handleView(scope.$index, scope.row)" icon="el-icon-search"></el-button>
@@ -505,15 +505,7 @@
 			},
 			//供货商转化
 			formatProvider: function (row, column) {
-				var reg1 = /(.+)区/g;
-				var reg2 = /(.+)市/g;
-				var reg3 = /有限公司(.+)/g;
-				var reg4 = /经营部(.+)/g;
-				var reg5 = /五金(.+)/g;
-				var reg6 = /石材(.+)/g;
-				var reg7 = /副食(.+)/g;
-				var reg8 = /农副(.+)/g;	
-				return row.provider.replace(reg1,"").replace(reg2,"").replace(reg3,"").replace(reg4,"").replace(reg5,"").replace(reg6,"").replace(reg7,"").replace(reg8,"");
+				return util.formatProvider(row.provider);
 			},
 			//下单日期转化
 			formatDeliveryDate: function (row, column) {
@@ -779,6 +771,7 @@
 							message: '提交成功',
 							type: 'success'
 						});
+						this.getOrders();
 						this.$refs['editForm'].resetFields();
 					}
 				});
@@ -1084,9 +1077,19 @@
 		    },
 		    //送货单分页
 		    drawSendOrder:function(page){
-		    	LODOP.ADD_PRINT_TEXT(page*this.height+77,326,104,30,"送 货 单");
-				LODOP.SET_PRINT_STYLEA(0,"FontSize",16);
-				LODOP.SET_PRINT_STYLEA(0,"Bold",1);
+		    	if(this.sendForm.template==1){
+		    		LODOP.ADD_PRINT_TEXT(page*this.height+77,326,104,30,"送 货 单");
+					LODOP.SET_PRINT_STYLEA(0,"FontSize",16);
+					LODOP.SET_PRINT_STYLEA(0,"Bold",1);
+		    	}else if(this.sendForm.template==2){
+		    		LODOP.ADD_PRINT_TEXT(page*this.height+77,326,104,30,"送货单");
+					LODOP.SET_PRINT_STYLEA(0,"FontSize",18);
+					LODOP.SET_PRINT_STYLEA(0,"Bold",1);
+		    	}
+
+		  //   	LODOP.ADD_PRINT_TEXT(page*this.height+77,326,104,30,"送 货 单");
+				// LODOP.SET_PRINT_STYLEA(0,"FontSize",16);
+				// LODOP.SET_PRINT_STYLEA(0,"Bold",1);
 				LODOP.ADD_PRINT_TEXT(page*this.height+124,96,445,25,"发票抬头：");
 				LODOP.SET_PRINT_STYLEA(0,"FontSize",11);
 				LODOP.SET_PRINT_STYLEA(0,"Bold",1);
@@ -1099,18 +1102,35 @@
 				LODOP.ADD_PRINT_TEXT(page*this.height+149,160,275,25,this.sendForm.provider);
 				LODOP.SET_PRINT_STYLEA(0,"FontSize",11);
 				LODOP.SET_PRINT_STYLEA(0,"Bold",1);
-				LODOP.ADD_PRINT_TEXT(page*this.height+149,430,275,25,"送货时间：");
-				LODOP.SET_PRINT_STYLEA(0,"FontSize",10);
-				LODOP.SET_PRINT_STYLEA(0,"Bold",1);
-				LODOP.ADD_PRINT_TEXT(page*this.height+149,500,275,25,util.formatDate.format(new Date(),"yyyy-MM-dd"));
-				LODOP.SET_PRINT_STYLEA(0,"FontSize",10);
-				LODOP.SET_PRINT_STYLEA(0,"Bold",1);
-				LODOP.ADD_PRINT_TEXT(page*this.height+174,430,275,24,"订单编号：");
-				LODOP.SET_PRINT_STYLEA(0,"FontSize",10);
-				LODOP.SET_PRINT_STYLEA(0,"Bold",1);
-				LODOP.ADD_PRINT_TEXT(page*this.height+174,500,275,24,this.sendForm.cdSn);
-				LODOP.SET_PRINT_STYLEA(0,"FontSize",10);
-				LODOP.SET_PRINT_STYLEA(0,"Bold",1);
+
+				if(this.sendForm.template==1){
+		    		LODOP.ADD_PRINT_TEXT(page*this.height+149,430,275,25,"送货时间：");
+					LODOP.SET_PRINT_STYLEA(0,"FontSize",10);
+					LODOP.SET_PRINT_STYLEA(0,"Bold",1);
+					LODOP.ADD_PRINT_TEXT(page*this.height+149,500,275,25,util.formatDate.format(new Date(),"yyyy-MM-dd"));
+					LODOP.SET_PRINT_STYLEA(0,"FontSize",10);
+					LODOP.SET_PRINT_STYLEA(0,"Bold",1);
+					LODOP.ADD_PRINT_TEXT(page*this.height+174,430,275,24,"订单编号：");
+					LODOP.SET_PRINT_STYLEA(0,"FontSize",10);
+					LODOP.SET_PRINT_STYLEA(0,"Bold",1);
+					LODOP.ADD_PRINT_TEXT(page*this.height+174,500,275,24,this.sendForm.cdSn==''?'提前送货':this.sendForm.cdSn);
+					LODOP.SET_PRINT_STYLEA(0,"FontSize",10);
+					LODOP.SET_PRINT_STYLEA(0,"Bold",1);
+		    	}else if(this.sendForm.template==2){
+			    	LODOP.ADD_PRINT_TEXT(page*this.height+169,430,275,25,"送货日期：");
+					LODOP.SET_PRINT_STYLEA(0,"FontSize",10);
+					LODOP.SET_PRINT_STYLEA(0,"Bold",1);
+					LODOP.ADD_PRINT_TEXT(page*this.height+169,500,275,25,util.formatDate.format(new Date(),"yyyy-MM-dd"));
+					LODOP.SET_PRINT_STYLEA(0,"FontSize",10);
+					LODOP.SET_PRINT_STYLEA(0,"Bold",1);
+					LODOP.ADD_PRINT_TEXT(page*this.height+190,430,275,24,"订单编号：");
+					LODOP.SET_PRINT_STYLEA(0,"FontSize",10);
+					LODOP.SET_PRINT_STYLEA(0,"Bold",1);
+					LODOP.ADD_PRINT_TEXT(page*this.height+190,500,275,24,this.sendForm.cdSn==''?'提前送货':this.sendForm.cdSn);
+					LODOP.SET_PRINT_STYLEA(0,"FontSize",10);
+					LODOP.SET_PRINT_STYLEA(0,"Bold",1);
+		    	}
+				
 
 				LODOP.ADD_PRINT_TEXT(page*this.height+213,95,50,25,"序号");
 				LODOP.SET_PRINT_STYLEA(0,"FontSize",11);
@@ -1157,7 +1177,7 @@
 				for (let j = page*this.pageSize; j <  (restCount<this.pageSize?this.sels.length:this.pageSize*(page+1)); j++) {
 					let i = j+1;
 					let item = this.sels[j];
-					LODOP.ADD_PRINT_TEXT(page*this.height+213+25*i-500*page,95,50,20,i);
+					LODOP.ADD_PRINT_TEXT(page*this.height+213+25*i-500*page,95,50,25,i);
 					LODOP.SET_PRINT_STYLEA(0,"FontSize",10);
 					LODOP.SET_PRINT_STYLEA(0,"Alignment",2);
 					//编号
@@ -1210,8 +1230,15 @@
 				LODOP.ADD_PRINT_LINE(page*this.height+233+25*j,355,page*this.height+258+25*j,355,0,1);
 				LODOP.ADD_PRINT_LINE(page*this.height+233+25*j,410,page*this.height+258+25*j,410,0,1);
 				LODOP.ADD_PRINT_LINE(page*this.height+233+25*j,470,page*this.height+258+25*j,470,0,1);
-				LODOP.ADD_PRINT_TEXT(page*this.height+238+25*j,470,300,25,"合计："+ sum +"元");
-				LODOP.SET_PRINT_STYLEA(0,"FontSize",11);
+				if(this.sendForm.template==1){
+		    		LODOP.ADD_PRINT_TEXT(page*this.height+238+25*j,470,300,25,"合计："+ sum +"元");
+					LODOP.SET_PRINT_STYLEA(0,"FontSize",11);
+		    	}else if(this.sendForm.template==2){
+		    		LODOP.ADD_PRINT_TEXT(page*this.height+238+25*j,470,300,25,"合计"+ sum +"元");
+					LODOP.SET_PRINT_STYLEA(0,"FontSize",12);
+					LODOP.SET_PRINT_STYLEA(0,"Alignment",2);
+		    	}
+				
 				LODOP.ADD_PRINT_LINE(page*this.height+233+25*j,700,page*this.height+258+25*j,700,0,1);
 				LODOP.ADD_PRINT_LINE(page*this.height+258+25*j,95,page*this.height+258+25*j,701,0,1);
 
@@ -1224,22 +1251,42 @@
 				LODOP.ADD_PRINT_LINE(page*this.height+258+25*k,95,page*this.height+258+25*k,701,0,1);
 
 				//表尾
-				LODOP.ADD_PRINT_TEXT(page*this.height+790,95,194,25,"供应商联系人： " + this.sendForm.master);
-				LODOP.SET_PRINT_STYLEA(0,"FontSize",11);
-				LODOP.ADD_PRINT_TEXT(page*this.height+790,445,172,25,"联系电话：" + this.sendForm.phone);
-				LODOP.SET_PRINT_STYLEA(0,"FontSize",11);
-				LODOP.ADD_PRINT_TEXT(page*this.height+816,95,300,25,"送货方地址：" + this.sendForm.address);
-				LODOP.SET_PRINT_STYLEA(0,"FontSize",11);
-				LODOP.ADD_PRINT_TEXT(page*this.height+875,95,300,25,"供应商盖章：");
-				LODOP.SET_PRINT_STYLEA(0,"FontSize",11);
-				LODOP.ADD_PRINT_TEXT(page*this.height+836,445,107,25,"仓库签名：");
-				LODOP.SET_PRINT_STYLEA(0,"FontSize",11);
-				LODOP.ADD_PRINT_TEXT(page*this.height+836,580,109,25,"请购人签名：");
-				LODOP.SET_PRINT_STYLEA(0,"FontSize",11);
-				LODOP.ADD_PRINT_TEXT(page*this.height+875,445,94,25,"收货日期：");
-				LODOP.SET_PRINT_STYLEA(0,"FontSize",11);
-				LODOP.ADD_PRINT_TEXT(page*this.height+875,580,96,25,"收货日期：");
-				LODOP.SET_PRINT_STYLEA(0,"FontSize",11);
+				if(this.sendForm.template==1){
+					LODOP.ADD_PRINT_TEXT(page*this.height+790,95,194,25,"供应商联系人： " + this.sendForm.master);
+					LODOP.SET_PRINT_STYLEA(0,"FontSize",11);
+					LODOP.ADD_PRINT_TEXT(page*this.height+790,445,172,25,"联系电话：" + this.sendForm.phone);
+					LODOP.SET_PRINT_STYLEA(0,"FontSize",11);
+					LODOP.ADD_PRINT_TEXT(page*this.height+816,95,300,25,"送货方地址：" + this.sendForm.address);
+					LODOP.SET_PRINT_STYLEA(0,"FontSize",11);
+					LODOP.ADD_PRINT_TEXT(page*this.height+875,95,300,25,"供应商盖章：");
+					LODOP.SET_PRINT_STYLEA(0,"FontSize",11);
+					LODOP.ADD_PRINT_TEXT(page*this.height+836,445,107,25,"仓库签名：");
+					LODOP.SET_PRINT_STYLEA(0,"FontSize",11);
+					LODOP.ADD_PRINT_TEXT(page*this.height+836,580,109,25,"请购人签名：");
+					LODOP.SET_PRINT_STYLEA(0,"FontSize",11);
+					LODOP.ADD_PRINT_TEXT(page*this.height+875,445,94,25,"收货日期：");
+					LODOP.SET_PRINT_STYLEA(0,"FontSize",11);
+					LODOP.ADD_PRINT_TEXT(page*this.height+875,580,96,25,"收货日期：");
+					LODOP.SET_PRINT_STYLEA(0,"FontSize",11);
+				}else if(this.sendForm.template==2){
+					LODOP.ADD_PRINT_TEXT(page*this.height+790,95,194,25,"供应商联系人： " + this.sendForm.master);
+					LODOP.SET_PRINT_STYLEA(0,"FontSize",11);
+					LODOP.ADD_PRINT_TEXT(page*this.height+790,445,172,25,"联系电话：" + this.sendForm.phone);
+					LODOP.SET_PRINT_STYLEA(0,"FontSize",11);
+					LODOP.ADD_PRINT_TEXT(page*this.height+816,95,300,25,"送货方地址：" + this.sendForm.address);
+					LODOP.SET_PRINT_STYLEA(0,"FontSize",11);
+					LODOP.ADD_PRINT_TEXT(page*this.height+875,95,300,25,"供应商盖章：");
+					LODOP.SET_PRINT_STYLEA(0,"FontSize",11);
+					LODOP.ADD_PRINT_TEXT(page*this.height+836,445,107,25,"仓库签名：");
+					LODOP.SET_PRINT_STYLEA(0,"FontSize",11);
+					LODOP.ADD_PRINT_TEXT(page*this.height+836,600,96,25,"日期：");
+					LODOP.SET_PRINT_STYLEA(0,"FontSize",11);
+					LODOP.ADD_PRINT_TEXT(page*this.height+875,445,107,25,"请购人签名：");
+					LODOP.SET_PRINT_STYLEA(0,"FontSize",11);
+					LODOP.ADD_PRINT_TEXT(page*this.height+875,600,96,25,"日期：");
+					LODOP.SET_PRINT_STYLEA(0,"FontSize",11);
+				}
+				
 		    },
 		    handlePrint: function(){
 		    	LODOP=getLodop();  
@@ -1248,6 +1295,7 @@
 				LODOP.PREVIEW();//打印预览
 		    },
 		    handleDesign: function(){
+		    	console.log(this.sendForm);
 		    	LODOP=getLodop();  
 				this.initPrintData();
 				LODOP.PRINT_DESIGN();//打印设计	
@@ -1307,16 +1355,16 @@
 				});
     		},
     		goHistory(){
-    			let res = this.$route.query.relatedResponse;
-    			let path = res.data.data.url;
-    			this.$router.push({path: path, query: {relatedResponse: res}});
+    			let res = this.$route.params.relatedResponse;
+    			let name = res.data.data.name;
+    			this.$router.push({name: name, params: {relatedResponse: res}});
     		}
 		},
 		mounted() {
 			this.getProviders();
 			this.getPurchasers();
 			this.getAreas();
-			let res = this.$route.query.relatedResponse;
+			let res = this.$route.params.relatedResponse;
 			if(res == undefined){
 				this.getOrders();
 			}else{

@@ -62,7 +62,8 @@
 			<el-form-item label="备注" prop="remark">
 				<el-input type="textarea" placeholder="项目" v-model="addForm.remark" clearable></el-input>
 			</el-form-item>
-
+			<br>
+			
 			<!-- 订单物料列表 -->
 			<el-form-item label="物料列表" prop="itemList">
 				<el-table :data="addForm.itemList" border fit highlight-current-row>

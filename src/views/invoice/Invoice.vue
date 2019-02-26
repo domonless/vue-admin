@@ -9,6 +9,20 @@
 				<el-form-item>
 					<el-input v-model="filters.money" placeholder="发票金额" @input="getInvoices" clearable></el-input>
 				</el-form-item>
+				<el-form-item label="填开日期范围">
+					<el-date-picker
+				      v-model="filters.dates"
+				      type="daterange"
+				      align="left"
+				      unlink-panels
+				      range-separator="至"
+				      start-placeholder="开始日期"
+				      end-placeholder="结束日期"
+				      :picker-options="pickerOptions"
+				      @change="getInvoices">
+				    </el-date-picker>
+				</el-form-item>
+				<br>
 				<el-form-item prop="providerId">
 					<el-select v-model="filters.providerId" filterable placeholder="供货商" @change="getInvoices" clearable >
 					    <el-option
@@ -40,7 +54,7 @@
 
 		<!--列表-->
 		<el-table :data="invoices" show-summary highlight-current-row v-loading="listLoading" style="width: 100%;">
-			<el-table-column prop="invoiceSn" label="发票号" width="120" :formatter="formatInvoiceSn">
+			<el-table-column prop="invoiceSn" label="发票号" width="90">
 			</el-table-column>
 			<el-table-column prop="money" label="发票金额" width="90">
 			</el-table-column>
@@ -121,7 +135,8 @@
 					money: '',
 					providerId: '',
 					demander: '',
-					status:''
+					status:'',
+					dates:''
 				},
 
 				//发票列表
@@ -160,25 +175,49 @@
 						label:'已回款'
 					}
 				],
+
+				pickerOptions: {
+		          shortcuts: [{
+		            text: '最近一个月',
+		            onClick(picker) {
+		              const end = new Date();
+		              const start = new Date();
+		              start.setTime(start.getTime() - 3600 * 1000 * 24 * 365/12);
+		              picker.$emit('pick', [start, end]);
+		            }
+		          }, {
+		            text: '最近三个月',
+		            onClick(picker) {
+		              const end = new Date();
+		              const start = new Date();
+		              start.setTime(start.getTime() - 3600 * 1000 * 24 * 365/4);
+		              picker.$emit('pick', [start, end]);
+		            }
+		          }, {
+		            text: '最近半年',
+		            onClick(picker) {
+		              const end = new Date();
+		              const start = new Date();
+		              start.setTime(start.getTime() - 3600 * 1000 * 24 * 365/2);
+		              picker.$emit('pick', [start, end]);
+		            }
+		          }, {
+		            text: '最近一年',
+		            onClick(picker) {
+		              const end = new Date();
+		              const start = new Date();
+		              start.setTime(start.getTime() - 3600 * 1000 * 24 * 365);
+		              picker.$emit('pick', [start, end]);
+		            }
+		          }]
+		        },
 			}
 		},
 		methods: {
 			//供货商转化
 			formatProvider: function (row, column) {
-				var reg1 = /(.+)区/g;
-				var reg2 = /(.+)市/g;
-				var reg3 = /有限公司(.+)/g;
-				var reg4 = /经营部(.+)/g;
-				var reg5 = /五金(.+)/g;
-				var reg6 = /石材(.+)/g;
-				console.log();
-				return row.provider.replace(reg1,"").replace(reg2,"").replace(reg3,"").replace(reg4,"").replace(reg5,"").replace(reg6,"");
+				return util.formatProvider(row.provider);
 			},
-			//发票号转化
-			formatInvoiceSn: function(row, column){
-				return "No." + row.invoiceSn;
-			},
-
 			//分页
 			handleCurrentChange(val) {
 				this.page = val;
@@ -203,6 +242,12 @@
 			},
 			//获取发票列表
 			getInvoices() {
+				let start,end = '';
+				if(this.filters.dates!='' && this.filters.dates!=undefined){
+					start = util.formatDate.format(this.filters.dates[0],"yyyy-MM-dd");
+					end = util.formatDate.format(this.filters.dates[1],"yyyy-MM-dd");
+				}
+				console.log(start);
 				let para = {
 					page:this.page,
                     size:20,
@@ -210,7 +255,9 @@
                     money:this.filters.money,
                     providerId:this.filters.providerId,
                     demander:this.filters.demander,
-                    status:this.filters.status
+                    status:this.filters.status,
+                    startTime:start==undefined?'':start,
+                    endTime:end==undefined?'':end
 				};
 				this.listLoading = true;
 				getInvoiceList(para).then((res) => {
@@ -261,6 +308,7 @@
 									message: '提交成功',
 									type: 'success'
 								});
+								this.getInvoices();
 								this.$refs['editForm'].resetFields();
 							}
 						});
@@ -327,9 +375,9 @@
 	                    type: 'error'
 	                  });
 	                } else {
-	                	res.data.data.url = '/invoice/list';
+	                	res.data.data.name = '发票列表';
 	                	res.data.data.filters = this.filters;
-						this.$router.push({path: '/order/list', query: {relatedResponse: res}});
+						this.$router.push({name: '采购订单列表', params: {relatedResponse: res}});
 					}
 				});
     		},
@@ -337,7 +385,7 @@
 		},
 		mounted() {
 			this.getProviders();
-			let res = this.$route.query.relatedResponse;
+			let res = this.$route.params.relatedResponse;
 			if(res == undefined){
 				this.getInvoices();
 			}else{

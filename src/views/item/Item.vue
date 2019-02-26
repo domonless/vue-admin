@@ -39,6 +39,9 @@
 					<el-button type="primary" @click="isItemsBatAddShow=true" >批量导入</el-button>
 					<el-input id="upload" type="file" size="mini" @change="importFromExcel(this)" accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel" style="display:none;"></el-input>
 				</el-form-item>
+				<el-form-item>
+					<el-button type="primary" @click="export2Excel" >导出</el-button>
+				</el-form-item>
 			</el-form>
 		</el-col>
 
@@ -170,6 +173,9 @@
 				<el-form-item label="截止时间" prop="endTime">
 					<el-date-picker type="datetime" placeholder="选择日期" v-model="editForm.endTime" value-format="yyyy-MM-dd"  format="yyyy-MM-dd"></el-date-picker>
 				</el-form-item>
+				<el-form-item label="备注" prop="remark">
+					<el-input v-model="editForm.remark"></el-input>
+				</el-form-item>
 			</el-form>
 			<div slot="footer" class="dialog-footer">
 				<el-button @click.native="editFormVisible = false">取消</el-button>
@@ -256,6 +262,9 @@
 				</el-form-item>
 				<el-form-item label="截止时间" prop="endTime">
 					<el-date-picker type="datetime" placeholder="选择日期" v-model="addForm.endTime" value-format="yyyy-MM-dd" format="yyyy-MM-dd"></el-date-picker>
+				</el-form-item>
+				<el-form-item label="备注" prop="remark">
+					<el-input v-model="addForm.remark"></el-input>
 				</el-form-item>
 			</el-form>
 			<div slot="footer" class="dialog-footer">
@@ -399,14 +408,7 @@
 				for(let i=0; i<this.providers.length; i++){
 					let provider = this.providers[i];
 					if(row.providerId == provider.id){
-						var reg1 = /(.+)区/g;
-						var reg2 = /(.+)市/g;
-						var reg3 = /五金(.+)/g;
-						var reg4 = /石材(.+)/g;
-						var reg5 = /日杂(.+)/g;
-						var reg6 = /副食(.+)/g;
-						var reg7 = /农副(.+)/g;
-						return provider.name.replace(reg1,"").replace(reg2,"").replace(reg3,"").replace(reg4,"").replace(reg5,"").replace(reg6,"").replace(reg7,"");
+						return util.formatProvider(provider.name);
 					}
 				}
 			},
@@ -697,7 +699,7 @@
 	                    type: 'error'
 	                  });
 	                } else {
-						this.$router.push({path: '/order/list', query: {relatedResponse: res}});
+						this.$router.push({name: '采购订单列表', params: {relatedResponse: res}});
 					}
 				});
     		},
@@ -822,6 +824,50 @@
 
 				});
 			},
+			//导出物料
+			export2Excel() {
+    			let exportItems=[];
+    			let para = {
+                    name:this.filters.name,
+                    providerId:this.filters.providerId,
+                    areaId:this.filters.areaId,
+                    imgurlNull:this.imgurlNull
+				};
+				this.listLoading = true;
+				getItemList(para).then((res) => {
+					this.listLoading = false;
+					let msg = res.data.message;
+	            	let code = res.data.code;
+					if (code !== 200) {
+	                  this.$message({
+	                    message: msg,
+	                    type: 'error'
+	                  });
+	                } else {
+						exportItems = res.data.data.list
+						exportItems.forEach(row => {
+			            	row.provider = this.formatProvider(row);
+			            	row.area = this.formatArea(row);
+				          });
+						require.ensure([], () => {
+					　　　const { export_json_to_excel } = require('../../excel/Export2Excel');
+					　　　const tHeader = ['编号','名称','品牌','规格','单位','价格','抬头','区域','备注','截止日期'];
+					　　　// 上面设置Excel的表格第一行的标题
+					　　　const filterVal = ['itemNumber','name','brand','form','unit','price','provider','area','remark','endTime'];
+					　　　// 上面的index、phone_Num、school_Name是tableData里对象的属性
+					　　　const list = exportItems;  //把data里的tableData存到list
+					　　　const data = this.formatJson(filterVal, list);
+						 const provider = (this.filters.providerId==''?'':(this.formatProvider(this.filters)+'-'));
+						 const area = (this.filters.areaId==''?'':(this.formatArea(this.filters)+'-'));
+						 const fileName = provider + area + '签价导出';
+					　　　export_json_to_excel(tHeader, data, fileName);
+					　})
+	                }
+				});
+			},
+		　　formatJson(filterVal, jsonData) {
+		     return jsonData.map(v => filterVal.map(j => v[j]))
+		   }
 		},
 		mounted() {
 			this.getItems();

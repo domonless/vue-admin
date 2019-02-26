@@ -4,7 +4,7 @@
 		<el-col :span="24" class="toolbar" style="padding-bottom: 0px;">
 			<el-form :inline="true">
 				<el-form-item prop="providerId">
-					<el-select v-model="providerId" placeholder="供货商" clearable >
+					<el-select v-model="providerId" placeholder="供货商" @change="query" clearable>
 					    <el-option
 					      v-for="item in providers"
 					      :key="item.id"
@@ -22,7 +22,8 @@
 				      range-separator="至"
 				      start-placeholder="开始日期"
 				      end-placeholder="结束日期"
-				      :picker-options="pickerOptions">
+				      :picker-options="pickerOptions"
+				      @change="query">
 				    </el-date-picker>
 				</el-form-item>
 				<el-form-item>

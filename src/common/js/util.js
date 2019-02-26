@@ -78,6 +78,26 @@ export default {
     },
     minus: function(a,b){
         return (a*100-b*100)/100;
-    }
+    },
+    //供货商转化
+    formatProvider: function (provider) {
+        var reg1 = /(.+)区/g;
+        var reg2 = /(.+)市/g;
+        var reg3 = /五金(.+)/g;
+        var reg4 = /石材(.+)/g;
+        var reg5 = /日杂(.+)/g;
+        var reg6 = /副食(.+)/g;
+        var reg7 = /农副(.+)/g;
+        var reg8 = /(.+)县/g;
+        var reg9 = /有限公司(.+)/g;
+        var reg10 = /经营部(.+)/g;
+        var reg11 = /机电(.+)/g;
+        return provider.replace(reg1,"").replace(reg2,"")
+        .replace(reg3,"").replace(reg4,"")
+        .replace(reg5,"").replace(reg6,"")
+        .replace(reg7,"").replace(reg8,"")
+        .replace(reg9,"").replace(reg10,"")
+        .replace(reg11,"");
+    },
 
 };
