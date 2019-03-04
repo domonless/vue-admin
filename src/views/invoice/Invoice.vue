@@ -53,7 +53,7 @@
 		</el-col>
 
 		<!--列表-->
-		<el-table :data="invoices" show-summary highlight-current-row v-loading="listLoading" style="width: 100%;">
+		<el-table :data="invoices" show-summary :summary-method="getSummaries" highlight-current-row v-loading="listLoading" style="width: 100%;">
 			<el-table-column prop="invoiceSn" label="发票号" width="90">
 			</el-table-column>
 			<el-table-column prop="money" label="发票金额" width="90">
@@ -79,7 +79,7 @@
 				<template scope="scope">
 					<el-button size="small" type="info" icon="fa fa-file-picture-o" :disabled="scope.row.imgurl==''" @click="showImg(scope.$index, scope.row)"></el-button>
 					<el-button v-if="scope.row.incomeDate == undefined" type="warning" size="small" @click="handleReturn(scope.$index, scope.row)">回款</el-button>
-					<el-button v-if="scope.row.incomeDate != undefined" size="small">已回</el-button>
+					<el-button v-if="scope.row.incomeDate != undefined" type="success" size="small">已回</el-button>
 					<el-button type="primary" size="small" @click="handleEdit(scope.$index, scope.row)" icon="el-icon-edit"></el-button>
 					<el-button v-if="scope.row.incomeDate == undefined" type="danger" size="small" @click="handleDel(scope.$index, scope.row)" icon="el-icon-delete"></el-button>
 					<el-button size="small" @click="handleRelated(scope.$index, scope.row)">相关订单</el-button>
@@ -126,12 +126,34 @@
 				<el-button type="primary" @click.native="editSubmit" :loading="editLoading">提交</el-button>
 			</div>
 		</el-dialog>
+
+		<!--回款界面-->
+		<el-dialog title="回款确认" :visible.sync="returnFormVisible" :close-on-click-modal="false">
+			<el-form :model="returnForm" label-width="80px" ref="returnForm">
+				<el-form-item label="发票号" prop="invoiceSn">
+					<el-input v-model="editForm.invoiceSn" disabled></el-input>
+				</el-form-item>
+				<el-form-item label="发票金额" prop="money">
+					<el-input type="number" v-model="editForm.money" disabled></el-input>
+				</el-form-item>
+				<el-form-item label="备注" prop="remark">
+					<el-input type="textarea" v-model="editForm.remark" disabled></el-input>
+				</el-form-item>
+				<el-form-item label="回款日期" prop="incomeDate">
+					<el-date-picker type="date" placeholder="选择日期" v-model="returnForm.incomeDate" value-format="yyyy-MM-dd"  format="yyyy-MM-dd"></el-date-picker>
+				</el-form-item>
+			</el-form>
+			<div slot="footer" class="dialog-footer">
+				<el-button @click.native="returnFormVisible = false">取消</el-button>
+				<el-button type="primary" @click.native="returnSubmit" :loading="returnLoading">提交</el-button>
+			</div>
+		</el-dialog>
 	</section>
 </template>
 
 <script>
 	import util from '../../common/js/util'
-	import { getInvoiceList, getProviderList, editInvoice, delInvoice, getOrdersByInvoiceId, fileInvoiceUpload} from '../../api/api';
+	import { getInvoiceList, getProviderList, editInvoice, delInvoice, getOrdersByInvoiceId, fileInvoiceUpload, getInvoiceSum} from '../../api/api';
 
 	export default {
 		data() {
@@ -171,6 +193,9 @@
 				editForm: {
 				},
 
+				//回款界面是否显示
+				returnFormVisible: false,
+				returnLoading: false,
 				//回款数据
 				returnForm: {
 				},
@@ -224,12 +249,19 @@
 		            }
 		          }]
 		        },
+
 		        //图片上传
 				uploadFlag: false,
 				uploadPercent:0,
+
+				//发票金额合计
+				sums:['合计']
 			}
 		},
 		methods: {
+			getSummaries(param) {
+				return this.sums;
+			},
 			//供货商转化
 			formatProvider: function (row, column) {
 				return util.formatProvider(row.provider);
@@ -288,6 +320,19 @@
 	                	this.invoices = res.data.data.list
 	                    this.page = res.data.data.pageNum == 0 ? res.data.data.pageNum +1 : res.data.data.pageNum
 	                    this.total = res.data.data.total
+	                }
+				});
+				getInvoiceSum(para).then((res) => {
+					this.listLoading = false
+					let msg = res.data.message;
+                	let code = res.data.code;
+					if (code !== 200) {
+	                  this.$message({
+	                    message: msg,
+	                    type: 'error'
+	                  });
+	                } else {
+	                	this.sums[1] = res.data.data+"元";
 	                }
 				});
 			},
@@ -352,11 +397,19 @@
 					});
 				});
 			},
-			//回款处理
+			//显示回款界面
 			handleReturn: function (index, row) {
-				this.returnForm.id = row.id;
+				this.returnFormVisible = true;
+				this.editForm = Object.assign({}, row);
+			},
+			//回款处理
+			returnSubmit: function () {
+				this.returnForm.id = this.editForm.id;
 				this.$confirm('确认提交吗？', '提示', {}).then(() => {
+					this.returnLoading = true;
 					editInvoice(this.returnForm).then((res) => {
+						this.returnLoading = false;
+						this.returnFormVisible = false;
 						let msg = res.data.message;
 	                	let code = res.data.code;
 						if (code !== 200) {

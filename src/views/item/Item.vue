@@ -169,6 +169,7 @@
 					  <i v-else-if="!editForm.imgurl && this.uploadFlag == false" class="el-icon-plus avatar-uploader-icon"></i>
 					  <el-progress v-if="this.uploadFlag" type="circle" :percentage="uploadPercent" style="margin-top:30px;"></el-progress>
 					</el-upload>
+					<el-button type="warning" size="mini" @click="handleSimilar()">引用图片</el-button>
 				</el-form-item>
 				<el-form-item label="截止时间" prop="endTime">
 					<el-date-picker type="datetime" placeholder="选择日期" v-model="editForm.endTime" value-format="yyyy-MM-dd"  format="yyyy-MM-dd"></el-date-picker>
@@ -180,6 +181,33 @@
 			<div slot="footer" class="dialog-footer">
 				<el-button @click.native="editFormVisible = false">取消</el-button>
 				<el-button type="primary" @click.native="editSubmit" :loading="editLoading">提交</el-button>
+			</div>
+		</el-dialog>
+
+		<!--引用图片界面-->
+		<el-dialog title="物料列表" :visible.sync="similarVisible" :close-on-click-modal="false">
+			<el-table :data="similarItems" highlight-current-row v-loading="listLoading" style="width: 100%;" >
+				<el-table-column prop="itemNumber" label="编号" width="65">
+				</el-table-column>
+				<el-table-column prop="name" label="物料名称" width="100">
+				</el-table-column>
+				<el-table-column prop="brand" label="品牌" width="80">
+				</el-table-column>
+				<el-table-column prop="form" label="规格" width="200">
+				</el-table-column>
+				<el-table-column prop="unit" label="单位" width="60">
+				</el-table-column>
+				<el-table-column prop="price" label="单价" width="70">
+				</el-table-column>
+				<el-table-column label="操作" width="200">
+					<template scope="scope">
+						<el-button size="mini" type="warning" icon="fa fa-file-picture-o" :disabled="scope.row.imgurl==''" @click="handlePrint(scope.$index, scope.row)"></el-button>
+						<el-button size="mini" type="primary" @click="handleQuote(scope.$index, scope.row)">引用</el-button>
+					</template>
+				</el-table-column>
+			</el-table>
+			<div slot="footer" class="dialog-footer">
+				<el-button type="danger" @click.native="similarVisible=false">取消</el-button>
 			</div>
 		</el-dialog>
 
@@ -281,7 +309,7 @@
 	import pdf from 'vue-pdf'
 	import Cookies from 'js-cookie'
 	//import NProgress from 'nprogress'
-	import { getItemList, addItem, editItem, batAddItem, batchRemoveItem, batUpdateImgurl, getProviderList, getOrdersByItemId, fileItemUpload, getAreaList } from '../../api/api';
+	import { getItemList, addItem, editItem, batAddItem, batchRemoveItem, batUpdateImgurl, getProviderList, getOrdersByItemId, fileItemUpload, getAreaList, getSimilarList } from '../../api/api';
 	export default {
 		components:
 		{
@@ -300,6 +328,7 @@
 					areaId: ''
 				},
 				items: [],
+				similarItems:[],
 				total: 0,
 				page: 1,
 				pageSize: 20,
@@ -378,7 +407,9 @@
 				//批量新增界面数据
 				batAddForm: {
 				},
-				isItemsBatAddShow: false
+				isItemsBatAddShow: false,
+
+				similarVisible:false
 			}
 		},
 		methods: {
@@ -703,6 +734,38 @@
 					}
 				});
     		},
+    		//展示相似物料
+    		handleSimilar: function () {
+				this.similarVisible = true;
+				let para = {};
+				if(this.editFormVisible){
+					para.itemNumber = this.editForm.itemNumber;
+					para.name = this.editForm.name;
+					para.providerId = this.editForm.providerId;
+					para.areaId = this.editForm.areaId;
+				}
+				getSimilarList(para).then((res) => {
+					this.listLoading = false;
+					let msg = res.data.message;
+                	let code = res.data.code;
+					if (code !== 200) {
+	                  this.$message({
+	                    message: msg,
+	                    type: 'error'
+	                  });
+	                } else {
+						this.similarItems = res.data.data
+	                }
+				});
+			},
+			//处理引用
+			handleQuote: function (index, row) {
+				if(this.editFormVisible){
+					this.editForm.imgurl = row.imgurl;
+				}
+				this.similarVisible = false;
+			},
+    		
 			//编辑
 			editSubmit: function () {
 				this.$refs.editForm.validate((valid) => {

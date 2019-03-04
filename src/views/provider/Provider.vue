@@ -50,7 +50,7 @@
 				<el-form-item label="地址" prop="address">
 					<el-input v-model="editForm.address"></el-input>
 				</el-form-item>
-				<el-form-item label="模版" prop="template">
+				<el-form-item label="送货单模版" prop="template">
 					<el-radio v-model="editForm.template" label="1">模版一</el-radio>
   					<el-radio v-model="editForm.template" label="2">模版二</el-radio>
 				</el-form-item>
@@ -76,7 +76,7 @@
 				<el-form-item label="地址" prop="address">
 					<el-input v-model="addForm.address"></el-input>
 				</el-form-item>
-				<el-form-item label="模版" prop="template">
+				<el-form-item label="送货单模版" prop="template">
 					<el-radio v-model="addForm.template" label="1">模版一</el-radio>
   					<el-radio v-model="addForm.template" label="2">模版二</el-radio>
 				</el-form-item>

@@ -120,6 +120,8 @@ export const requestLogin = params => { return axios.post(`/login`, params).then
 //物料
 export const getItemList = params => { return axios.get(`${base}/item/list`, { params: params }); };
 
+export const getSimilarList = params => { return axios.get(`${base}/item/similar`, { params: params }); };
+
 export const addItem = params => { return axios.post(`${base}/item/add`, params); };
 
 export const editItem = params => { return axios.post(`${base}/item/update`, params); };
@@ -198,6 +200,8 @@ export const removeDemander = params => { return axios.post(`${base}/demander/de
 
 //发票管理
 export const getInvoiceList = params => { return axios.get(`${base}/invoice/list`, { params: params }); };
+
+export const getInvoiceSum = params => { return axios.get(`${base}/invoice/list/sum`, { params: params }); };
 
 export const addInvoice = params => { return axios.post(`${base}/invoice/add`, params); };
 

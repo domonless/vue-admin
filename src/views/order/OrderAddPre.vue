@@ -216,7 +216,8 @@
                     size:20,
 					name: this.filters.name,
 					providerId:this.filters.providerId,
-					areaId: this.filters.areaId
+					areaId: this.filters.areaId,
+					// isOrderAdd: '1'
 				};
 				this.itemsLoading = true;
 				//NProgress.start();

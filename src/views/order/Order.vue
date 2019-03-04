@@ -174,6 +174,7 @@
 				<!-- <el-button type="warning" @click.native="handleDesign()">设计</el-button>  -->
 				<el-button type="warning" :disabled="this.sels.length==0" @click="handlePrint()">打印送货单</el-button>
 				<el-button type="warning" :disabled="this.sels.length==0" @click="handleBatPrint()">一键打印签价单</el-button>
+				<el-button type="warning" :disabled="this.sels.length==0" @click="handleTick()">打勾位置</el-button>
 				<el-button type="danger" @click.native="deliveryOrderVisible=false">取消</el-button>
 			</div>
 		</el-dialog>
@@ -1300,6 +1301,7 @@
 				this.initPrintData();
 				LODOP.PRINT_DESIGN();//打印设计	
 		    },
+		    //批量打印签价窗口
 		    handleBatPrint: function(){
 		    	//将链接放入set集合
 		    	var data = new Set();
@@ -1334,6 +1336,32 @@
 			        };
 			    }
 		    },
+		    //打勾位置窗口
+		    handleTick: function(){
+		    	//将链接放入set集合
+		    	var data = new Set();
+		    	for(let i=0; i<this.sels.length; i++){
+		    		let imgurl = this.sels[i].imgurl;
+		    		data.add(imgurl);
+		    	}
+		    	var index = 1;
+		    	var imgHtml = "";
+
+		    	//遍历set
+		    	data.forEach(d => {
+		    		imgHtml += "第"+ index++ + "页，"
+		    		for(let i=0; i<this.sels.length; i++){
+			    		if(d == this.sels[i].imgurl){
+			    			imgHtml += this.sels[i].itemNumber + "    ";
+			    		}
+			    	}
+    				imgHtml += "<br>";
+		    	});
+		    	let imgWindow = "";
+		    	imgWindow = window.open("",'imgWindow');
+		    	imgWindow.document.body.innerHTML = imgHtml;
+		    	
+		    },
 		    //订单相关发票
     		handleRelated: function (index, row) {
     			let para = {
@@ -1350,7 +1378,7 @@
 	                    type: 'error'
 	                  });
 	                } else {
-						this.$router.push({path: '/invoice/list', query: {relatedResponse: res}});
+						this.$router.push({name: '发票列表', params: {relatedResponse: res}});
 					}
 				});
     		},
@@ -1368,7 +1396,9 @@
 			if(res == undefined){
 				this.getOrders();
 			}else{
-				this.canHistory=true
+				if(res.data.data.name=="发票列表"){
+					this.canHistory=true
+				}
 				this.orders = res.data.data.list
                 this.page = res.data.data.pageNum == 0 ? res.data.data.pageNum +1 : res.data.data.pageNum
             	this.total = res.data.data.total
