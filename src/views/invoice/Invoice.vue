@@ -451,11 +451,7 @@
 				});
     		},
     		showImg: function (index, row) {
-    			let newWindow=""
-    			console.log(row.imgurl);
-    			var printHtml = "<img id='img' src='" + row.imgurl + "'/>";
-				newWindow = window.open("",'newwindow');
-				newWindow.document.body.innerHTML = printHtml;
+    			window.open(row.imgurl);
     		},
     		uploadImg(content){
 		    	this.uploadPercent = 0;

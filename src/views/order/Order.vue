@@ -1037,7 +1037,7 @@
 			getSpanArr(data){
 				let contactDot = 0;
 				this.spanArr=[];
-		        data.forEach( (item,index) => {
+		        data.forEach((item,index) => {
 		            if(index===0){
 		                this.spanArr.push(1)
 		            }else{
@@ -1349,13 +1349,13 @@
 
 		    	//遍历set
 		    	data.forEach(d => {
-		    		imgHtml += "第"+ index++ + "页，"
+		    		imgHtml += "<font size='24px'>第"+ index++ + "页，"
 		    		for(let i=0; i<this.sels.length; i++){
 			    		if(d == this.sels[i].imgurl){
 			    			imgHtml += this.sels[i].itemNumber + "    ";
 			    		}
 			    	}
-    				imgHtml += "<br>";
+    				imgHtml += "</font><br>";
 		    	});
 		    	let imgWindow = "";
 		    	imgWindow = window.open("",'imgWindow');

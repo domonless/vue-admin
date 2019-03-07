@@ -14,8 +14,9 @@ import Purchaser from './views/purchaser/Purchaser.vue'
 import Provider from './views/provider/Provider.vue'
 import Demander from './views/demander/Demander.vue'
 import OrderStatistic from './views/statistic/OrderStatistic.vue'
+import ItemStatistic from './views/statistic/ItemStatistic.vue'
 import Expenses from './views/expenses/Expenses.vue'
-import InvoiceStatistic from './views/statistic/InvoiceStatistic.vue'
+// import InvoiceStatistic from './views/statistic/InvoiceStatistic.vue'
 import Invoice from './views/invoice/Invoice.vue'
 import InvoiceAdd from './views/invoice/InvoiceAdd.vue'
 import Employee from './views/employee/Employee.vue'
@@ -106,6 +107,7 @@ let routes = [
         redirect: '/statistic/order',
         children: [
             { path: '/statistic/order', component:OrderStatistic, name: '订单统计' },
+            { path: '/statistic/item', component:ItemStatistic, name: '销售统计' },
             // { path: '/statistic/invoice', component:InvoiceStatistic, name: '发票统计' },
             { path: '/expenses/list', component:Expenses, name: '开销统计' },
         ]

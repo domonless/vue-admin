@@ -218,6 +218,10 @@ export const fileInvoiceUpload = params => { return axios.post(`${base}/file/inv
 //统计
 export const getOrderStatistic = params => { return axios.get(`${base}/statistic/order`, { params: params }); };
 
+export const getItemStatistic = params => { return axios.get(`${base}/statistic/item`, { params: params }); };
+
+export const getItemStatisticDetail = params => { return axios.get(`${base}/statistic/item/detail`, { params: params }); };
+
 export const getInvoiceStatistic = params => { return axios.get(`${base}/statistic/invoice`, { params: params }); };
 
 

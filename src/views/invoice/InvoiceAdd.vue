@@ -56,6 +56,8 @@
 				</template>
 			</el-table-column>
 		</el-table>
+		<br>
+		选中订单金额合计：{{this.selSum}}
 
 		<!--工具条-->
 		<el-col :span="24" class="toolbar">
@@ -143,6 +145,7 @@
 				page: 1,
 				listLoading: false,
 				sels: [],//列表选中列
+				selSum: 0,//列表选中列总金额
 
 				//查看页面
 				itemListVisible: false,//查看页面是否显示
@@ -299,6 +302,10 @@
 			//多选
 			selsChange: function (sels) {
 				this.sels = sels;
+				this.selSum = 0;
+				sels.forEach(row => {
+					this.selSum += row.sum;
+				});
 			},
 
 			uploadImg(content){
