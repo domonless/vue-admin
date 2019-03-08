@@ -92,15 +92,22 @@ export default {
         var reg9 = /有限公司(.+)?/g;
         var reg10 = /经营部(.+)?/g;
         var reg11 = /贸易(.+)?/g;
-        var reg12 = /(.+)市/g;
-        var reg13 = /(.+)区/g;
-        var reg14 = /(.+)县/g;
+        var reg12 = /商贸(.+)?/g;
+        var reg13 = /办公(.+)?/g;
+        var reg14 = /家具(.+)?/g;
+        var reg15 = /消防(.+)?/g;
+
+        var reg97 = /(.+)市/g;
+        var reg98 = /(.+)区/g;
+        var reg99 = /(.+)县/g;
         return provider.replace(reg1,"").replace(reg2,"")
         .replace(reg3,"").replace(reg4,"")
         .replace(reg5,"").replace(reg6,"")
         .replace(reg7,"").replace(reg8,"")
         .replace(reg9,"").replace(reg10,"")
-        .replace(reg11,"").replace(reg12,"").replace(reg13,"").replace(reg14,"");
+        .replace(reg11,"").replace(reg12,"").replace(reg13,"").replace(reg14,"")
+        .replace(reg15,"")
+        .replace(reg97,"").replace(reg98,"").replace(reg99,"");
     },
 
 };
