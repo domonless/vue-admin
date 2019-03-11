@@ -25,7 +25,11 @@ Vue.use(VueDirectiveImagePreviewer)
 
 import Viewer from 'v-viewer'
 import 'viewerjs/dist/viewer.css'
-Vue.use(Viewer);
+Vue.use(Viewer,{
+  defaultOptions:{
+    zIndex:9999
+  }
+});
 Viewer.setDefaults({
   Options: {  "button": true, "navbar": true, "title": true, "toolbar": true, "tooltip": true, "movable": true, "zoomable": true, "rotatable": true, "scalable": true, "transition": true, "fullscreen": true, "keyboard": true, "url": "data-source" }
 });
