@@ -172,6 +172,14 @@ export const addPurchaser = params => { return axios.post(`${base}/purchaser/add
 export const editPurchaser = params => { return axios.post(`${base}/purchaser/update`, params); };
 
 
+//请购人
+export const getBuyerList = params => { return axios.get(`${base}/buyer/list`, { params: params }); };
+
+export const addBuyer = params => { return axios.post(`${base}/buyer/add`, params); };
+
+export const editBuyer = params => { return axios.post(`${base}/buyer/update`, params); };
+
+
 //供应商
 export const getProviderList = params => { return axios.get(`${base}/provider/list`, { params: params }); };
 
@@ -186,6 +194,14 @@ export const getAreaList = params => { return axios.get(`${base}/area/list`, { p
 export const addArea = params => { return axios.post(`${base}/area/add`, params); };
 
 export const editArea = params => { return axios.post(`${base}/area/update`, params); };
+
+
+//采购类型
+export const getTypeList = params => { return axios.get(`${base}/type/list`, { params: params }); };
+
+export const addType = params => { return axios.post(`${base}/type/add`, params); };
+
+export const editType = params => { return axios.post(`${base}/type/update`, params); };
 
 
 //需求公司

@@ -10,7 +10,9 @@ import Order from './views/order/Order.vue'
 import OrderAdd from './views/order/OrderAdd.vue'
 import OrderAddPre from './views/order/OrderAddPre.vue'
 import Area from './views/area/Area.vue'
+import Type from './views/type/Type.vue'
 import Purchaser from './views/purchaser/Purchaser.vue'
+import Buyer from './views/buyer/Buyer.vue'
 import Provider from './views/provider/Provider.vue'
 import Demander from './views/demander/Demander.vue'
 import OrderStatistic from './views/statistic/OrderStatistic.vue'
@@ -65,16 +67,6 @@ let routes = [
             { path: '/preorder/add', component: OrderAddPre, name: '新增提前送货' },
         ]
     },
-    // {
-    //     path: '/stock',
-    //     component: Home,
-    //     name: '库存管理',
-    //     iconCls: 'fa fa-shopping-cart',//图标样式class
-    //     redirect: '/stock/list',
-    //     children: [
-    //         { path: '/stock/list', component: Stock, name: '库存清单' },
-    //     ]
-    // },
     {
         path: '/provider',
         component: Home,
@@ -84,8 +76,10 @@ let routes = [
         children: [
             { path: '/provider/list', component: Provider, name: '供应商管理' },
             { path: '/demander/list', component: Demander, name: '需求公司管理' },
-            { path: '/purchaser/list', component: Purchaser, name: '采购员管理' },
             { path: '/area/list', component: Area, name: '采购组织管理' },
+            { path: '/type/list', component: Type, name: '采购类型管理' },
+            { path: '/purchaser/list', component: Purchaser, name: '采购员管理' },
+            { path: '/buyer/list', component: Buyer, name: '请购人管理' },
         ]
     },
     {

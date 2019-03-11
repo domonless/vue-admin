@@ -58,6 +58,27 @@
 			</el-form-item>
 			<el-button type="primary" :disabled="!this.addForm.providerId || !this.addForm.areaId" @click="showItemList">物料列表</el-button>
 			<br>
+			<el-form-item label="采购类型" prop="typeId">
+				<el-select v-model="addForm.typeId" filterable placeholder="请选择" clearable>
+				    <el-option
+				      v-for="item in types"
+				      :key="item.id"
+				      :label="item.name"
+				      :value="item.id">
+				    </el-option>
+			  	</el-select>
+			</el-form-item>
+			<el-form-item label="请购人" prop="buyerId">
+				<el-select v-model="addForm.buyerId" filterable placeholder="请选择" clearable>
+				    <el-option
+				      v-for="item in buyers"
+				      :key="item.id"
+				      :label="item.name+item.phone"
+				      :value="item.id">
+				    </el-option>
+			  	</el-select>
+			</el-form-item>
+			<br>
 
 			<el-form-item label="备注" prop="remark">
 				<el-input type="textarea" placeholder="项目" v-model="addForm.remark" clearable></el-input>
@@ -142,7 +163,7 @@
 <script>
 	import util from '../../common/js/util'
 	//import NProgress from 'nprogress'
-	import { addOrder, getItemList, getPurchaserList, getProviderList, getDemanderList, getAreaList} from '../../api/api';
+	import { addOrder, getItemList, getPurchaserList, getBuyerList, getTypeList, getProviderList, getDemanderList, getAreaList} from '../../api/api';
 	export default {
 		data() {
 			return {
@@ -167,14 +188,20 @@
 				//采购员
 				purchasers: [],
 
+				//请购人
+				buyers: [],
+
 				//采购组织
 				areas: [],
+
+				//采购类型
+				types: [],
 
 				//校验规则
 				addFormRules: {
 					cdSn: [
 						{ required: true, message: '请输入订单编号', trigger: 'blur' },
-						{ min: 12, message: '请输入12位订单编号'}
+						{ min: 12, message: '请输入12位或14位订单编号'}
 					],
 					qgSn: [
 						{ required: true, message: '请输入请购编号', trigger: 'blur' },
@@ -201,7 +228,9 @@
 					providerId: '',
 					demanderId: '',
 					purchaserId: '',
+					buyerId: '',
 					areaId: '',
+					typeId: '',
 					isAgent:'0',
 					sum: 0,
 					itemList: []
@@ -242,7 +271,6 @@
 	                } else {
 						this.items = res.data.data.list
 						this.total = res.data.data.total
-						//NProgress.done();
 					}
 				});
 			},
@@ -261,6 +289,40 @@
 	                } else {
 						this.purchasers = res.data.data.list
 					}
+				});
+			},
+			//获取请购人列表
+			getBuyers() {
+				let para = {
+				};
+				getBuyerList(para).then((res) => {
+					let msg = res.data.message;
+                	let code = res.data.code;
+					if (code !== 200) {
+	                  this.$message({
+	                    message: msg,
+	                    type: 'error'
+	                  });
+	                } else {
+						this.buyers = res.data.data.list
+	                }
+				});
+			},
+			//获取采购类型列表
+			getTypes() {
+				let para = {
+				};
+				getTypeList(para).then((res) => {
+					let msg = res.data.message;
+                	let code = res.data.code;
+					if (code !== 200) {
+	                  this.$message({
+	                    message: msg,
+	                    type: 'error'
+	                  });
+	                } else {
+						this.types = res.data.data.list
+	                }
 				});
 			},
 			//获取采购组织列表
@@ -430,7 +492,9 @@
 		mounted() {
 			this.getProviders();
 			this.getPurchasers();
+			this.getBuyers();
 			this.getAreas();
+			this.getTypes();
 			this.getDemanders();
 		}
 	}

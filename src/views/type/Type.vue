@@ -13,7 +13,7 @@
 		</el-col>
 
 		<!--列表-->
-		<el-table :data="areas" highlight-current-row v-loading="listLoading" style="width: 100%;">
+		<el-table :data="types" highlight-current-row v-loading="listLoading" style="width: 100%;">
 			<el-table-column type="index" label="序号">
 			</el-table-column>
 			<el-table-column prop="name" label="名称">
@@ -49,11 +49,14 @@
 
 <script>
 	import util from '../../common/js/util'
-	import { getAreaList, addArea, editArea } from '../../api/api';
+	import { getTypeList, addType, editType } from '../../api/api';
 	export default {
 		data() {
 			return {
-				areas: [],
+				filters: {
+					name: ''
+				},
+				types: [],
 				total: 0,
 				page: 1,
 				listLoading: false,
@@ -82,16 +85,17 @@
 		methods: {
 			handleCurrentChange(val) {
 				this.page = val;
-				this.getAreas();
+				this.getTypes();
 			},
-			//获取采购组织列表
-			getAreas() {
+			//获取采购类型列表
+			getTypes() {
 				let para = {
 					page:this.page,
-                    size:20
+                    size:20,
+                    name:this.filters.name	
 				};
 				this.listLoading = true;
-				getAreaList(para).then((res) => {
+				getTypeList(para).then((res) => {
 					this.listLoading = false;
 					let msg = res.data.message;
                 	let code = res.data.code;
@@ -101,7 +105,7 @@
 	                    type: 'error'
 	                  });
 	                } else {
-						this.areas = res.data.data.list
+						this.types = res.data.data.list
 	                    this.page = res.data.data.pageNum == 0 ? res.data.data.pageNum +1 : res.data.data.pageNum
 	                    this.total = res.data.data.total
 	                }
@@ -118,7 +122,7 @@
 						id: row.id,
 						status: 0
 					};
-					editArea(para).then((res) => {
+					editType(para).then((res) => {
 						this.listLoading = false;
 						let msg = res.data.message;
 	                	let code = res.data.code;
@@ -132,7 +136,7 @@
 								message: '删除成功',
 								type: 'success'
 							});
-							this.getAreas();
+							this.getTypes();
 						}
 					});
 				}).catch(() => {
@@ -153,7 +157,7 @@
 					if (valid) {
 						this.editLoading = true;
 						let para = Object.assign({}, this.editForm);
-						editArea(para).then((res) => {
+						editType(para).then((res) => {
 							this.editLoading = false;
 							this.editFormVisible = false;
 							let msg = res.data.message;
@@ -168,7 +172,7 @@
 									message: '提交成功',
 									type: 'success'
 								});
-								this.getAreas();
+								this.getTypes();
 								this.$refs['editForm'].resetFields();
 							}
 						});
@@ -179,7 +183,7 @@
 			addSubmit: function () {
 				this.addLoading = true;
 				let para = Object.assign({}, this.addForm);
-				addArea(para).then((res) => {
+				addType(para).then((res) => {
 					this.addLoading = false;
 					let msg = res.data.message;
                 	let code = res.data.code;
@@ -195,14 +199,14 @@
 						});
 						this.$refs['addForm'].resetFields();
 						this.addForm.name = '';
-						this.getAreas();
+						this.getTypes();
 					}
 				});
 			},
 
 		},
 		mounted() {
-			this.getAreas();
+			this.getTypes();
 		}
 	}
 

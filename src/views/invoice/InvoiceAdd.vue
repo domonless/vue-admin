@@ -50,8 +50,9 @@
 			</el-table-column>
 			<el-table-column prop="remark" label="备注" width="150">
 			</el-table-column>
-			<el-table-column label="操作" width="80">
+			<el-table-column label="操作" width="150">
 				<template scope="scope">
+					<el-button type="danger" size="small" icon="fa fa-file-pdf-o" :disabled="scope.row.url==''" @click="handlePdfPrint(scope.$index, scope.row)"></el-button>
 					<el-button type="primary" size="small" @click="handleView(scope.$index, scope.row)" icon="el-icon-search"></el-button>
 				</template>
 			</el-table-column>
@@ -335,6 +336,10 @@
 					}
 		    	});
 		    },
+
+		    handlePdfPrint: function (index, row) {
+				window.open(row.url);
+    		},
 		},
 		mounted() {
 			this.getProviders();
