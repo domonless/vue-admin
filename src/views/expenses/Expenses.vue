@@ -16,7 +16,7 @@
 		</el-col>
 
 		<!--列表-->
-		<el-table :data="expenses" show-summary highlight-current-row v-loading="listLoading" style="width: 100%;">
+		<el-table :data="expenses" show-summary :summary-method="getSummaries" highlight-current-row v-loading="listLoading" style="width: 100%;">
 			<el-table-column type="index" label="序号" width="100">
 			</el-table-column>
 			<el-table-column prop="detail" label="开销明细" >
@@ -85,7 +85,7 @@
 
 <script>
 	import util from '../../common/js/util'
-	import { getExpensesList, addExpenses, editExpenses } from '../../api/api';
+	import { getExpensesList, addExpenses, editExpenses, getExpensesSum } from '../../api/api';
 	export default {
 		data() {
 			return {
@@ -156,10 +156,16 @@
 						value: 8,
 						label: '其他'
 					},
-				]
+				],
+
+				//发票金额合计
+				sums:['合计']
 			}
 		},
 		methods: {
+			getSummaries(param) {
+				return this.sums;
+			},
 			handleCurrentChange(val) {
 				this.page = val;
 				this.getExpenses();
@@ -185,6 +191,19 @@
 						this.expenses = res.data.data.list
 	                    this.page = res.data.data.pageNum == 0 ? res.data.data.pageNum +1 : res.data.data.pageNum
 	                    this.total = res.data.data.total
+	                }
+				});
+				getExpensesSum(para).then((res) => {
+					this.listLoading = false
+					let msg = res.data.message;
+                	let code = res.data.code;
+					if (code !== 200) {
+	                  this.$message({
+	                    message: msg,
+	                    type: 'error'
+	                  });
+	                } else {
+	                	this.sums[1] = res.data.data+"元";
 	                }
 				});
 			},
@@ -270,31 +289,31 @@
 			addSubmit: function () {
 				this.$refs.addForm.validate((valid) => {
 					if (valid) {
-							this.addLoading = true;
-							//NProgress.start();
-							this.addForm.detail = this.addForm.type +"-"+ this.addForm.detail
-							let para = Object.assign({}, this.addForm);
-							console.log(para)
-							addExpenses(para).then((res) => {
-								this.addLoading = false;
-								this.addFormVisible = false;
-								let msg = res.data.message;
-			                	let code = res.data.code;
-								if (code !== 200) {
-				                  this.$message({
-				                    message: msg,
-				                    type: 'error'
-				                  });
-				                } else {
-									//NProgress.done();
-									this.$message({
-										message: '提交成功',
-										type: 'success'
-									});
-									this.$refs['addForm'].resetFields();
-									this.getExpenses();
-								}
-							});
+						this.addLoading = true;
+						//NProgress.start();
+						this.addForm.detail = this.addForm.type +"-"+ this.addForm.detail
+						let para = Object.assign({}, this.addForm);
+						console.log(para)
+						addExpenses(para).then((res) => {
+							this.addLoading = false;
+							this.addFormVisible = false;
+							let msg = res.data.message;
+		                	let code = res.data.code;
+							if (code !== 200) {
+			                  this.$message({
+			                    message: msg,
+			                    type: 'error'
+			                  });
+			                } else {
+								//NProgress.done();
+								this.$message({
+									message: '提交成功',
+									type: 'success'
+								});
+								this.$refs['addForm'].resetFields();
+								this.getExpenses();
+							}
+						});
 					}
 				});
 			},

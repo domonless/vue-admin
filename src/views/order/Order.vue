@@ -1639,6 +1639,7 @@
 		mounted() {
 			this.getProviders();
 			this.getPurchasers();
+			this.getBuyers();
 			this.getAreas();
 			this.getTypes();
 			let res = this.$route.params.relatedResponse;

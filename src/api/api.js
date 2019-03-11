@@ -248,4 +248,6 @@ export const addExpenses = params => { return axios.post(`${base}/expenses/add`,
 
 export const editExpenses = params => { return axios.post(`${base}/expenses/update`, params); };
 
+export const getExpensesSum = params => { return axios.get(`${base}/expenses/list/sum`, { params: params }); };
+
 
