@@ -94,7 +94,7 @@
 				<el-form-item label="地址" prop="address">
 					<el-input v-model="addForm.address"></el-input>
 				</el-form-item>
-				<el-form-item label="送货单模版" prop="template">
+				<el-form-item label="送货单" prop="template">
 					<el-radio v-model="addForm.template" label="1">
 						<viewer :images="signImages">
 					        <img src="http://bapi.kyb66.com/img/template/template1.png" width="50">
