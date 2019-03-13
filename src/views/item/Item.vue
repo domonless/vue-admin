@@ -7,6 +7,9 @@
 					<el-input v-model="filters.name" placeholder="名称或编号" @input="getItems" clearable></el-input>
 				</el-form-item>
 				<el-form-item>
+					<el-input v-model="filters.form" placeholder="规格" @input="getItems" clearable></el-input>
+				</el-form-item>
+				<el-form-item>
 					<el-select v-model="filters.providerId" filterable placeholder="抬头" @change="getItems" clearable>
 					    <el-option
 					      v-for="item in providers"
@@ -25,6 +28,10 @@
 					      :value="item.id">
 					    </el-option>
 					</el-select>
+				</el-form-item>
+				<br>
+				<el-form-item>
+					<el-input v-model="filters.remark" placeholder="备注" @input="getItems" clearable></el-input>
 				</el-form-item>
 				<el-form-item>
 					<el-checkbox v-model="imgurlNull" @change="getItems">图片为空</el-checkbox>
@@ -324,6 +331,8 @@
 				isAdmin: Cookies.get('user_type')==1,
 				filters: {
 					name: '',
+					form: '',
+					remark: '',
 					providerId: '',
 					areaId: ''
 				},
@@ -588,6 +597,8 @@
 					page:this.page,
                     size:this.pageSize,
                     name:this.filters.name,
+                    form:this.filters.form,
+                    remark:this.filters.remark,
                     providerId:this.filters.providerId,
                     areaId:this.filters.areaId,
                     imgurlNull:this.imgurlNull

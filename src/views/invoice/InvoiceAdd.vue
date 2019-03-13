@@ -3,6 +3,9 @@
 		<!--工具条-->
 		<el-col :span="24" class="toolbar" style="padding-bottom: 0px;">
 			<el-form :inline="true" :model="filters">
+				<el-form-item>
+					<el-input v-model="filters.cdSn" placeholder="订单号" @input="getOrders" clearable></el-input>
+				</el-form-item>
 				<el-form-item prop="providerId">
 					<el-select v-model="filters.providerId" filterable placeholder="供货商" @change="getOrders" clearable >
 					    <el-option
@@ -92,8 +95,8 @@
 		<!--开票界面-->
 		<el-dialog title="开票" :visible.sync="invoiceFormVisible" :close-on-click-modal="false">
 			<el-form :model="invoiceForm" label-width="80px" :rules="invoiceFormRules" ref="invoiceForm" >
-				<el-form-item label="发票号" prop="invoiceSn">
-					<el-input v-model="invoiceForm.invoiceSn"></el-input>
+				<el-form-item label="发票号" prop="invoiceSn" >
+					<el-input v-model="invoiceForm.invoiceSn" @input="handleInput"></el-input>
 				</el-form-item>
 				<el-form-item label="发票金额" prop="money">
 					<el-input type="number" v-model="invoiceForm.money" :maxlength="10"></el-input>
@@ -123,12 +126,34 @@
 			</div>
 		</el-dialog>
 
+		<!--发票列表-->
+		<el-dialog title="发票列表" :visible.sync="invoiceListVisible" :close-on-click-modal="false">
+			根据输入的发票号，匹配出以下发票
+			<el-table :data="invoices" highlight-current-row v-loading="listLoading" style="width: 100%;">
+				<el-table-column prop="invoiceSn" label="发票号" width="90">
+				</el-table-column>
+				<el-table-column prop="money" label="发票金额" width="90">
+				</el-table-column>
+				<el-table-column prop="invoiceDate" label="填开日期" width="100">
+				</el-table-column>
+				<el-table-column prop="incomeDate" label="回款日期" width="100">
+				</el-table-column>
+				<el-table-column prop="remark" label="备注" width="200" >
+				</el-table-column>
+				<el-table-column label="操作" width="100">
+					<template scope="scope">
+						<el-button size="small" type="warning" @click="handleQuote(scope.$index, scope.row)">引用</el-button>
+					</template>
+				</el-table-column>
+			</el-table>
+		</el-dialog>
+
 	</section>
 </template>
 
 <script>
 	import util from '../../common/js/util'
-	import { getOrderList, getOrderDetail, editOrderDetail, getProviderList, getPurchaserList, addInvoice, fileInvoiceUpload} from '../../api/api';
+	import { getOrderList, getOrderDetail, editOrderDetail, getProviderList, getPurchaserList, addInvoice, fileInvoiceUpload, getInvoiceList} from '../../api/api';
 
 	export default {
 		data() {
@@ -137,11 +162,14 @@
 				pages:0,
 
 				filters: {
+					cdSn: '',
 					providerId: '',
 					demander: '',
 					remark: ''
 				},
 				orders: [],
+				invoices: [],
+				invoiceListVisible: false,
 				total: 0,
 				page: 1,
 				listLoading: false,
@@ -181,7 +209,29 @@
 				this.page = val;
 				this.getOrders();
 			},
-
+			//根据发票号获取发票列表
+			getInvoices() {
+				let para = {
+					page:this.page,
+                    size:this.pageSize,
+                    invoiceSn:this.invoiceForm.invoiceSn
+				};
+				getInvoiceList(para).then((res) => {
+					let msg = res.data.message;
+                	let code = res.data.code;
+					if (code !== 200) {
+	                  this.$message({
+	                    message: msg,
+	                    type: 'error'
+	                  });
+	                } else {
+	                	this.invoices = res.data.data.list;
+	                	if(this.invoices.length>0){
+	                		this.invoiceListVisible =true;
+	                	}
+	                }
+				});
+			},
 			//获取供应商列表
 			getProviders() {
 				let para = {
@@ -199,12 +249,12 @@
 					}
 				});
 			},
-
 			//获取订单列表
 			getOrders() {
 				let para = {
 					page:this.page,
                     size:20,
+                    cdSn:this.filters.cdSn,
                     providerId:this.filters.providerId,
                     demander:this.filters.demander,
                     remark:this.filters.remark,
@@ -227,7 +277,6 @@
 	                }
 				});
 			},
-
 			//根据订单号获取物料签价列表
 			getItemsByOrderId(orderId) {
 				let para = { 
@@ -248,18 +297,15 @@
 					}
 				});
 			},
-
 			//查看物料详情
 			handleView: function(index, row){
 				this.getItemsByOrderId(row.id)
 				this.itemListVisible = true
 			},
-
 			//显示开票界面
 			handleInvoice: function (){
 				this.invoiceFormVisible = true;
 			},
-
 			//开票提交处理
 			invoiceSubmit: function () {
 				this.$refs.invoiceForm.validate((valid) => {
@@ -299,7 +345,6 @@
 					}
 				});
 			},
-			
 			//多选
 			selsChange: function (sels) {
 				this.sels = sels;
@@ -308,7 +353,7 @@
 					this.selSum += row.sum;
 				});
 			},
-
+			//上传发票图片
 			uploadImg(content){
 		    	this.uploadPercent = 0;
 			    this.uploadFlag = true;
@@ -336,9 +381,49 @@
 					}
 		    	});
 		    },
-
+		    //显示发票图片
 		    handlePdfPrint: function (index, row) {
 				window.open(row.url);
+    		},
+    		//处理发票号输入
+    		handleInput: function (){
+    			if(this.invoiceForm.invoiceSn.length==8){
+    				this.getInvoices();
+    			}
+			},
+			//处理引用
+			handleQuote: function (index, row) {
+				//处理订单号
+				let orderIds=[]
+				for(let i=0;i<this.sels.length;i++){
+					orderIds.push(this.sels[i].id);
+				}
+				this.invoiceForm.orderIdList = orderIds;
+				this.invoiceForm.id = row.id;
+				this.invoiceForm.status = 5;
+				this.$confirm('确认引用吗？', '提示', {}).then(() => {
+					this.invoiceLoading = true;
+					addInvoice(this.invoiceForm).then((res) => {
+						this.invoiceLoading = false;
+						this.invoiceFormVisible = false;
+						this.invoiceListVisible = false;
+						let msg = res.data.message;
+	                	let code = res.data.code;
+						if (code !== 200) {
+		                  this.$message({
+		                    message: msg,
+		                    type: 'error'
+		                  });
+		                } else {
+							this.$message({
+								message: '提交成功',
+								type: 'success'
+							});
+							this.getOrders();
+							this.$refs['invoiceForm'].resetFields();
+						}
+					});
+				});
     		},
 		},
 		mounted() {

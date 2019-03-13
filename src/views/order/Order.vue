@@ -212,7 +212,8 @@
 		<!--查看界面-->
 		<el-dialog title="查看" :visible.sync="itemListVisible" :close-on-click-modal="false">
 			<el-table :data="items" ref="viewTable" :span-method="objectSpanMethod" highlight-current-row v-loading="itemsLoading" @selection-change="selsChange" style="width: 100%;">
-				<el-table-column type="selection" :selectable="checkSelectable" :disable="false" width="40" v-if="this.sendForm.status<4 || this.sendForm.status==9">
+				<!-- <el-table-column type="selection" :selectable="checkSelectable" :disable="false" width="40" v-if="this.sendForm.status<4 || this.sendForm.status==9"> -->
+				<el-table-column type="selection" :selectable="checkSelectable" :disable="false" width="40">
 			    </el-table-column>
 			    <el-table-column  type="index" width="55">
 				</el-table-column>
@@ -249,12 +250,11 @@
 			<div id="footer"></div>
 			<div slot="footer" class="dialog-footer">
 				<el-button type="primary" v-if="this.selectStatus==1 && this.sels.length>0" @click.native="handleBuy" :loading="sendLoading">进货</el-button>
-				<el-button type="warning" v-if="this.selectStatus<3 && this.sels.length>0" @click.native="handleEditCount" :loading="editItemLoading">修改</el-button>
-				<el-button type="danger" v-if="this.selectStatus<4 && this.sels.length>0" @click.native="handleDeleteItem" :loading="editItemLoading">删除</el-button>
+				<el-button type="warning" v-if="this.sels.length>0" @click.native="handleEditCount" :loading="editItemLoading">修改</el-button>
+				<!-- <el-button type="danger" v-if="this.selectStatus<4 && this.sels.length>0" @click.native="handleDeleteItem" :loading="editItemLoading">删除</el-button> -->
 				<el-button type="primary" v-if="this.selectStatus===2 && this.sels.length>0" @click.native="handleSend" :loading="sendLoading">发货</el-button>
 				<el-button type="primary" v-if="this.selectStatus===3 && this.sels.length>0 && this.sendForm.status!=9" @click.native="handleIn" :loading="sendLoading">入库</el-button>
 				<el-button type="primary" v-if="this.selectStatus===3 && this.sels.length>0 && this.sendForm.status==9" @click.native="handleRepair">补单</el-button>
-				<!-- <el-button type="danger" @click.native="itemListVisible=false">取消</el-button> -->
 			</div>
 		</el-dialog>
 

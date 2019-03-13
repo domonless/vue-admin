@@ -62,7 +62,7 @@
 			</el-table-column>
 			<el-table-column prop="" label="差额" width="80">
 				<template scope="scope">
-					{{(scope.row.money*100-scope.row.sum*100)/100}}
+					{{(scope.row.money*1000-scope.row.sum*1000)/1000}}
 				</template>
 			</el-table-column>
 			<el-table-column prop="demander" label="需求公司" width="300">
