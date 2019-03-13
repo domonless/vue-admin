@@ -350,7 +350,7 @@
 				this.sels = sels;
 				this.selSum = 0;
 				sels.forEach(row => {
-					this.selSum += row.sum;
+					this.selSum = util.formatNumber(this.selSum+row.sum);
 				});
 			},
 			//上传发票图片
