@@ -215,7 +215,7 @@
 				<!-- <el-table-column type="selection" :selectable="checkSelectable" :disable="false" width="40" v-if="this.sendForm.status<4 || this.sendForm.status==9"> -->
 				<el-table-column type="selection" :selectable="checkSelectable" :disable="false" width="40">
 			    </el-table-column>
-			    <el-table-column  type="index" width="55">
+			    <el-table-column  type="index" width="45">
 				</el-table-column>
 				<el-table-column prop="itemNumber" label="编号" width="65">
 				</el-table-column>
@@ -235,9 +235,11 @@
 				</el-table-column>
 				<el-table-column prop="status" label="状态" :formatter="formatStatus" width="70">
 				</el-table-column>
+				<el-table-column prop="deliveryTime" label="发货日期" width="100" :formatter="formatDeliveryDate">
+				</el-table-column>
 				<el-table-column prop="logisticsSn" label="物流单号" width="85">
 				</el-table-column>
-				<el-table-column prop="deliveryTime" label="发货日期" width="100" :formatter="formatDeliveryDate">
+				<el-table-column prop="fee" label="运费" width="65">
 				</el-table-column>
 				<el-table-column prop="remark" label="发货备注" width="100">
 				</el-table-column>
@@ -1106,7 +1108,7 @@
 			handleItemCountChange: function(index, row, e){
 				row.count = Number(e);
 			},
-			//
+			//合并单元格
 			getSpanArr(data){
 				let contactDot = 0;
 				this.spanArr=[];
@@ -1114,7 +1116,7 @@
 		            if(index===0){
 		                this.spanArr.push(1)
 		            }else{
-		                if(item.logisticsSn!='' && item.logisticsSn === data[index-1].logisticsSn){
+		                if(item.deliveryId!='' && item.deliveryId === data[index-1].deliveryId){
 		                    this.spanArr[contactDot] += 1;
 		                    this.spanArr.push(0)
 		                }else{
@@ -1124,9 +1126,9 @@
 		            }
 		        })
 			},
-			//
+			//合并单元格
 			objectSpanMethod({row, column, rowIndex, columnIndex}){
-		        if(columnIndex === 11){
+		        if(columnIndex === 11 || columnIndex === 12 || columnIndex === 13 || columnIndex === 14){
 		            if(this.spanArr[rowIndex]){
 		                return {
 		                    rowspan:this.spanArr[rowIndex],
