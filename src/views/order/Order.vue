@@ -1128,7 +1128,19 @@
 			},
 			//合并单元格
 			objectSpanMethod({row, column, rowIndex, columnIndex}){
-		        if(columnIndex === 11 || columnIndex === 12 || columnIndex === 13 || columnIndex === 14){
+		        if(this.isAdmin && (columnIndex === 11 || columnIndex === 12 || columnIndex === 13 || columnIndex === 14)){
+		            if(this.spanArr[rowIndex]){
+		                return {
+		                    rowspan:this.spanArr[rowIndex],
+		                    colspan:1
+		                }
+		            }else{
+		                return {
+		                    rowspan: 0,
+		                    colspan: 0
+		                }
+		            }
+		        }else if(!this.isAdmin && (columnIndex === 10 || columnIndex === 11 || columnIndex === 12 || columnIndex === 13)){
 		            if(this.spanArr[rowIndex]){
 		                return {
 		                    rowspan:this.spanArr[rowIndex],
