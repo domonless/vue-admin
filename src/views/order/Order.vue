@@ -71,7 +71,7 @@
 					<el-button type="primary" v-on:click="getOrders" >查询</el-button>
 				</el-form-item>
 				<el-form-item>
-					<el-button type="warning" v-on:click="handleAdd" >新增</el-button>
+					<el-button type="warning" v-on:click="goAddView" >新增</el-button>
 				</el-form-item>
 			</el-form>
 		</el-col>
@@ -107,7 +107,7 @@
 					<el-button type="danger" size="small" icon="fa fa-file-pdf-o" :disabled="scope.row.url==''" @click="handlePdfPrint(scope.$index, scope.row)"></el-button>
 					<el-button type="info" size="small" @click="handleView(scope.$index, scope.row)" icon="el-icon-search"></el-button>
 					<el-button type="primary" size="small" @click="handleRemark(scope.$index, scope.row)" icon="el-icon-edit"></el-button>
-					<el-button type="danger" size="small" @click="handleDel(scope.$index, scope.row)" icon="el-icon-delete"></el-button>
+					<el-button type="danger" size="small" v-if="isAdmin" @click="handleDel(scope.$index, scope.row)" icon="el-icon-delete"></el-button>
 					<el-button v-if="scope.row.status==5 || scope.row.status==6" size="small" @click="handleRelated(scope.$index, scope.row)">发票</el-button>
 				</template>
 			</el-table-column>
@@ -171,7 +171,7 @@
 
 		<!--送货单界面-->
 		<el-dialog title="送货单" :visible.sync="deliveryOrderVisible" :close-on-click-modal="false">
-			<el-table :data="items" ref="viewTable" :span-method="objectSpanMethod" highlight-current-row v-loading="itemsLoading" @selection-change="selsChange" style="width: 100%;" >
+			<el-table :data="orderItems" ref="viewTable" :span-method="objectSpanMethod" highlight-current-row v-loading="orderItemsLoading" @selection-change="selsChange" style="width: 100%;" >
 				<el-table-column type="selection" :disable="false" width="40">
 			    </el-table-column>
 			    <el-table-column type="index" width="55">
@@ -210,8 +210,8 @@
 		</el-dialog>
 
 		<!--查看界面-->
-		<el-dialog title="查看" :visible.sync="itemListVisible" :close-on-click-modal="false">
-			<el-table :data="items" ref="viewTable" :span-method="objectSpanMethod" highlight-current-row v-loading="itemsLoading" @selection-change="selsChange" style="width: 100%;">
+		<el-dialog title="查看" :visible.sync="orderItemsVisible" :close-on-click-modal="false">
+			<el-table :data="orderItems" ref="viewTable" :span-method="objectSpanMethod" highlight-current-row v-loading="orderItemsLoading" @selection-change="selsChange" style="width: 100%;">
 				<!-- <el-table-column type="selection" :selectable="checkSelectable" :disable="false" width="40" v-if="this.sendForm.status<4 || this.sendForm.status==9"> -->
 				<el-table-column type="selection" :selectable="checkSelectable" :disable="false" width="40">
 			    </el-table-column>
@@ -243,17 +243,12 @@
 				</el-table-column>
 				<el-table-column prop="remark" label="发货备注" width="100">
 				</el-table-column>
-				<!-- <el-table-column label="操作" width="80">
-					<template scope="scope">
-						<el-button size="mini" type="warning" :disabled="scope.row.imgurl==''" @click="handleItemPrint(scope.$index, scope.row)">签价</el-button>
-					</template>
-				</el-table-column> -->
 			</el-table>
 			<div id="footer"></div>
 			<div slot="footer" class="dialog-footer">
 				<el-button type="primary" v-if="this.selectStatus==1 && this.sels.length>0" @click.native="handleBuy" :loading="sendLoading">进货</el-button>
+				<el-button type="warning" v-if="this.sels.length==1" @click.native="handleEditItem" :loading="editItemLoading">更改物料</el-button>
 				<el-button type="warning" v-if="this.sels.length>0" @click.native="handleEditCount" :loading="editItemLoading">修改</el-button>
-				<!-- <el-button type="danger" v-if="this.selectStatus<4 && this.sels.length>0" @click.native="handleDeleteItem" :loading="editItemLoading">删除</el-button> -->
 				<el-button type="primary" v-if="this.selectStatus===2 && this.sels.length>0" @click.native="handleSend" :loading="sendLoading">发货</el-button>
 				<el-button type="primary" v-if="this.selectStatus===3 && this.sels.length>0 && this.sendForm.status!=9" @click.native="handleIn" :loading="sendLoading">入库</el-button>
 				<el-button type="primary" v-if="this.selectStatus===3 && this.sels.length>0 && this.sendForm.status==9" @click.native="handleRepair">补单</el-button>
@@ -266,7 +261,7 @@
 				<el-form-item label="订单编号" prop="cdSn">
 					<el-input v-model="buyForm.cdSn" disabled></el-input>
 				</el-form-item>
-				<el-table :data="items" highlight-current-row v-loading="itemsLoading" style="width: 100%;" >
+				<el-table :data="orderItems" highlight-current-row v-loading="orderItemsLoading" style="width: 100%;" >
 					<el-table-column type="index" width="50">
 					</el-table-column>
 					<el-table-column prop="itemNumber" label="编号" width="65">
@@ -281,9 +276,9 @@
 					</el-table-column>
 					<el-table-column prop="price" label="单价" width="70">
 					</el-table-column>
-					<el-table-column v-if="isAdmin" prop="latestBidPrice" label="最新进价" width="80">
-					</el-table-column>
 					<el-table-column prop="count" label="数量" width="70">
+					</el-table-column>
+					<el-table-column v-if="isAdmin" prop="latestBidPrice" label="最新进价" width="80">
 					</el-table-column>
 					<el-table-column prop="bidPrice" label="进价" width="100">
 						<template scope="scope">
@@ -298,15 +293,13 @@
 			</div>
 		</el-dialog>
 
-		<!--修改数量界面-->
+		<!--修改界面-->
 		<el-dialog title="修改" :visible.sync="editItemFormVisible" :close-on-click-modal="false">
 			<el-form :model="editItemForm" label-width="80px" ref="editItemForm" :inline="true">
 				<el-form-item label="订单编号" prop="cdSn">
 					<el-input v-model="sendForm.cdSn" disabled></el-input>
 				</el-form-item>
-				<el-table :data="items" highlight-current-row v-loading="itemsLoading" style="width: 100%;" >
-					<el-table-column type="index" width="50">
-					</el-table-column>
+				<el-table :data="orderItems" highlight-current-row v-loading="orderItemsLoading" style="width: 100%;" >
 					<el-table-column prop="itemNumber" label="编号" width="80">
 					</el-table-column>
 					<el-table-column prop="name" label="物料名称" width="120">
@@ -318,6 +311,11 @@
 					<el-table-column prop="unit" label="单位" width="65">
 					</el-table-column>
 					<el-table-column prop="price" label="单价" width="80">
+					</el-table-column>
+					<el-table-column v-if="this.isAdmin" prop="bidPrice" label="进价" width="100">
+						<template scope="scope">
+							<el-input type="number" v-model="scope.row.bidPrice" size="mini" :min="1" :maxlength="10" :key="scope.row.id" @input="handleBidPriceChange(scope.$index, scope.row, $event)"></el-input>
+						</template>
 					</el-table-column>
 					<el-table-column prop="count" label="数量" width="100">
 						<template scope="scope">
@@ -370,6 +368,33 @@
 			</div>
 		</el-dialog>
 
+		<!--物料列表界面-->
+		<el-dialog title="物料列表" :visible.sync="itemsVisible" :close-on-click-modal="false" >
+			<el-input v-model="filters.name" placeholder="按名称或编号搜索" @input="getItems" style="margin-bottom:20px"></el-input>
+			<!--列表-->
+			<el-table :data="items" highlight-current-row v-loading="itemsLoading" style="width: 100%;margin-top:10px" height="500">
+			    <el-table-column prop="itemNumber" label="编号" width="70">
+				</el-table-column>
+				<el-table-column prop="name" label="名称" width="120">
+				</el-table-column>
+				<el-table-column prop="brand" label="品牌" width="80">
+				</el-table-column>
+				<el-table-column prop="form" label="规格" width="200">
+				</el-table-column>
+				<el-table-column prop="unit" label="单位" width="70">
+				</el-table-column>
+				<el-table-column prop="price" label="价格" width="80">
+				</el-table-column>
+				<el-table-column prop="endTime" label="到期日期" width="95" :formatter="formatDate">
+				</el-table-column>
+				<el-table-column label="操作" width="80">
+					<template scope="scope">
+						<el-button size="mini" type="warning" @click="handleAdd(scope.$index, scope.row)">确定</el-button>
+					</template>
+				</el-table-column>
+			</el-table>
+		</el-dialog>
+
 	</section>
 </template>
 
@@ -379,7 +404,7 @@
 	import Cookies from 'js-cookie'
 	import {getLodop} from '../../common/js/LodopFuncs'
 	//import NProgress from 'nprogress'
-	import { userId, getOrderList, editOrder, getOrderDetail, editOrderDetail, getProviderList, getPurchaserList, fileOrderUpload, delOrderDetail, getInvoicesByOrderId, getAreaList, getTypeList, getBuyerList} from '../../api/api';
+	import { userId, getOrderList, editOrder, getOrderDetail, editOrderDetail, getProviderList, getPurchaserList, fileOrderUpload, delOrderDetail, getInvoicesByOrderId, getAreaList, getTypeList, getBuyerList, getItemList} from '../../api/api';
 
 	var LODOP
 	export default {
@@ -461,9 +486,15 @@
 				deliveryOrderVisible: false,//查看页面是否显示
 
 				//查看页面
-				itemListVisible: false,//查看页面是否显示
+				orderItemsVisible: false,//查看页面是否显示
+				orderItemsLoading: false,
+				orderItems: [],//物料列表
+
+				//物料签价页面
+				itemsVisible: false,//物料界面是否显示
 				itemsLoading: false,
 				items: [],//物料列表
+				oldItem: {},//修改前物料
 
 				//修改数量界面
 				editItemFormVisible: false,//界面是否显示
@@ -538,6 +569,73 @@
 			}
 		},
 		methods: {
+			formatDate: function (row, column) {
+				return util.formatDate.format(new Date(row.endTime),"yyyy-MM-dd");
+			},
+			//获取物料倩价列表
+			getItems() {
+				let para = {
+					page:this.page,
+                    size:20,
+					name: this.filters.name,
+					providerId:this.sendForm.providerId,
+					areaId:this.sendForm.areaId,
+				};
+				this.itemsLoading = true;
+				getItemList(para).then((res) => {
+					this.itemsLoading = false;
+					let msg = res.data.message;
+                	let code = res.data.code;
+					if (code !== 200) {
+	                  this.$message({
+	                    message: msg,
+	                    type: 'error'
+	                  });
+	                } else {
+						this.items = res.data.data.list
+					}
+				});
+			},
+			//显示更新物料界面
+			handleEditItem: function (){
+				this.orderItemsVisible = false;
+				this.oldItem = this.sels[0];
+				this.filters.name='';
+				this.items=[];
+				this.getItems();
+				this.itemsVisible = true;
+			},
+			//将老物料id替换为新物料id
+			handleAdd: function (index, row) {
+				let replaceItem = {};
+				replaceItem.id = this.sendForm.id;
+				replaceItem.status = 0;
+				replaceItem.sum = this.sendForm.sum + util.formatNumber((row.price-this.oldItem.price)*this.oldItem.count);
+				replaceItem.orderItemList = [];
+				this.oldItem.itemId = row.id;
+				replaceItem.orderItemList.push(this.oldItem);
+				this.$confirm('确认提交吗？', '提示', {}).then(() => {
+					this.editItemLoading = true;
+					editOrderDetail(replaceItem).then((res) => {
+						this.editItemLoading = false;
+						this.itemsVisible = false;
+						let msg = res.data.message;
+	                	let code = res.data.code;
+						if (code !== 200) {
+		                  this.$message({
+		                    message: msg,
+		                    type: 'error'
+		                  });
+		                } else {
+							this.$message({
+								message: '提交成功',
+								type: 'success'
+							});
+							this.getOrders();
+						}
+					});
+				});
+			},
 			//状态转化
 			formatStatus: function (row, column) {
 				return this.getStrByStatus(row.status);
@@ -736,9 +834,9 @@
 				let para = { 
 					id: orderId 
 				};
-				this.itemsLoading = true;
+				this.orderItemsLoading = true;
 				getOrderDetail(para).then((res) => {
-					this.itemsLoading = false;
+					this.orderItemsLoading = false;
 					let msg = res.data.message;
                 	let code = res.data.code;
 					if (code !== 200) {
@@ -747,7 +845,7 @@
 	                    type: 'error'
 	                  });
 	                } else {
-						this.items = res.data.data
+						this.orderItems = res.data.data
 						this.getSpanArr(res.data.data);
 					}
 				});
@@ -761,7 +859,7 @@
 			//查看物料详情
 			handleView: function(index, row){
 				this.getItemsByOrderId(row.id)
-				this.itemListVisible = true
+				this.orderItemsVisible = true
 				this.sendForm = Object.assign({}, row);
 				this.buyForm = Object.assign({}, row);
 			},
@@ -779,11 +877,6 @@
     			}
     		},
     		handlePdfPrint: function (index, row) {
-    // 			let newWindow=""
-    // 			var printHtml = "<iframe width='100%' height='100%' src='" + row.url + "' />";
-				// newWindow = window.open("",'newwindow');
-				// newWindow.document.body.innerHTML = printHtml;
-				//方便pdf下载
 				window.open(row.url);
     		},
 			//删除
@@ -820,7 +913,6 @@
 			handleRemark: function (index, row) {
 				this.editFormVisible = true;
 				this.editForm = Object.assign({}, row);
-				console.log(this.editForm);
 			},
 			//编辑
 			editSubmit: function () {
@@ -855,27 +947,27 @@
 			},
 
 			//跳转新增页面
-			handleAdd: function () {
+			goAddView: function () {
 				this.$router.push({path: '/order/add'});
 			},
 			//显示进货界面
 			handleBuy: function (){
-				this.itemListVisible = false;
+				this.orderItemsVisible = false;
 				this.buyFormVisible = true;
-				this.items = this.sels;
+				this.orderItems = this.sels;
 			},
 			//显示编辑数量界面
 			handleEditCount: function (){
-				this.itemListVisible = false;
+				this.orderItemsVisible = false;
 				this.editItemFormVisible = true;
-				this.items = this.sels;
+				this.orderItems = this.sels;
 				//计算修改前金额
 				this.beforeEditSum = this.countItemsSum();
 			},
 			countItemsSum(){
 				let sum = 0;
-				for(let i=0;i<this.items.length;i++){
-					let item = this.items[i];
+				for(let i=0;i<this.orderItems.length;i++){
+					let item = this.orderItems[i];
 					sum += item.count*item.price
 				}
 				return util.formatNumber(sum);
@@ -888,47 +980,14 @@
 				}
 				return util.formatNumber(sum);
 			},
-			//删除订单物料
-			handleDeleteItem: function (){
-				this.editItemForm.id = this.sendForm.id;
-				this.editItemForm.cdSn = this.sendForm.cdSn;
-				this.editItemForm.sum = this.sendForm.sum - this.countSelsSum();
-				this.editItemForm.itemList = this.sels;
-				this.$confirm('确认删除吗?', '提示', {
-					type: 'warning'
-				}).then(() => {
-					this.editItemLoading = true;
-					delOrderDetail(this.editItemForm).then((res) => {
-						this.editItemLoading = false;
-						this.itemListVisible = false;
-						let msg = res.data.message;
-	                	let code = res.data.code;
-						if (code !== 200) {
-		                  this.$message({
-		                    message: msg,
-		                    type: 'error'
-		                  });
-		                } else {
-							this.$message({
-								message: '删除成功',
-								type: 'success'
-							});
-							this.getOrders();
-						}
-					});
-				}).catch(() => {
-
-				});
-			},
 			//进货提交处理
 			buySubmit: function () {
 				this.buyForm.id = this.sendForm.id;
 				this.buyForm.cdSn = this.sendForm.cdSn;
-				this.buyForm.orderItemList = this.items;
+				this.buyForm.orderItemList = this.orderItems;
 				this.buyForm.status = 2;
 				this.$confirm('确认提交吗？', '提示', {}).then(() => {
 					this.buyLoading = true;
-					//NProgress.start();
 					editOrderDetail(this.buyForm).then((res) => {
 						this.buyLoading = false;
 						this.buyFormVisible = false;
@@ -940,7 +999,6 @@
 		                    type: 'error'
 		                  });
 		                } else {
-						//NProgress.done();
 							this.$message({
 								message: '提交成功',
 								type: 'success'
@@ -958,11 +1016,10 @@
 				this.editItemForm.id = this.sendForm.id;
 				this.editItemForm.cdSn = this.sendForm.cdSn;
 				this.editItemForm.sum = this.sendForm.sum + (this.afterEditSum - this.beforeEditSum);
-				this.editItemForm.itemList = this.items;
+				this.editItemForm.orderItemList = this.orderItems;
 				this.editItemForm.status = 1;
 				this.$confirm('确认提交吗？', '提示', {}).then(() => {
 					this.editItemLoading = true;
-					//NProgress.start();
 					editOrderDetail(this.editItemForm).then((res) => {
 						this.editItemLoading = false;
 						this.editItemFormVisible = false;
@@ -974,7 +1031,6 @@
 		                    type: 'error'
 		                  });
 		                } else {
-						//NProgress.done();
 							this.$message({
 								message: '提交成功',
 								type: 'success'
@@ -985,18 +1041,18 @@
 					});
 				});
 			},
-			//显示编辑界面
+			//显示发货界面
 			handleSend: function (){
-				this.itemListVisible = false;
+				this.orderItemsVisible = false;
 				this.sendFormVisible = true;
 				this.sendForm.remark ='';
-				this.items = this.sels;
+				this.orderItems = this.sels;
 			},
 			//发货提交处理
 			sendSubmit: function () {
 				this.$refs.sendForm.validate((valid) => {
 					if (valid) {
-						this.sendForm.orderItemList = this.items;
+						this.sendForm.orderItemList = this.orderItems;
 						this.sendForm.status = 3;
 						this.$confirm('确认提交吗？', '提示', {}).then(() => {
 							this.sendLoading = true;
@@ -1036,7 +1092,7 @@
 					this.sendLoading = true;
 					editOrderDetail(this.inForm).then((res) => {
 						this.sendLoading = false;
-						this.itemListVisible = false;
+						this.orderItemsVisible = false;
 						let msg = res.data.message;
 	                	let code = res.data.code;
 						if (code !== 200) {
@@ -1057,15 +1113,15 @@
 			},
 			//显示补单界面
 			handleRepair: function(){
-				this.itemListVisible = false;
+				this.orderItemsVisible = false;
 				this.repairFormVisible = true;
-				this.items = this.sels;
+				this.orderItems = this.sels;
 			},
 			//补单提交处理
 			repairSubmit: function () {
 				this.$refs.repairForm.validate((valid) => {
 					if (valid) {
-						this.repairForm.id = this.items[0].orderId;
+						this.repairForm.id = this.orderItems[0].orderId;
 						this.repairForm.status = 3;
 						this.$confirm('确认提交吗？', '提示', {}).then(() => {
 							this.repairLoading = true;
@@ -1196,9 +1252,9 @@
 				LODOP.ADD_PRINT_TEXT(page*this.height+149,430,275,25,"送货时间：");
 				LODOP.SET_PRINT_STYLEA(0,"FontSize",10);
 				LODOP.SET_PRINT_STYLEA(0,"Bold",1);
-				LODOP.ADD_PRINT_TEXT(page*this.height+149,500,275,25,util.formatDate.format(new Date(),"yyyy-MM-dd"));
-				LODOP.SET_PRINT_STYLEA(0,"FontSize",10);
-				LODOP.SET_PRINT_STYLEA(0,"Bold",1);
+				// LODOP.ADD_PRINT_TEXT(page*this.height+149,500,275,25,util.formatDate.format(new Date(),"yyyy-MM-dd"));
+				// LODOP.SET_PRINT_STYLEA(0,"FontSize",10);
+				// LODOP.SET_PRINT_STYLEA(0,"Bold",1);
 				LODOP.ADD_PRINT_TEXT(page*this.height+174,430,275,24,"订单编号：");
 				LODOP.SET_PRINT_STYLEA(0,"FontSize",10);
 				LODOP.SET_PRINT_STYLEA(0,"Bold",1);
@@ -1665,10 +1721,8 @@
 			        oneImg.src = img_set[i].src;
 			        oneImg.onload=function(){
 			            img_start++;
-			            console.info(img_start);
 			            if(img_start == img_length){
 			            	setTimeout(function(){ imgWindow.print();}, 1000);
-			                // imgWindow.print();
 			            }
 			        };
 			    }

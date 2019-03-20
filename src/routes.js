@@ -95,6 +95,7 @@ let routes = [
     },
     {
         path: '/statistic',
+        hidden: Cookies.get('user_type')==0, 
         component: Home,
         name: '数据统计',
         iconCls: 'fa fa-calculator',//图标样式class

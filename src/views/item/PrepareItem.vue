@@ -30,9 +30,9 @@
 			</el-table-column>
 			<el-table-column prop="price" label="价格" width="80">
 			</el-table-column>
-			<!-- <el-table-column prop="bidPrice" label="最新进价" width="80">
-			</el-table-column> -->
 			<el-table-column prop="count" label="数量" width="80">
+			</el-table-column>
+			<el-table-column prop="bidPrice" v-if="isAdmin" label="最新进价" width="80">
 			</el-table-column>
 			<el-table-column label="操作" width="300">
 				<template scope="scope">
@@ -89,10 +89,12 @@
 
 <script>
 	import util from '../../common/js/util'
+	import Cookies from 'js-cookie'
 	import { getPrepareItemList, getOrderList, editOrderDetail } from '../../api/api';
 	export default {
 		data() {
 			return {
+				isAdmin: Cookies.get('user_type')==1,
 				filters: {
 					name: ''
 				},
@@ -160,7 +162,7 @@
 	                    type: 'error'
 	                  });
 	                } else {
-						this.$router.push({path: '/order/list', query: {relatedResponse: res}});
+						this.$router.push({name: '采购订单列表', params: {relatedResponse: res}});
 					}
 				});
     		},
@@ -174,6 +176,7 @@
 				this.item.form=row.form;
 				this.item.unit=row.unit;
 				this.item.price=row.price;
+				this.item.count=row.count;
 				this.buyItems.push(this.item);
 				this.buyForm.id=row.orderId;
 				this.buyForm.cdSn=row.cdSn;

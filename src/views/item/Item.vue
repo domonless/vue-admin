@@ -162,7 +162,7 @@
 					<el-input v-model="editForm.unit"></el-input>
 				</el-form-item>
 				<el-form-item label="价格" prop="price">
-					<el-input-number v-model="editForm.price" :min="0" :max="99999"></el-input-number>
+					<el-input type="number" v-model="editForm.price" :min="0" :max="99999"></el-input>
 				</el-form-item>
 				<el-form-item label="图片" prop="imgurl">
 					<el-upload
@@ -280,7 +280,7 @@
 					<el-input v-model="addForm.unit"></el-input>
 				</el-form-item>
 				<el-form-item label="价格" prop="price">
-					<el-input-number v-model="addForm.price" :min="0" :max="99999"></el-input-number>
+					<el-input type="number" v-model="addForm.price" :min="0" :max="99999"></el-input>
 				</el-form-item>
 				<el-form-item label="图片" prop="imgurl">
 					<el-upload

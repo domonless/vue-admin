@@ -81,7 +81,7 @@
 					<el-button v-if="scope.row.incomeDate == undefined" type="warning" size="small" @click="handleReturn(scope.$index, scope.row)">回款</el-button>
 					<el-button v-if="scope.row.incomeDate != undefined" type="success" size="small">已回</el-button>
 					<el-button type="primary" size="small" @click="handleEdit(scope.$index, scope.row)" icon="el-icon-edit"></el-button>
-					<el-button v-if="scope.row.incomeDate == undefined" type="danger" size="small" @click="handleDel(scope.$index, scope.row)" icon="el-icon-delete"></el-button>
+					<el-button v-if="isAdmin && scope.row.incomeDate == undefined" type="danger" size="small" @click="handleDel(scope.$index, scope.row)" icon="el-icon-delete"></el-button>
 					<el-button size="small" @click="handleRelated(scope.$index, scope.row)">相关订单</el-button>
 				</template>
 			</el-table-column>
@@ -153,6 +153,7 @@
 
 <script>
 	import util from '../../common/js/util'
+	import Cookies from 'js-cookie'
 	import { getInvoiceList, getProviderList, editInvoice, delInvoice, getOrdersByInvoiceId, fileInvoiceUpload, getInvoiceSum} from '../../api/api';
 
 	export default {
@@ -163,6 +164,8 @@
 				pages:0,
 				total: 0,
 				page: 1,
+
+				isAdmin: Cookies.get('user_type')==1,
 
 				//筛选
 				filters: {
@@ -203,13 +206,14 @@
 				//供货商
 				providers:[],
 
+				//发票状态
 				status:[
 					{
-						value:0,
+						value:1,
 						label:'未回款'
 					},
 					{
-						value:1,
+						value:2,
 						label:'已回款'
 					}
 				],
@@ -405,6 +409,7 @@
 			//回款处理
 			returnSubmit: function () {
 				this.returnForm.id = this.editForm.id;
+				this.returnForm.status = 2;
 				this.$confirm('确认提交吗？', '提示', {}).then(() => {
 					this.returnLoading = true;
 					editInvoice(this.returnForm).then((res) => {
