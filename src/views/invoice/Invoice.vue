@@ -69,6 +69,8 @@
 			</el-table-column>
 			<el-table-column prop="provider" label="供货商" width="100" :formatter="formatProvider">
 			</el-table-column>
+			<el-table-column prop="createTime" label="创建时间" width="100">
+			</el-table-column>
 			<el-table-column prop="invoiceDate" label="填开日期" width="100">
 			</el-table-column>
 			<el-table-column prop="incomeDate" label="回款日期" width="100">

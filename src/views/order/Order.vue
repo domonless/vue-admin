@@ -212,7 +212,6 @@
 		<!--查看界面-->
 		<el-dialog title="查看" :visible.sync="orderItemsVisible" :close-on-click-modal="false">
 			<el-table :data="orderItems" ref="viewTable" :span-method="objectSpanMethod" highlight-current-row v-loading="orderItemsLoading" @selection-change="selsChange" style="width: 100%;">
-				<!-- <el-table-column type="selection" :selectable="checkSelectable" :disable="false" width="40" v-if="this.sendForm.status<4 || this.sendForm.status==9"> -->
 				<el-table-column type="selection" :selectable="checkSelectable" :disable="false" width="40">
 			    </el-table-column>
 			    <el-table-column  type="index" width="45">
@@ -576,7 +575,7 @@
 			getItems() {
 				let para = {
 					page:this.page,
-                    size:20,
+                    size:50,
 					name: this.filters.name,
 					providerId:this.sendForm.providerId,
 					areaId:this.sendForm.areaId,
@@ -768,7 +767,7 @@
 				return statusStr;
 			},
 			//多选可选控制
-			checkSelectable(row){
+			checkSelectable(row,index){
 				if(this.sels.length == 0){
 					return true;
 				}else{
@@ -1221,14 +1220,15 @@
 		    },
 		    //送货单分页
 		    drawSendOrder:function(page){
-		    	LODOP.NewPage();
 		    	if(this.sendForm.template==1){
 		    		this.loadPrintTemplate1(page);
 		    	}else if(this.sendForm.template==2){
 		    		this.loadPrintTemplate2(page);
 		    	}else if(this.sendForm.template==3){
+		    		LODOP.NewPage();
 		    		this.loadPrintTemplate3(page);
 		    	}else if(this.sendForm.template==4){
+		    		LODOP.NewPage();
 		    		this.loadPrintTemplate4(page);
 		    	}
 		    },

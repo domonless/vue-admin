@@ -7,7 +7,10 @@
 					<el-input v-model="filters.name" placeholder="物料名称" @input="getPrepareItems" clearable></el-input>
 				</el-form-item>
 				<el-form-item>
-					<el-button type="primary" @click="export2Excel" >导出</el-button>
+					<el-button type="primary" @click="export2Excel">导出</el-button>
+				</el-form-item>
+				<el-form-item>
+					<el-button type="primary" @click="getPrepareItems">查询</el-button>
 				</el-form-item>
 			</el-form>
 		</el-col>
