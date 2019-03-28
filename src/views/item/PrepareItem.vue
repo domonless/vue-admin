@@ -76,7 +76,7 @@
 					</el-table-column>
 					<el-table-column prop="bidPrice" label="进价" width="100">
 						<template scope="scope">
-							<el-input type="number" size="mini" min="1" :maxlength="10" :key="scope.row.id" @input="handleBidPriceChange(scope.$index, scope.row, $event)" @keyup.enter.native="handleEditBidPrice(scope.$index, scope.row)"></el-input>
+							<el-input type="number" size="mini" min="1" :maxlength="10" :key="scope.row.id" @input="handleBidPriceChange(scope.$index, scope.row, $event)"></el-input>
 						</template>
 					</el-table-column>
 				</el-table>
@@ -172,18 +172,10 @@
     		//显示进货界面
 			handleBuy: function (index, row){
 				this.buyItems=[];
-				this.item.id=row.id;
-				this.item.itemNumber=row.itemNumber;
-				this.item.name=row.name;
-				this.item.brand=row.brand;
-				this.item.form=row.form;
-				this.item.unit=row.unit;
-				this.item.price=row.price;
-				this.item.count=row.count;
-				this.buyItems.push(this.item);
+				this.item = row;
+				this.buyItems.push(row);
 				this.buyForm.id=row.orderId;
 				this.buyForm.cdSn=row.cdSn;
-				this.buyForm.orderItemList=this.buyItems;
 				this.buyForm.status = 2;
 				this.buyFormVisible = true;
 			},
@@ -191,7 +183,9 @@
 			buySubmit: function () {
 				this.$confirm('确认提交吗？', '提示', {}).then(() => {
 					this.buyLoading = true;
-					//NProgress.start();
+					this.orderItemList=[];
+					this.orderItemList.push(this.item);
+					this.buyForm.orderItemList=this.orderItemList;
 					editOrderDetail(this.buyForm).then((res) => {
 						this.buyLoading = false;
 						this.buyFormVisible = false;
@@ -203,7 +197,6 @@
 		                    type: 'error'
 		                  });
 		                } else {
-						//NProgress.done();
 							this.$message({
 								message: '提交成功',
 								type: 'success'
