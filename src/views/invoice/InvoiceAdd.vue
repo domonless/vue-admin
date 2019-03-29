@@ -387,7 +387,8 @@
     		},
     		//处理发票号输入
     		handleInput: function (){
-    			if(this.invoiceForm.invoiceSn.length==8){
+    			this.invoiceForm.invoiceSn = this.invoiceForm.invoiceSn.replace(/'/g,'');
+    			if(this.invoiceForm.invoiceSn.length>=8){
     				this.getInvoices();
     			}
 			},

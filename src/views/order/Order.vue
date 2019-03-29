@@ -251,6 +251,7 @@
 				<el-button type="primary" v-if="this.selectStatus===2 && this.sels.length>0" @click.native="handleSend" :loading="sendLoading">发货</el-button>
 				<el-button type="primary" v-if="this.selectStatus===3 && this.sels.length>0 && this.sendForm.status!=9" @click.native="handleIn" :loading="sendLoading">入库</el-button>
 				<el-button type="primary" v-if="this.selectStatus===3 && this.sels.length>0 && this.sendForm.status==9" @click.native="handleRepair">补单</el-button>
+				<el-button type="danger" v-if="this.selectStatus==1 && this.sels.length>0" @click.native="handleDeleteItem" :loading="editItemLoading">删除</el-button>
 			</div>
 		</el-dialog>
 
@@ -1040,6 +1041,38 @@
 					});
 				});
 			},
+			//删除订单物料
+			handleDeleteItem: function (){
+				this.editItemForm.id = this.sendForm.id;
+				this.editItemForm.cdSn = this.sendForm.cdSn;
+				this.editItemForm.sum = this.sendForm.sum - this.countSelsSum();
+				this.editItemForm.itemList = this.sels;
+				this.$confirm('确认删除吗?', '提示', {
+					type: 'warning'
+				}).then(() => {
+					this.editItemLoading = true;
+					delOrderDetail(this.editItemForm).then((res) => {
+						this.editItemLoading = false;
+						this.orderItemsVisible = false;
+						let msg = res.data.message;
+	                	let code = res.data.code;
+						if (code !== 200) {
+		                  this.$message({
+		                    message: msg,
+		                    type: 'error'
+		                  });
+		                } else {
+							this.$message({
+								message: '删除成功',
+								type: 'success'
+							});
+							this.getOrders();
+							this.$refs['editItemForm'].resetFields();
+						}
+					});
+				}).catch(() => {
+				});
+			},
 			//显示发货界面
 			handleSend: function (){
 				this.orderItemsVisible = false;
@@ -1055,8 +1088,6 @@
 						this.sendForm.status = 3;
 						this.$confirm('确认提交吗？', '提示', {}).then(() => {
 							this.sendLoading = true;
-							//NProgress.start();
-							// let para = Object.assign({}, this.sendForm);
 							editOrderDetail(this.sendForm).then((res) => {
 								this.sendLoading = false;
 								this.sendFormVisible = false;
@@ -1068,7 +1099,6 @@
 				                    type: 'error'
 				                  });
 				                } else {
-								//NProgress.done();
 									this.$message({
 										message: '提交成功',
 										type: 'success'

@@ -6,11 +6,21 @@
 				<el-form-item>
 					<el-input v-model="filters.name" placeholder="物料名称" @input="getPrepareItems" clearable></el-input>
 				</el-form-item>
-				<el-form-item>
-					<el-button type="primary" @click="export2Excel">导出</el-button>
+				<el-form-item prop="status">
+					<el-select v-model="filters.status" placeholder="是否已进货" @change="getPrepareItems" clearable>
+					    <el-option
+					      v-for="item in status"
+					      :key="item.value"
+					      :label="item.label"
+					      :value="item.value">
+					    </el-option>
+					</el-select>
 				</el-form-item>
 				<el-form-item>
 					<el-button type="primary" @click="getPrepareItems">查询</el-button>
+				</el-form-item>
+				<el-form-item>
+					<el-button type="warning" @click="export2Excel">导出</el-button>
 				</el-form-item>
 			</el-form>
 		</el-col>
@@ -40,7 +50,8 @@
 			<el-table-column label="操作" width="300">
 				<template scope="scope">
 					<el-button size="small" @click="handleRelated(scope.$index, scope.row)">相关订单</el-button>
-					<el-button size="small" type="warning" @click="handleBuy(scope.$index, scope.row)">进货</el-button>
+					<el-button size="small" v-if="scope.row.status===1" type="warning" @click="handleBuy(scope.$index, scope.row)">进货</el-button>
+					<el-button size="small" v-if="scope.row.status===2" type="success">待发货</el-button>
 				</template>
 			</el-table-column>
 		</el-table>
@@ -99,7 +110,8 @@
 			return {
 				isAdmin: Cookies.get('user_type')==1,
 				filters: {
-					name: ''
+					name: '',
+					status:''
 				},
 				total: 0,
 				page: 1,
@@ -114,6 +126,18 @@
 				buyLoading: false,
 				//进货界面数据
 				buyForm: {},
+
+				//发票状态
+				status:[
+					{
+						value:1,
+						label:'未进货'
+					},
+					{
+						value:2,
+						label:'待发货'
+					}
+				],
 			}
 		},
 		methods: {
@@ -132,6 +156,7 @@
 				let para = {
 					page:this.page,
                     size:this.pageSize,
+                    status:this.filters.status,
 					name:this.filters.name
 				};
 				this.listLoading = true;
@@ -154,7 +179,7 @@
     		//物料相关订单
     		handleRelated: function (index, row) {
     			let para = {
-                    cdSn:row.cdSn
+                    orderId:row.orderId
 				};
 				getOrderList(para).then((res) => {
 					let msg = res.data.message;
@@ -214,6 +239,7 @@
     		export2Excel() {
     			let exportItems=[];
     			let para = {
+    				status:this.filters.status,
 					name:this.filters.name
 				};
 				this.listLoading = true;
