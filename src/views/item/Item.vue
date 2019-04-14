@@ -78,7 +78,7 @@
 			</el-form>
 			<div style="margin-top:30px">
 				<font color="red"><b>请按照模版进行填写，文件后缀为.xlsx&nbsp;&nbsp;&nbsp;&nbsp;</b></font>
-				<a href="http://bapi.kyb66.com/xlsx/itemTemplate/物料批量上传模板.xlsx" target="_blank" style="font-size:18px;color:#CD6839;">下载模版</a>
+				<a href="https://bapi.kyb66.com/xlsx/itemTemplate/物料批量上传模板.xlsx" target="_blank" style="font-size:18px;color:#CD6839;">下载模版</a>
 				&nbsp;
 				<el-button @click.native="uploadClick" style="font-size:18px;color:green">立即上传</el-button>
 			</div>
@@ -713,17 +713,19 @@
 					endTime: new Date(new Date().getTime() + 365*24*60*60*1000)
 				};
 			},
+			//物料签价图片
     		handlePrint: function (index, row) {
-    			let newWindow=""
-    			if(row.imgurl.endsWith('.pdf')){
-    				var printHtml = "<iframe id='pdf' width='100%'' height='100%'' src='" + row.imgurl + "' />";
-					newWindow = window.open("",'newwindow');
-					newWindow.document.body.innerHTML = printHtml;
-    			}else{
-    				var printHtml = "<img id='img' src='" + row.imgurl + "' width='868px' height='1195px' />";
-					newWindow = window.open("",'newwindow');
-					newWindow.document.body.innerHTML = printHtml;
-    			}
+    			// let newWindow=""
+		    	// 		if(row.imgurl.endsWith('.pdf')){
+		    	// 			var printHtml = "<iframe id='pdf' width='100%'' height='100%'' src='" + row.imgurl + "' />";
+							// newWindow = window.open("",'newwindow');
+							// newWindow.document.body.innerHTML = printHtml;
+		    	// 		}else{
+		    	// 			var printHtml = "<img id='img' src='" + row.imgurl + "' width='868px' height='1195px' />";
+							// newWindow = window.open("",'newwindow');
+							// newWindow.document.body.innerHTML = printHtml;
+		    	// 		}
+    			window.open(row.imgurl);
     		},
     		//物料相关订单
     		handleRelated: function (index, row) {

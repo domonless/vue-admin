@@ -54,12 +54,15 @@
             },
             handleScroll() {
 			    let dom =document.getElementsByClassName('content-container')[0];
-			    this.scrollTop = dom.scrollTop;
-			    if (this.scrollTop > 300) {
-			        this.toTopShow = true;
-			    }else {
-			        this.toTopShow = false;
+			    if(dom){
+					this.scrollTop = dom.scrollTop;
+				    if (this.scrollTop > 300) {
+				        this.toTopShow = true;
+				    }else {
+				        this.toTopShow = false;
+				    }
 			    }
+			    
 			},
 		},
 		mounted() {

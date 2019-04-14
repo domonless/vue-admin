@@ -20,6 +20,8 @@
 			</el-table-column>
 			<el-table-column prop="name" label="名称" >
 			</el-table-column>
+			<el-table-column prop="remark" label="开票信息" >
+			</el-table-column>
 			<el-table-column label="操作" width="150">
 				<template scope="scope">
 					<el-button type="primary" size="small" @click="handleEdit(scope.$index, scope.row)">编辑</el-button>
@@ -40,6 +42,9 @@
 				<el-form-item label="名称" prop="name">
 					<el-input v-model="editForm.name"></el-input>
 				</el-form-item>
+				<el-form-item label="开票信息" prop="remark">
+					<el-input v-model="editForm.remark"></el-input>
+				</el-form-item>
 			</el-form>
 			<div slot="footer" class="dialog-footer">
 				<el-button @click.native="editFormVisible = false">取消</el-button>
@@ -51,7 +56,10 @@
 		<el-dialog title="新增" :visible.sync="addFormVisible" :close-on-click-modal="false">
 			<el-form :model="addForm" label-width="80px" :rules="addFormRules" ref="addForm">
 				<el-form-item label="名称" prop="name">
-					<el-input v-model="addForm.name" @keyup.enter.native="addSubmit"></el-input>
+					<el-input v-model="addForm.name"></el-input>
+				</el-form-item>
+				<el-form-item label="开票信息" prop="remark">
+					<el-input v-model="addForm.remark"></el-input>
 				</el-form-item>
 			</el-form>
 			<div slot="footer" class="dialog-footer">
@@ -81,13 +89,13 @@
 				editFormRules: {
 					name: [
 						{ required: true, message: '请输入名称', trigger: 'blur' }
-						
 					]
 				},
 				//编辑界面数据
 				editForm: {
 					id: 0,
-					name: ''
+					name: '',
+					remark: ''
 				},
 
 				addFormVisible: false,//新增界面是否显示
@@ -99,9 +107,9 @@
 				},
 				//新增界面数据
 				addForm: {
-					name: ''
+					name: '',
+					remark: ''
 				}
-
 			}
 		},
 		methods: {
@@ -140,14 +148,12 @@
 					type: 'warning'
 				}).then(() => {
 					this.listLoading = true;
-					//NProgress.start();
 					let para = {
 						id: row.id,
 						status: 0
 					};
 					editDemander(para).then((res) => {
 						this.listLoading = false;
-						//NProgress.done();
 						let msg = res.data.message;
 	                	let code = res.data.code;
 						if (code !== 200) {
@@ -172,14 +178,16 @@
 				this.editFormVisible = true;
 				this.editForm = {
 					id: row.id,
-					name: row.name
+					name: row.name,
+					remark: row.remark
 				};
 			},
 			//显示新增界面
 			handleAdd: function () {
 				this.addFormVisible = true;
 				this.addForm = {
-					name: ''
+					name: '',
+					remark: ''
 				};
 			},
 			//编辑
@@ -214,29 +222,27 @@
 			addSubmit: function () {
 				this.$refs.addForm.validate((valid) => {
 					if (valid) {
-							this.addLoading = true;
-							//NProgress.start();
-							let para = Object.assign({}, this.addForm);
-							addDemander(para).then((res) => {
-								this.addLoading = false;
-								this.addFormVisible = false;
-								//NProgress.done();
-								let msg = res.data.message;
-			                	let code = res.data.code;
-								if (code !== 200) {
-				                  this.$message({
-				                    message: msg,
-				                    type: 'error'
-				                  });
-				                } else {
-									this.$message({
-										message: '提交成功',
-										type: 'success'
-									});
-									this.$refs['addForm'].resetFields();
-									this.getDemanders();
-								}
-							});
+						this.addLoading = true;
+						let para = Object.assign({}, this.addForm);
+						addDemander(para).then((res) => {
+							this.addLoading = false;
+							this.addFormVisible = false;
+							let msg = res.data.message;
+		                	let code = res.data.code;
+							if (code !== 200) {
+			                  this.$message({
+			                    message: msg,
+			                    type: 'error'
+			                  });
+			                } else {
+								this.$message({
+									message: '提交成功',
+									type: 'success'
+								});
+								this.$refs['addForm'].resetFields();
+								this.getDemanders();
+							}
+						});
 					}
 				});
 			},

@@ -5,7 +5,7 @@ import Cookies from 'js-cookie';
 import { Message } from 'element-ui';
 
 axios.defaults.headers.common['Content-Type'] = 'application/json;charset=UTF-8';
-let base = 'http://bapi.kyb66.com';
+let base = 'https://bapi.kyb66.com';
 // let base = 'http://localhost:8080';
 // let base = 'http://192.168.1.4:8080';
 

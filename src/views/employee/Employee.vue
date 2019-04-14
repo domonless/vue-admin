@@ -19,11 +19,11 @@
 		<el-table :data="users" highlight-current-row v-loading="listLoading" style="width: 100%;">
 			<el-table-column type="index" label="序号" width="100">
 			</el-table-column>
-			<el-table-column prop="username" label="用户名" >
+			<el-table-column prop="username" label="用户名" width="300">
 			</el-table-column>
-			<el-table-column prop="loginname" label="登录名" >
+			<el-table-column prop="loginname" label="登录名" width="300">
 			</el-table-column>
-			<el-table-column label="操作">
+			<el-table-column label="操作" width="400">
 				<template scope="scope">
 					<el-button type="primary" size="small" @click="handleEdit(scope.$index, scope.row)">编辑</el-button>
 					<el-button type="warning" size="small" @click="resetPassword(scope.$index, scope.row)">重置密码</el-button>

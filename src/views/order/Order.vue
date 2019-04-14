@@ -865,16 +865,17 @@
 			},
 			//打印
 			handleItemPrint: function (index, row) {
-				let newWindow=""
-    			if(row.imgurl.endsWith('.pdf')){
-    				var printHtml = "<iframe width='100%' height='100%' src='" + row.imgurl + "' />";
-					newWindow = window.open("",'newwindow');
-					newWindow.document.body.innerHTML = printHtml;
-    			}else{
-    				var printHtml = "<img id='img' src='" + row.imgurl + "' width='868px' height='1195px'/>";
-					newWindow = window.open("",'newwindow');
-					newWindow.document.body.innerHTML = printHtml;
-    			}
+				// let newWindow=""
+    // 			if(row.imgurl.endsWith('.pdf')){
+    // 				var printHtml = "<iframe width='100%' height='100%' src='" + row.imgurl + "' />";
+				// 	newWindow = window.open("",'newwindow');
+				// 	newWindow.document.body.innerHTML = printHtml;
+    // 			}else{
+    // 				var printHtml = "<img id='img' src='" + row.imgurl + "' width='868px' height='1195px'/>";
+				// 	newWindow = window.open("",'newwindow');
+				// 	newWindow.document.body.innerHTML = printHtml;
+    // 			}
+    			window.open(row.imgurl);
     		},
     		handlePdfPrint: function (index, row) {
 				window.open(row.url);
@@ -1573,7 +1574,7 @@
 		    //送货单模版三
 		    loadPrintTemplate3:function(page){
 		    	//背景
-		    	LODOP.ADD_PRINT_SETUP_BKIMG("<img border='0' src='http://bapi.kyb66.com/img/template/template3.png' width='793px' height='1123px'>");
+		    	LODOP.ADD_PRINT_SETUP_BKIMG("<img border='0' src='https://bapi.kyb66.com/img/template/template3.png' width='793px' height='1123px'>");
 		    	LODOP.SET_SHOW_MODE("BKIMG_PRINT",1);
 		    	//需求公司
 		    	LODOP.ADD_PRINT_TEXT(107,137,550,25,this.sendForm.demander);
@@ -1644,7 +1645,7 @@
 		    //送货单模版四
 		    loadPrintTemplate4:function(page){
 		    	//背景
-		    	LODOP.ADD_PRINT_SETUP_BKIMG("<img border='0' src='http://bapi.kyb66.com/img/template/template4.png' width='793px' height='1123px'>");
+		    	LODOP.ADD_PRINT_SETUP_BKIMG("<img border='0' src='https://bapi.kyb66.com/img/template/template4.png' width='793px' height='1123px'>");
 		    	LODOP.SET_SHOW_MODE("BKIMG_PRINT",1);
 
 		    	//需求公司
