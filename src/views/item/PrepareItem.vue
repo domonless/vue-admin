@@ -27,7 +27,7 @@
 
 		<!--列表-->
 		<el-table :data="items" highlight-current-row v-loading="listLoading" style="width: 100%;">
-			<el-table-column type="index" width="50">
+			<el-table-column prop="rownum" label="序号" width="60">
 			</el-table-column>
 			<el-table-column prop="cdSn" label="订单号" width="150" sortable>
 			</el-table-column>
