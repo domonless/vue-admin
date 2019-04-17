@@ -117,12 +117,13 @@
 			</el-table-column>
 			<el-table-column prop="endTime" label="截止日期" width="120">
 			</el-table-column>
-			<el-table-column label="操作" width="300">
+			<el-table-column label="操作" width="420">
 				<template scope="scope">
 					<el-button size="small" type="warning" icon="fa fa-file-picture-o" :disabled="scope.row.imgurl==''" @click="handlePrint(scope.$index, scope.row)"></el-button>
 					<el-button size="small" type="primary" icon="el-icon-edit" @click="handleEdit(scope.$index, scope.row)"></el-button>
 					<el-button size="small" type="danger" icon="el-icon-delete" @click="handleDel(scope.$index, scope.row)"></el-button>
 					<el-button size="small" @click="handleRelated(scope.$index, scope.row)">相关订单</el-button>
+					<el-button size="small" v-if="isAdmin" @click="handleRecent(scope.$index, scope.row)">进货历史</el-button>
 				</template>
 			</el-table-column>
 			<!-- <el-table-column label="签价单" width="100">
@@ -216,6 +217,20 @@
 			<div slot="footer" class="dialog-footer">
 				<el-button type="danger" @click.native="similarVisible=false">取消</el-button>
 			</div>
+		</el-dialog>
+
+		<!--进货历史界面-->
+		<el-dialog title="进货历史" :visible.sync="recentFormVisible" :close-on-click-modal="false">
+			<el-table :data="recentItems" highlight-current-row v-loading="recentLoading" style="width: 100%;" >
+			    <el-table-column type="index" width="55">
+				</el-table-column>
+				<el-table-column prop="deliveryTime" label="进货日期" width="110" :formatter="formatDeliveryDate">
+				</el-table-column>
+				<el-table-column prop="bidPrice" label="进价" width="70">
+				</el-table-column>
+				<el-table-column prop="remark" label="备注" width="400">
+				</el-table-column>
+			</el-table>
 		</el-dialog>
 
 		<!--批量更新图片界面-->
@@ -316,7 +331,7 @@
 	import pdf from 'vue-pdf'
 	import Cookies from 'js-cookie'
 	//import NProgress from 'nprogress'
-	import { getItemList, addItem, editItem, batAddItem, batchRemoveItem, batUpdateImgurl, getProviderList, getOrdersByItemId, fileItemUpload, getAreaList, getSimilarList } from '../../api/api';
+	import { getItemList, addItem, editItem, batAddItem, batchRemoveItem, batUpdateImgurl, getProviderList, getOrdersByItemId, fileItemUpload, getAreaList, getSimilarList, getRecentItemList } from '../../api/api';
 	export default {
 		components:
 		{
@@ -344,6 +359,11 @@
 				listLoading: false,
 				sels: [],//列表选中列
 				itemsNoImg: [],//没有
+
+				//进货历史界面
+				recentFormVisible: false,//进货历史界面是否显示
+				recentLoading: false,
+				recentItems: [],
 
 				//图片上传
 				uploadFlag: false,
@@ -458,6 +478,12 @@
 					if(row.areaId == area.id){
 						return area.name;
 					}
+				}
+			},
+			//下单日期转化
+			formatDeliveryDate: function (row, column) {
+				if(row.deliveryTime){
+					return util.formatDate.format(new Date(row.deliveryTime),"yyyy-MM-dd");
 				}
 			},
 			//导入excel数据
@@ -674,6 +700,25 @@
 
 				});
 			},
+			//最近进货列表
+    		handleRecent: function (index, row) {
+    			let para = {
+                    itemId:row.id
+				};
+				getRecentItemList(para).then((res) => {
+					let msg = res.data.message;
+                	let code = res.data.code;
+					if (code !== 200) {
+	                  this.$message({
+	                    message: msg,
+	                    type: 'error'
+	                  });
+	                } else {
+	                	this.recentItems = res.data.data
+	                	this.recentFormVisible = true
+					}
+				});
+    		},
 			//显示编辑界面
 			handleEdit: function (index, row) {
 				this.editFormVisible = true;

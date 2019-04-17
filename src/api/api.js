@@ -137,6 +137,9 @@ export const getOrdersByItemId = params => { return axios.get(`${base}/item/orde
 //获取备货中物料
 export const getPrepareItemList = params => { return axios.get(`${base}/item/prepare`, { params: params }); };
 
+//获取最近进货列表
+export const getRecentItemList = params => { return axios.get(`${base}/item/recent`, { params: params }); };
+
 
 //上传物料图片
 export const fileItemUpload = params => { return axios.post(`${base}/file/item/upload`, params); };

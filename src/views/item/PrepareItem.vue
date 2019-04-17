@@ -29,7 +29,7 @@
 		<el-table :data="items" highlight-current-row v-loading="listLoading" style="width: 100%;">
 			<el-table-column prop="rownum" label="序号" width="60">
 			</el-table-column>
-			<el-table-column prop="cdSn" label="订单号" width="150" sortable>
+			<el-table-column prop="cdSn" label="订单号" width="140" sortable>
 			</el-table-column>
 			<el-table-column prop="demander" label="需求公司" width="300" sortable>
 			</el-table-column>
@@ -45,11 +45,11 @@
 			</el-table-column>
 			<el-table-column prop="count" label="数量" width="80">
 			</el-table-column>
-			<el-table-column prop="bidPrice" v-if="isAdmin" label="最新进价" width="80">
-			</el-table-column>
-			<el-table-column label="操作" width="300">
+			<el-table-column label="操作" width="370">
 				<template scope="scope">
+					<el-button size="small" v-if="isAdmin" @click="handleRecent(scope.$index, scope.row)">进货历史</el-button>
 					<el-button size="small" @click="handleRelated(scope.$index, scope.row)">相关订单</el-button>
+					<el-button type="danger" size="small" icon="fa fa-file-pdf-o" :disabled="scope.row.url==''" @click="handlePdfPrint(scope.$index, scope.row)"></el-button>
 					<el-button size="small" v-if="scope.row.status===1" type="warning" @click="handleBuy(scope.$index, scope.row)">进货</el-button>
 					<el-button size="small" v-if="scope.row.status===2" type="success">待发货</el-button>
 				</template>
@@ -69,8 +69,6 @@
 					<el-input v-model="buyForm.cdSn" disabled></el-input>
 				</el-form-item>
 				<el-table :data="buyItems" highlight-current-row v-loading="listLoading" style="width: 100%;" >
-					<el-table-column type="index" width="50">
-					</el-table-column>
 					<el-table-column prop="itemNumber" label="编号" width="65">
 					</el-table-column>
 					<el-table-column prop="name" label="物料名称" width="100">
@@ -79,7 +77,7 @@
 					</el-table-column>
 					<el-table-column prop="form" label="规格" width="150">
 					</el-table-column>
-					<el-table-column prop="unit" label="单位" width="65">
+					<el-table-column prop="unit" label="单位" width="60">
 					</el-table-column>
 					<el-table-column prop="price" label="单价" width="70">
 					</el-table-column>
@@ -90,6 +88,11 @@
 							<el-input type="number" size="mini" min="1" :maxlength="10" :key="scope.row.id" @input="handleBidPriceChange(scope.$index, scope.row, $event)"></el-input>
 						</template>
 					</el-table-column>
+					<el-table-column prop="remark" label="备注" width="200">
+						<template scope="scope">
+							<el-input type="textarea" size="mini" :key="scope.row.id" @input="handleRemarkChange(scope.$index, scope.row, $event)"></el-input>
+						</template>
+					</el-table-column>
 				</el-table>
 			</el-form>
 			<div slot="footer" class="dialog-footer">
@@ -98,13 +101,28 @@
 			</div>
 		</el-dialog>
 
+		<!--进货历史界面-->
+		<el-dialog title="进货历史" :visible.sync="recentFormVisible" :close-on-click-modal="false">
+			<el-table :data="recentItems" highlight-current-row v-loading="recentLoading" style="width: 100%;" >
+			    <el-table-column type="index" width="55">
+				</el-table-column>
+				<el-table-column prop="deliveryTime" label="进货日期" width="110" :formatter="formatDeliveryDate">
+				</el-table-column>
+				<el-table-column prop="bidPrice" label="进价" width="70">
+				</el-table-column>
+				<el-table-column prop="remark" label="备注" width="500">
+				</el-table-column>
+				
+			</el-table>
+		</el-dialog>
+
 	</section>
 </template>
 
 <script>
 	import util from '../../common/js/util'
 	import Cookies from 'js-cookie'
-	import { getPrepareItemList, getOrderList, editOrderDetail } from '../../api/api';
+	import { getPrepareItemList, getOrderList, editOrderDetail, getRecentItemList } from '../../api/api';
 	export default {
 		data() {
 			return {
@@ -127,6 +145,11 @@
 				//进货界面数据
 				buyForm: {},
 
+				//进货历史界面
+				recentFormVisible: false,//进货历史界面是否显示
+				recentLoading: false,
+				recentItems: [],
+
 				//发票状态
 				status:[
 					{
@@ -141,6 +164,12 @@
 			}
 		},
 		methods: {
+			//下单日期转化
+			formatDeliveryDate: function (row, column) {
+				if(row.deliveryTime){
+					return util.formatDate.format(new Date(row.deliveryTime),"yyyy-MM-dd");
+				}
+			},
 		    //页数变化处理
 			handleCurrentChange(val) {
 				this.page = val;
@@ -176,6 +205,9 @@
 	                }
 				});
 			},
+			handlePdfPrint: function (index, row) {
+				window.open(row.url);
+    		},
     		//物料相关订单
     		handleRelated: function (index, row) {
     			let para = {
@@ -191,6 +223,25 @@
 	                  });
 	                } else {
 						this.$router.push({name: '采购订单列表', params: {relatedResponse: res}});
+					}
+				});
+    		},
+    		//最近进货列表
+    		handleRecent: function (index, row) {
+    			let para = {
+                    itemId:row.itemId
+				};
+				getRecentItemList(para).then((res) => {
+					let msg = res.data.message;
+                	let code = res.data.code;
+					if (code !== 200) {
+	                  this.$message({
+	                    message: msg,
+	                    type: 'error'
+	                  });
+	                } else {
+	                	this.recentItems = res.data.data
+	                	this.recentFormVisible = true
 					}
 				});
     		},
@@ -235,6 +286,10 @@
 			//处理进价
 			handleBidPriceChange: function(index, row, e){
 				row.bidPrice = Number(e);
+			},
+			//处理备注
+			handleRemarkChange: function(index, row, e){
+				row.remark = e;
 			},
     		export2Excel() {
     			let exportItems=[];

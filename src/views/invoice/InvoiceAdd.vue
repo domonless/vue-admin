@@ -316,7 +316,7 @@
 							orderIds.push(this.sels[i].id);
 						}
 						this.invoiceForm.orderIdList = orderIds;
-						this.invoiceForm.status = 5;
+						this.invoiceForm.status = 1;
 						this.invoiceForm.providerId = this.sels[0].providerId;
 						this.invoiceForm.demanderId = this.sels[0].demanderId;
 						this.$confirm('确认提交吗？', '提示', {}).then(() => {

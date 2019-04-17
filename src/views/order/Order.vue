@@ -102,7 +102,6 @@
 			</el-table-column>
 			<el-table-column label="操作" width="400">
 				<template scope="scope">
-					
 					<el-button type="warning" size="small" @click="handleDeliveryOrder(scope.$index, scope.row)">送货单</el-button>
 					<el-button type="danger" size="small" icon="fa fa-file-pdf-o" :disabled="scope.row.url==''" @click="handlePdfPrint(scope.$index, scope.row)"></el-button>
 					<el-button type="info" size="small" @click="handleView(scope.$index, scope.row)" icon="el-icon-search"></el-button>
@@ -1742,7 +1741,6 @@
 		    	let imgWindow = "";
 		    	imgWindow = window.open("",'imgWindow');
 		    	imgWindow.document.body.innerHTML = imgHtml;
-		    	// setTimeout(function(){ imgWindow.print();}, 500);
 		    	
 		    	var img_set = imgWindow.document.getElementsByTagName("img");
 				var img_length = img_set.length;
@@ -1753,7 +1751,7 @@
 			        oneImg.onload=function(){
 			            img_start++;
 			            if(img_start == img_length){
-			            	setTimeout(function(){ imgWindow.print();}, 1000);
+			            	setTimeout(function(){ imgWindow.print();}, 100*img_length);
 			            }
 			        };
 			    }
