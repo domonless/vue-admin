@@ -776,7 +776,7 @@
     		handleRelated: function (index, row) {
     			let para = {
 					page:this.page,
-                    size:20,
+                    size:this.pageSize,
                     itemId:row.id
 				};
 				getOrdersByItemId(para).then((res) => {

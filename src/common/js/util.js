@@ -81,33 +81,36 @@ export default {
     },
     //供货商转化
     formatProvider: function (provider) {
-        var reg1 = /超市(.+)?/g;
-        var reg2 = /生活(.+)?/g;
-        var reg3 = /机电(.+)?/g;
-        var reg4 = /石材(.+)?/g;
-        var reg5 = /日杂(.+)?/g;
-        var reg6 = /副食(.+)?/g;
-        var reg7 = /农副(.+)?/g;
-        var reg8 = /五金(.+)?/g;
-        var reg9 = /有限公司(.+)?/g;
-        var reg10 = /经营部(.+)?/g;
-        var reg11 = /贸易(.+)?/g;
-        var reg12 = /商贸(.+)?/g;
-        var reg13 = /办公(.+)?/g;
-        var reg14 = /家具(.+)?/g;
-        var reg15 = /消防(.+)?/g;
+        if(provider != undefined && provider !=''){
+            var reg1 = /超市(.+)?/g;
+            var reg2 = /生活(.+)?/g;
+            var reg3 = /机电(.+)?/g;
+            var reg4 = /石材(.+)?/g;
+            var reg5 = /日杂(.+)?/g;
+            var reg6 = /副食(.+)?/g;
+            var reg7 = /农副(.+)?/g;
+            var reg8 = /五金(.+)?/g;
+            var reg9 = /有限公司(.+)?/g;
+            var reg10 = /经营部(.+)?/g;
+            var reg11 = /贸易(.+)?/g;
+            var reg12 = /商贸(.+)?/g;
+            var reg13 = /办公(.+)?/g;
+            var reg14 = /家具(.+)?/g;
+            var reg15 = /消防(.+)?/g;
 
-        var reg97 = /(.+)市/g;
-        var reg98 = /(.+)区/g;
-        var reg99 = /(.+)县/g;
-        return provider.replace(reg1,"").replace(reg2,"")
-        .replace(reg3,"").replace(reg4,"")
-        .replace(reg5,"").replace(reg6,"")
-        .replace(reg7,"").replace(reg8,"")
-        .replace(reg9,"").replace(reg10,"")
-        .replace(reg11,"").replace(reg12,"").replace(reg13,"").replace(reg14,"")
-        .replace(reg15,"")
-        .replace(reg97,"").replace(reg98,"").replace(reg99,"");
+            var reg97 = /(.+)市/g;
+            var reg98 = /(.+)区/g;
+            var reg99 = /(.+)县/g;
+            return provider.replace(reg1,"").replace(reg2,"")
+            .replace(reg3,"").replace(reg4,"")
+            .replace(reg5,"").replace(reg6,"")
+            .replace(reg7,"").replace(reg8,"")
+            .replace(reg9,"").replace(reg10,"")
+            .replace(reg11,"").replace(reg12,"").replace(reg13,"").replace(reg14,"")
+            .replace(reg15,"")
+            .replace(reg97,"").replace(reg98,"").replace(reg99,"");
+        }
+        
     },
 
 };

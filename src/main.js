@@ -3,6 +3,7 @@ import Vue from 'vue'
 import ElementUI from 'element-ui'
 import 'element-ui/lib/theme-chalk/index.css'
 import App from './App'
+import $ from 'jquery'
 
 //import './assets/theme/theme-green/index.css'
 import VueRouter from 'vue-router'
@@ -22,6 +23,10 @@ import 'font-awesome/css/font-awesome.min.css'
 import VueDirectiveImagePreviewer from 'vue-directive-image-previewer'
 import 'vue-directive-image-previewer/dist/assets/style.css'
 Vue.use(VueDirectiveImagePreviewer) 
+
+import ZkTable from 'vue-table-with-tree-grid'
+ 
+Vue.use(ZkTable)
 
 import Viewer from 'v-viewer'
 import 'viewerjs/dist/viewer.css'

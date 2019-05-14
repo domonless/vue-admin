@@ -28,6 +28,7 @@
     "vue-directive-image-previewer": "^2.2.1",
     "vue-pdf": "^3.3.1",
     "vue-router": "^2.3.0",
+    "vue-table-with-tree-grid": "^0.2.4",
     "vuex": "^2.0.0-rc.6",
     "xlsx": "^0.14.0"
   },
@@ -54,7 +55,9 @@
     "function-bind": "^1.0.2",
     "html-webpack-plugin": "^2.28.0",
     "http-proxy-middleware": "^0.17.3",
+    "jquery": "^3.4.0",
     "json-loader": "^0.5.4",
+    "less": "^3.9.0",
     "mockjs": "^1.0.1-beta3",
     "node-sass": "^4.5.0",
     "opn": "^4.0.2",

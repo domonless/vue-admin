@@ -92,7 +92,7 @@
 			</el-table-column>
 			<el-table-column prop="provider" label="供货商" width="90" :formatter="formatProvider">
 			</el-table-column>
-			<el-table-column prop="sum" label="总金额" width="80">
+			<el-table-column prop="sum" label="总金额" width="88">
 			</el-table-column>
 			<el-table-column prop="createTime" label="下单时间" width="100">
 			</el-table-column>
@@ -114,7 +114,7 @@
 
 		<!--工具条-->
 		<el-col :span="24" class="toolbar">
-			<el-pagination layout="total, prev, pager, next" @current-change="handleCurrentChange" :page-size="20" :total="total" style="float:right;">
+			<el-pagination layout="total, prev, pager, next" @current-change="handleCurrentChange" :page-size="pageSize" :total="total" style="float:right;">
 			</el-pagination>
 			<el-button type="primary" v-if="canHistory" @click="goHistory">返回</el-button>
 		</el-col>
@@ -199,7 +199,7 @@
 			<!-- 打印插件安装提示 -->
 			<div id="footer"></div>
 
-			<div slot="footer" class="dialog-footer">
+			<div slot="footer" class="dialog-header">
 				<!-- <el-button type="warning" @click.native="handleDesign()">设计</el-button>  -->
 				<el-button type="warning" :disabled="this.sels.length==0" @click="handlePrint()">打印送货单</el-button>
 				<el-button type="warning" :disabled="this.sels.length==0" @click="handleBatPrint()">一键打印签价单</el-button>
@@ -571,11 +571,11 @@
 			formatDate: function (row, column) {
 				return util.formatDate.format(new Date(row.endTime),"yyyy-MM-dd");
 			},
-			//获取物料倩价列表
+			//获取物料签价列表
 			getItems() {
 				let para = {
 					page:this.page,
-                    size:50,
+                    size:this.pageSize,
 					name: this.filters.name,
 					providerId:this.sendForm.providerId,
 					areaId:this.sendForm.areaId,
@@ -800,7 +800,7 @@
 			getOrders() {
 				let para = {
 					page:this.page,
-                    size:20,
+                    size:this.pageSize,
                     cdSn:this.filters.cdSn,
                     providerId:this.filters.providerId,
                     demander:this.filters.demander,
@@ -864,16 +864,6 @@
 			},
 			//打印
 			handleItemPrint: function (index, row) {
-				// let newWindow=""
-    // 			if(row.imgurl.endsWith('.pdf')){
-    // 				var printHtml = "<iframe width='100%' height='100%' src='" + row.imgurl + "' />";
-				// 	newWindow = window.open("",'newwindow');
-				// 	newWindow.document.body.innerHTML = printHtml;
-    // 			}else{
-    // 				var printHtml = "<img id='img' src='" + row.imgurl + "' width='868px' height='1195px'/>";
-				// 	newWindow = window.open("",'newwindow');
-				// 	newWindow.document.body.innerHTML = printHtml;
-    // 			}
     			window.open(row.imgurl);
     		},
     		handlePdfPrint: function (index, row) {
@@ -885,7 +875,6 @@
 					type: 'warning'
 				}).then(() => {
 					this.listLoading = true;
-					//NProgress.start();
 					let para = { id: row.id, status: 0 };
 					editOrder(para).then((res) => {
 						this.listLoading = false;
@@ -897,7 +886,6 @@
 		                    type: 'error'
 		                  });
 		                } else {
-							//NProgress.done();
 							this.$message({
 								message: '删除成功',
 								type: 'success'
@@ -1047,6 +1035,7 @@
 				this.editItemForm.cdSn = this.sendForm.cdSn;
 				this.editItemForm.sum = this.sendForm.sum - this.countSelsSum();
 				this.editItemForm.itemList = this.sels;
+				this.editItemForm.status = this.sendForm.status;
 				this.$confirm('确认删除吗?', '提示', {
 					type: 'warning'
 				}).then(() => {
@@ -1260,6 +1249,9 @@
 		    	}else if(this.sendForm.template==4){
 		    		LODOP.NewPage();
 		    		this.loadPrintTemplate4(page);
+		    	}else if(this.sendForm.template==5){
+		    		LODOP.NewPage();
+		    		this.loadPrintTemplate5(page);
 		    	}
 		    },
 		    //送货单模版一
@@ -1633,7 +1625,7 @@
 				}
 				sum = util.formatNumber(sum);
 				//总金额
-				LODOP.ADD_PRINT_TEXT(900,541,67,20,sum);
+				LODOP.ADD_PRINT_TEXT(900,537,80,20,sum);
 				LODOP.SET_PRINT_STYLEA(0,"FontSize",10);
 				LODOP.SET_PRINT_STYLEA(0,"Alignment",2);
 				LODOP.ADD_PRINT_TEXT(189,491,134,25,this.sendForm.qgSn);
@@ -1706,13 +1698,82 @@
 				}
 				sum = util.formatNumber(sum);
 				//总金额
-				LODOP.ADD_PRINT_TEXT(853,580,67,20,sum);
+				LODOP.ADD_PRINT_TEXT(853,573,80,20,sum);
 				LODOP.SET_PRINT_STYLEA(0,"FontSize",10);
 				LODOP.SET_PRINT_STYLEA(0,"Alignment",2);
 				LODOP.ADD_PRINT_TEXT(164,578,134,25,this.sendForm.qgSn);
 				LODOP.SET_PRINT_STYLEA(0,"FontSize",11);
 				LODOP.ADD_PRINT_TEXT(221,579,89,20,this.sendForm.area);
 				LODOP.SET_PRINT_STYLEA(0,"FontSize",11);
+		    },
+		    //送货单模版三
+		    loadPrintTemplate5:function(page){
+		    	//背景
+		    	LODOP.ADD_PRINT_SETUP_BKIMG("<img border='0' src='https://bapi.kyb66.com/img/template/template5.png' width='793px' height='1123px'>");
+		    	LODOP.SET_SHOW_MODE("BKIMG_PRINT",1);
+
+		    	//需求公司
+		    	LODOP.ADD_PRINT_TEXT(125,146,550,25,this.sendForm.demander);
+				LODOP.SET_PRINT_STYLEA(0,"FontSize",10.5);
+				//供应商
+				LODOP.ADD_PRINT_TEXT(153,130,305,25,this.sendForm.provider);
+				LODOP.SET_PRINT_STYLEA(0,"FontSize",10.5);
+				//订单编号
+				LODOP.ADD_PRINT_TEXT(180,146,144,19,this.sendForm.cdSn==''?'提前送货':this.sendForm.cdSn);
+				LODOP.SET_PRINT_STYLEA(0,"FontSize",10.5);
+				
+				//请购人
+				LODOP.ADD_PRINT_TEXT(153,507,150,25,this.sendForm.buyer+this.sendForm.buyerPhone);
+				LODOP.SET_PRINT_STYLEA(0,"FontSize",10.5);
+				//采购类型
+				LODOP.ADD_PRINT_TEXT(206,522,108,25,this.sendForm.type);
+				LODOP.SET_PRINT_STYLEA(0,"FontSize",10.5);
+				
+				//--行内容
+				let sum = 0;
+				let restCount = this.sels.length - page*this.pageSize;
+				for (let j = page*this.pageSize; j <  (restCount<this.pageSize?this.sels.length:this.pageSize*(page+1)); j++) {
+					let i = j+1;
+					let item = this.sels[j];
+					//序号
+					LODOP.ADD_PRINT_TEXT(233+28*i-560*page,73,50,20,i);
+					LODOP.SET_PRINT_STYLEA(0,"FontSize",10);
+					LODOP.SET_PRINT_STYLEA(0,"Alignment",2);
+					//编号
+					LODOP.ADD_PRINT_TEXT(233+28*i-560*page,123,80,20,item.itemNumber);
+					LODOP.SET_PRINT_STYLEA(0,"FontSize",10);
+					LODOP.SET_PRINT_STYLEA(0,"Alignment",2);
+					//名称
+					LODOP.ADD_PRINT_TEXT(233+28*i-560*page,204,175,20,item.name);
+					LODOP.SET_PRINT_STYLEA(0,"FontSize",10);
+					LODOP.SET_PRINT_STYLEA(0,"Alignment",2);
+					//单位
+					LODOP.ADD_PRINT_TEXT(233+28*i-560*page,389,50,20,item.unit);
+					LODOP.SET_PRINT_STYLEA(0,"FontSize",10);
+					LODOP.SET_PRINT_STYLEA(0,"Alignment",2);
+					//数量
+					LODOP.ADD_PRINT_TEXT(233+28*i-560*page,450,60,20,item.count);
+					LODOP.SET_PRINT_STYLEA(0,"FontSize",10);
+					LODOP.SET_PRINT_STYLEA(0,"Alignment",2);
+					//单价
+					LODOP.ADD_PRINT_TEXT(233+28*i-560*page,518,65,20,util.formatNumber(item.price));
+					LODOP.SET_PRINT_STYLEA(0,"FontSize",10);
+					LODOP.SET_PRINT_STYLEA(0,"Alignment",2);
+					//总金额
+					LODOP.ADD_PRINT_TEXT(233+28*i-560*page,586,75,20,util.formatNumber(item.count*item.price));
+					LODOP.SET_PRINT_STYLEA(0,"FontSize",10);
+					LODOP.SET_PRINT_STYLEA(0,"Alignment",2);
+					sum += (item.count*item.price);
+				}
+				sum = util.formatNumber(sum);
+				//总金额
+				LODOP.ADD_PRINT_TEXT(820,582,80,20,sum);
+				LODOP.SET_PRINT_STYLEA(0,"FontSize",10);
+				LODOP.SET_PRINT_STYLEA(0,"Alignment",2);
+				LODOP.ADD_PRINT_TEXT(178,523,134,25,this.sendForm.qgSn);
+				LODOP.SET_PRINT_STYLEA(0,"FontSize",10.5);
+				LODOP.ADD_PRINT_TEXT(206,146,89,20,this.sendForm.area);
+				LODOP.SET_PRINT_STYLEA(0,"FontSize",10.5);
 		    },
 		    handlePrint: function(){
 		    	LODOP=getLodop();  
@@ -1769,10 +1830,10 @@
 
 		    	//遍历set
 		    	data.forEach(d => {
-		    		imgHtml += "<font size='24px'>第"+ index++ + "页，"
+		    		imgHtml += "<font size='24px'>第"+ index++ + "页："
 		    		for(let i=0; i<this.sels.length; i++){
 			    		if(d == this.sels[i].imgurl){
-			    			imgHtml += this.sels[i].itemNumber + "    ";
+			    			imgHtml += this.sels[i].itemNumber + ".  ";
 			    		}
 			    	}
     				imgHtml += "</font><br>";
@@ -1786,7 +1847,7 @@
     		handleRelated: function (index, row) {
     			let para = {
 					page:this.page,
-                    size:20,
+                    size:this.pageSize,
                     orderId:row.id
 				};
 				getInvoicesByOrderId(para).then((res) => {
@@ -1814,11 +1875,11 @@
 			this.getBuyers();
 			this.getAreas();
 			this.getTypes();
-			let res = this.$route.params.relatedResponse;
+			let res = this.$route.params.relatedResponse || this.$route.query.relatedResponse;
 			if(res == undefined){
 				this.getOrders();
 			}else{
-				if(res.data.data.name=="发票列表"){
+				if(res.data.data.name){
 					this.canHistory=true
 				}
 				this.orders = res.data.data.list

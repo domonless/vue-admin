@@ -5,6 +5,7 @@ import Cookies from 'js-cookie';
 import { Message } from 'element-ui';
 
 axios.defaults.headers.common['Content-Type'] = 'application/json;charset=UTF-8';
+// let base = 'http://tapi.kyb66.com';
 let base = 'https://bapi.kyb66.com';
 // let base = 'http://localhost:8080';
 // let base = 'http://192.168.1.4:8080';
@@ -229,6 +230,8 @@ export const editInvoice = params => { return axios.post(`${base}/invoice/update
 export const delInvoice = params => { return axios.post(`${base}/invoice/delete`, params); };
 
 export const getOrdersByInvoiceId = params => { return axios.get(`${base}/invoice/orders`, { params: params }); };
+
+export const getItemsByInvoiceId = params => { return axios.get(`${base}/invoice/items`, { params: params }); };
 
 //上传发票图片
 export const fileInvoiceUpload = params => { return axios.post(`${base}/file/invoice/upload`, params); };

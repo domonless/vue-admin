@@ -22,6 +22,11 @@
 			</el-table-column>
 			<el-table-column prop="remark" label="开票信息" >
 			</el-table-column>
+			<el-table-column width="60">
+				<template scope="scope">
+					<i class="fa fa-copy" @click="copy(scope.row.remark)"></i>
+				</template>
+			</el-table-column>
 			<el-table-column label="操作" width="150">
 				<template scope="scope">
 					<el-button type="primary" size="small" @click="handleEdit(scope.$index, scope.row)">编辑</el-button>
@@ -113,6 +118,15 @@
 			}
 		},
 		methods: {
+			copy(value) {
+		      var oInput = document.createElement("input");
+		      oInput.value = value;
+		      document.body.appendChild(oInput);
+		      oInput.select(); // 选择对象
+		      document.execCommand("Copy"); // 执行浏览器复制命令
+		      oInput.className = "oInput";
+		      oInput.style.display = "none";
+		    },
 			handleCurrentChange(val) {
 				this.page = val;
 				this.getDemanders();

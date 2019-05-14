@@ -21,6 +21,7 @@ import Expenses from './views/expenses/Expenses.vue'
 // import InvoiceStatistic from './views/statistic/InvoiceStatistic.vue'
 import Invoice from './views/invoice/Invoice.vue'
 import InvoiceAdd from './views/invoice/InvoiceAdd.vue'
+import InvoiceAdd2 from './views/invoice/InvoiceAdd2.vue'
 import Employee from './views/employee/Employee.vue'
 import Cookies from 'js-cookie';
 
@@ -90,7 +91,8 @@ let routes = [
         redirect: '/invoice/list',
         children: [
             { path: '/invoice/list', component: Invoice, name: '发票列表' },
-            { path: '/invoice/add', component: InvoiceAdd, name: '待开票订单' },
+            // { path: '/invoice/add', component: InvoiceAdd, name: '待开票订单' },
+            { path: '/invoice/add', component: InvoiceAdd2, name: '待开票物料' },
         ]
     },
     {
@@ -103,7 +105,6 @@ let routes = [
         children: [
             { path: '/statistic/order', component:OrderStatistic, name: '订单统计' },
             { path: '/statistic/item', component:ItemStatistic, name: '销售统计' },
-            // { path: '/statistic/invoice', component:InvoiceStatistic, name: '发票统计' },
             { path: '/expenses/list', component:Expenses, name: '开销统计' },
         ]
     },

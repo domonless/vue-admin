@@ -58,7 +58,7 @@
 			</el-table-column>
 			<el-table-column prop="money" label="发票金额" width="90">
 			</el-table-column>
-			<el-table-column prop="sum" label="订单总额" width="90">
+			<el-table-column prop="sum" label="物料总额" width="90">
 			</el-table-column>
 			<el-table-column prop="" label="差额" width="80">
 				<template scope="scope">
@@ -77,13 +77,14 @@
 			</el-table-column>
 			<el-table-column prop="remark" label="备注" width="200" >
 			</el-table-column>
-			<el-table-column label="操作" width="400">
+			<el-table-column label="操作" width="430">
 				<template scope="scope">
+					<el-button size="small" icon="el-icon-search" @click="handleView(scope.$index, scope.row)"></el-button>
+					<el-button v-if="scope.row.status==1" type="warning" size="small" @click="handleReturn(scope.$index, scope.row)">回款</el-button>
+					<el-button v-if="scope.row.status==2" type="success" size="small">已回</el-button>
 					<el-button size="small" type="info" icon="fa fa-file-picture-o" :disabled="scope.row.imgurl==''" @click="showImg(scope.$index, scope.row)"></el-button>
-					<el-button v-if="scope.row.incomeDate == undefined" type="warning" size="small" @click="handleReturn(scope.$index, scope.row)">回款</el-button>
-					<el-button v-if="scope.row.incomeDate != undefined" type="success" size="small">已回</el-button>
 					<el-button type="primary" size="small" @click="handleEdit(scope.$index, scope.row)" icon="el-icon-edit"></el-button>
-					<el-button v-if="isAdmin && scope.row.incomeDate == undefined" type="danger" size="small" @click="handleDel(scope.$index, scope.row)" icon="el-icon-delete"></el-button>
+					<el-button v-if="isAdmin && scope.row.status==1" type="danger" size="small" @click="handleDel(scope.$index, scope.row)" icon="el-icon-delete"></el-button>
 					<el-button size="small" @click="handleRelated(scope.$index, scope.row)">相关订单</el-button>
 				</template>
 			</el-table-column>
@@ -91,7 +92,7 @@
 
 		<!--工具条-->
 		<el-col :span="24" class="toolbar">
-			<el-pagination layout="total, prev, pager, next" @current-change="handleCurrentChange" :page-size="20" :total="total" style="float:right;">
+			<el-pagination layout="total, prev, pager, next" @current-change="handleCurrentChange" :page-size="pageSize" :total="total" style="float:right;">
 			</el-pagination>
 		</el-col>
 
@@ -129,6 +130,28 @@
 			</div>
 		</el-dialog>
 
+		<!--物料详情界面-->
+		<el-dialog title="物料详情" :visible.sync="itemListVisible" :close-on-click-modal="false">
+			<el-table :data="items" ref="viewTable" :span-method="objectSpanMethod" highlight-current-row v-loading="itemsLoading" style="width: 100%;" >
+			    <el-table-column prop="cdSn" label="订单号" width="140">
+				</el-table-column>
+				<el-table-column prop="rownum" label="序号" width="55">
+				</el-table-column>
+				<el-table-column prop="name" label="物料名称" width="150">
+				</el-table-column>
+				<el-table-column prop="brand" label="品牌" width="60">
+				</el-table-column>
+				<el-table-column prop="form" label="规格" width="200">
+				</el-table-column>
+				<el-table-column prop="unit" label="单位" width="60">
+				</el-table-column>
+				<el-table-column prop="price" label="单价" width="70">
+				</el-table-column>
+				<el-table-column prop="count" label="数量" width="65">
+				</el-table-column>
+			</el-table>
+		</el-dialog>
+
 		<!--回款界面-->
 		<el-dialog title="回款确认" :visible.sync="returnFormVisible" :close-on-click-modal="false">
 			<el-form :model="returnForm" label-width="80px" ref="returnForm">
@@ -156,7 +179,7 @@
 <script>
 	import util from '../../common/js/util'
 	import Cookies from 'js-cookie'
-	import { getInvoiceList, getProviderList, editInvoice, delInvoice, getOrdersByInvoiceId, fileInvoiceUpload, getInvoiceSum} from '../../api/api';
+	import { getInvoiceList, getProviderList, editInvoice, delInvoice, getOrdersByInvoiceId, fileInvoiceUpload, getInvoiceSum,getItemsByInvoiceId} from '../../api/api';
 
 	export default {
 		data() {
@@ -182,6 +205,11 @@
 				//发票列表
 				invoices: [],
 				listLoading: false,
+
+				//查看页面
+				itemListVisible: false,//查看页面是否显示
+				itemsLoading: false,
+				items: [],//物料列表
 
 				//编辑界面是否显示
 				editFormVisible: false,
@@ -261,7 +289,9 @@
 				uploadPercent:0,
 
 				//发票金额合计
-				sums:['合计']
+				sums:['合计'],
+
+				spanArr:[],
 			}
 		},
 		methods: {
@@ -303,7 +333,7 @@
 				}
 				let para = {
 					page:this.page,
-                    size:20,
+                    size:this.pageSize,
                     invoiceSn:this.filters.invoiceSn,
                     money:this.filters.money,
                     providerId:this.filters.providerId,
@@ -439,7 +469,7 @@
     		handleRelated: function (index, row) {
     			let para = {
 					page:this.page,
-                    size:20,
+                    size:this.pageSize,
                     invoiceId:row.id
 				};
 				getOrdersByInvoiceId(para).then((res) => {
@@ -457,9 +487,67 @@
 					}
 				});
     		},
+			//根据发票id查看物料详情
+			handleView: function(index, row){
+				let para = {
+					invoiceId: row.id 
+				};
+				this.itemsLoading = true;
+				getItemsByInvoiceId(para).then((res) => {
+					this.itemsLoading = false;
+					let msg = res.data.message;
+                	let code = res.data.code;
+					if (code !== 200) {
+	                  this.$message({
+	                    message: msg,
+	                    type: 'error'
+	                  });
+	                } else {
+						this.items = res.data.data.list
+						this.getSpanArr(res.data.data.list);
+						this.itemListVisible = true
+					}
+				});
+			},
+			//合并单元格
+			getSpanArr(data){
+				let contactDot = 0;
+				this.spanArr=[];
+		        data.forEach((item,index) => {
+		            if(index===0){
+		                this.spanArr.push(1)
+		            }else{
+		                if(item.cdSn!='' && item.cdSn === data[index-1].cdSn){
+		                    this.spanArr[contactDot] += 1;
+		                    this.spanArr.push(0)
+		                }else{
+		                    contactDot = index
+		                    this.spanArr.push(1)
+		                }
+		            }
+		        })
+			},
+			//合并单元格
+			objectSpanMethod({row, column, rowIndex, columnIndex}){
+		        if(columnIndex === 0){
+		            if(this.spanArr[rowIndex]){
+		                return {
+		                    rowspan:this.spanArr[rowIndex],
+		                    colspan:1
+		                }
+		            }else{
+		                return {
+		                    rowspan: 0,
+		                    colspan: 0
+		                }
+		            }
+		        }
+		    },
+			//查看发票图片
     		showImg: function (index, row) {
     			window.open(row.imgurl);
     		},
+    		//上传发票图片
     		uploadImg(content){
 		    	this.uploadPercent = 0;
 			    this.uploadFlag = true;

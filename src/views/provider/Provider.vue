@@ -71,6 +71,11 @@
 					        <img src="https://bapi.kyb66.com/img/template/model4.png" width="50">
 					    </viewer>
 					</el-radio>
+					<el-radio v-model="editForm.template" label="5">
+	  					<viewer :images="signImages">
+					        <img src="https://bapi.kyb66.com/img/template/template5.png" width="50">
+					    </viewer>
+					</el-radio>
 				</el-form-item>
 			</el-form>
 			<div slot="footer" class="dialog-footer">
@@ -115,6 +120,11 @@
 					        <img src="https://bapi.kyb66.com/img/template/model4.png" width="50">
 					    </viewer>
   					</el-radio>
+  					<el-radio v-model="editForm.template" label="5">
+	  					<viewer :images="signImages">
+					        <img src="https://bapi.kyb66.com/img/template/template5.png" width="50">
+					    </viewer>
+					</el-radio>
 				</el-form-item>
 			</el-form>
 			<div slot="footer" class="dialog-footer">

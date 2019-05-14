@@ -29,25 +29,17 @@
 		<el-table :data="orders" highlight-current-row v-loading="listLoading" @selection-change="selsChange" style="width: 100%;">
 			<el-table-column type="selection" width="55">
 			</el-table-column>
-			<el-table-column type="index" width="50">
+			<el-table-column type="index" width="55">
 			</el-table-column>
-			<el-table-column type="expand">
-		      <template slot-scope="props">
-		        <el-form label-position="left" inline class="demo-table-expand">
-		          <el-form-item label="采购组织:">
-		            <span>{{ props.row.area }}</span>
-		          </el-form-item>
-		          <el-form-item label="采购员:">
-		            <span>{{ props.row.purchaser }}</span>
-		          </el-form-item>
-		        </el-form>
-		      </template>
-		    </el-table-column>
 			<el-table-column prop="cdSn" label="订单编号" width="140" sortable>
 			</el-table-column>
 			<el-table-column prop="demander" label="需求公司" width="400" sortable>
 			</el-table-column>
-			<el-table-column prop="provider" label="供货商" width="300" >
+			<el-table-column prop="area" label="采购组织" width="110" sortable>
+			</el-table-column>
+			<el-table-column prop="purchaser" label="采购员" width="150" sortable>
+			</el-table-column>
+			<el-table-column prop="provider" label="供货商" width="100" :formatter="formatProvider">
 			</el-table-column>
 			<el-table-column prop="sum" label="总金额" width="90">
 			</el-table-column>
@@ -128,11 +120,15 @@
 
 		<!--发票列表-->
 		<el-dialog title="发票列表" :visible.sync="invoiceListVisible" :close-on-click-modal="false">
-			根据输入的发票号，匹配出以下发票
+			<font color="red">*该发票号已存在，请核对发票信息，确认无误后可以直接引用</font>
 			<el-table :data="invoices" highlight-current-row v-loading="listLoading" style="width: 100%;">
 				<el-table-column prop="invoiceSn" label="发票号" width="90">
 				</el-table-column>
 				<el-table-column prop="money" label="发票金额" width="90">
+				</el-table-column>
+				<el-table-column prop="demander" label="需求公司" width="200">
+				</el-table-column>
+				<el-table-column prop="provider" label="供应商" width="90">
 				</el-table-column>
 				<el-table-column prop="invoiceDate" label="填开日期" width="100">
 				</el-table-column>
@@ -180,6 +176,7 @@
 				itemListVisible: false,//查看页面是否显示
 				itemsLoading: false,
 				items: [],//物料列表
+				selsItems: [],//列表选中的物料
 
 				//开票界面
 				invoiceFormVisible: false,//开票界面是否显示
@@ -208,6 +205,10 @@
 			handleCurrentChange(val) {
 				this.page = val;
 				this.getOrders();
+			},
+			//供货商转化
+			formatProvider: function (row, column) {
+				return util.formatProvider(row.provider);
 			},
 			//根据发票号获取发票列表
 			getInvoices() {
@@ -253,7 +254,7 @@
 			getOrders() {
 				let para = {
 					page:this.page,
-                    size:20,
+                    size:this.pageSize,
                     cdSn:this.filters.cdSn,
                     providerId:this.filters.providerId,
                     demander:this.filters.demander,
@@ -332,7 +333,6 @@
 				                    type: 'error'
 				                  });
 				                } else {
-								//NProgress.done();
 									this.$message({
 										message: '提交成功',
 										type: 'success'
