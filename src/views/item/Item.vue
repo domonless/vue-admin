@@ -492,6 +492,17 @@
 		        let inputDOM = this.$refs.inputer;
 		        // 通过DOM取文件数据
 		        this.file = event.currentTarget.files[0];
+		        //判断文档格式是否为xlsx
+		        let fileName = this.file.name;
+
+		        let suffix = fileName.substring(fileName.lastIndexOf('.')+1);
+		        if(suffix!='xlsx'){
+		        	_this.$message({
+	                  message: '上传失败，请检查文档是否为xlsx格式',
+	                  type: 'error'
+	                });
+	                return;
+		        }
 		        var rABS = false; //是否将文件读取为二进制字符串
 		        var f = this.file;
 		        var reader = new FileReader();
@@ -510,6 +521,7 @@
 		                    binary += String.fromCharCode(bytes[i]);
 		                }
 		                var XLSX = require('xlsx');
+
 		                if(rABS) {
 		                    wb = XLSX.read(btoa(fixdata(binary)), { //手动转化
 		                        type: 'base64'
@@ -519,6 +531,7 @@
 		                        type: 'binary'
 		                    });
 		                }
+
 		                outdata = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]]);//outdata就是你想要的东西
 		                this.da = [...outdata]
 		                let arr = []
@@ -539,8 +552,11 @@
 		                })
 		                batAddItem(JSON.stringify(arr)).then(res => {
 		                	if (res.data.code !== 200) {
+		                		let msg = res.data.message;
+		                		let index = msg.lastIndexOf(":")
+		                		msg = msg.substring(index).split("'")[1]
 				                _this.$message({
-				                  message: '上传失败，请检查文档格式',
+				                  message: '上传失败，"'+msg+'" 不能为空，请检查文档内容',
 				                  type: 'error'
 				                });
 				              } else {

@@ -67,9 +67,14 @@
 		<el-col :span="24" class="r">
 			选中物料金额合计：{{this.selSum}}
 			<el-button type="warning" @click="handleInvoice" :disabled="this.sels.length===0">发票填开</el-button>
+			
+		</el-col>
+		<el-col :span="24" class="footer">
 			<el-pagination layout="total, prev, pager, next" @current-change="handleCurrentChange" :page-size="pageSize" :total="total" style="float:right;">
 			</el-pagination>
 		</el-col>
+
+		
 
 		<!--开票界面-->
 		<el-dialog title="开票" :visible.sync="invoiceFormVisible" :close-on-click-modal="false">
@@ -624,5 +629,6 @@
   	padding-top: 5px;
   	padding-bottom: 5px;
   	background-color: white;
+  	width:300px;
   }
 </style>
