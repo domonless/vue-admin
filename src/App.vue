@@ -8,7 +8,7 @@
 	</div>
 </template>
 
-<script language="javascript" src="LodopFuncs.js"></script>
+<script language="javascript" src="./common/js/LodopFuncs.js"></script>
 
 <script>
 import ScrollTop from './components/ScrollTop.vue'

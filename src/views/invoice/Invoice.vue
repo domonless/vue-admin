@@ -56,7 +56,7 @@
 		<el-table :data="invoices" show-summary :summary-method="getSummaries" highlight-current-row v-loading="listLoading" style="width: 100%;">
 			<el-table-column prop="invoiceSn" label="发票号" width="90">
 			</el-table-column>
-			<el-table-column prop="money" label="发票金额" width="90">
+			<el-table-column prop="money" label="发票金额" width="100">
 			</el-table-column>
 			<el-table-column prop="sum" label="物料总额" width="90">
 			</el-table-column>

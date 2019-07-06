@@ -66,8 +66,9 @@ export function getLodop(oOBJECT, oEMBED) {
     var strHtm64_Update = "<br><font color='#FF00FF'>打印控件需要升级!点击这里<a href='http://www.lodop.net/demolist/install_lodop64.zip' target='_self'>执行升级</a>,升级后请重新进入。</font>";
     var strHtmFireFox = "<br><br><font color='#FF00FF'>（注意：如曾安装过Lodop旧版附件npActiveXPLugin,请在【工具】->【附加组件】->【扩展】中先卸它）</font>";
     var strHtmChrome = "<br><br><font color='#FF00FF'>(如果此前正常，仅因浏览器升级或重安装而出问题，需重新执行以上安装）</font>";
-    var strCLodopInstall_1 = "<br><font color='#FF00FF'>Web打印服务CLodop未安装启动，点击这里<a href='http://www.lodop.net/demolist/CLodop_Setup_for_Win32NT.zip' target='_self'>下载执行安装</a>";
-    var strCLodopInstall_2 = "<br>（若此前已安装过，可<a href='http://www.lodop.net/demolist/CLodop.protocol:setup' target='_self'>点这里直接再次启动</a>）";
+    // var strCLodopInstall_1 = "<br><font color='#FF00FF'>Web打印服务CLodop未安装启动，点击这里<a href='http://www.lodop.net/demolist/CLodop_Setup_for_Win32NT.zip' target='_self'>下载执行安装</a>";
+    // var strCLodopInstall_2 = "<br>（若此前已安装过，可<a href='http://www.c-lodop.com/demolist/CLodop.protocol:setup' target='_self'>点这里直接再次启动</a>）";
+    var strCLodopInstall_2 = "<br>（Web打印服务CLodop未安装启动，可<a href='http://www.c-lodop.com/demolist/PrintSample1.html' target='_blank'>点这里测试</a>）";
     var strCLodopInstall_3 = "，成功后请刷新本页面。</font>";
     var strCLodopUpdate = "<br><font color='#FF00FF'>Web打印服务CLodop需升级!点击这里<a href='http://www.lodop.net/demolist/CLodop_Setup_for_Win32NT.zip' target='_self'>执行升级</a>,升级后请刷新页面。</font>";
     var LODOP;
@@ -85,7 +86,8 @@ export function getLodop(oOBJECT, oEMBED) {
             if (!LODOP) {
                 // let newWindow = window.open("",'newwindow');
                 let viewDialoag = document.getElementById("footer");
-                viewDialoag.innerHTML = strCLodopInstall_1 + (CLodopIsLocal ? strCLodopInstall_2 : "") + strCLodopInstall_3 + viewDialoag.innerHTML;                
+                // viewDialoag.innerHTML = strCLodopInstall_1 + (CLodopIsLocal ? strCLodopInstall_2 : "") + strCLodopInstall_3 + viewDialoag.innerHTML;                
+                viewDialoag.innerHTML = "<font color='#FF00FF'>" + (CLodopIsLocal ? strCLodopInstall_2 : "") + strCLodopInstall_3 + viewDialoag.innerHTML;                
                 return;
             } else {
                 if (CLODOP.CVERSION < "3.0.6.0") {
