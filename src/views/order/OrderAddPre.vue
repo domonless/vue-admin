@@ -76,6 +76,7 @@
 			</el-form-item>
 			
 			<el-button type="primary" :disabled="!this.addForm.providerId" @click="showItemList">物料列表</el-button>
+			<br>
 
 			<!-- 订单物料列表 -->
 			<el-form-item label="物料列表" prop="itemList">

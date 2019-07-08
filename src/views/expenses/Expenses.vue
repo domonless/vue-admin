@@ -19,13 +19,13 @@
 		<el-table :data="expenses" show-summary :summary-method="getSummaries" highlight-current-row v-loading="listLoading" style="width: 100%;">
 			<el-table-column type="index" label="序号" width="100">
 			</el-table-column>
-			<el-table-column prop="detail" label="开销明细" >
+			<el-table-column prop="detail" label="开销明细" width="250">
 			</el-table-column>
-			<el-table-column prop="money" label="金额" >
+			<el-table-column prop="money" label="金额" width="120">
 			</el-table-column>
-			<el-table-column prop="createTime" label="登记时间" >
+			<el-table-column prop="createTime" label="登记时间" width="200">
 			</el-table-column>
-			<el-table-column label="操作" width="150">
+			<el-table-column label="操作" width="200">
 				<template scope="scope">
 					<el-button type="primary" size="small" @click="handleEdit(scope.$index, scope.row)">编辑</el-button>
 					<el-button type="danger" size="small" @click="handleDel(scope.$index, scope.row)">删除</el-button>
