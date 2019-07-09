@@ -401,6 +401,7 @@
 				}
 				this.invoiceForm.orderIdList = orderIds;
 				this.invoiceForm.id = row.id;
+				this.invoiceForm.sum = row.sum+this.selSum;
 				this.invoiceForm.status = 5;
 				this.$confirm('确认引用吗？', '提示', {}).then(() => {
 					this.invoiceLoading = true;
