@@ -96,7 +96,7 @@
 					</el-table-column>
 					<el-table-column prop="brand" label="品牌" width="100">
 					</el-table-column>
-					<el-table-column prop="form" label="规格" width="200">
+					<el-table-column prop="form" show-overflow-tooltip label="规格" width="200">
 					</el-table-column>
 					<el-table-column prop="unit" label="单位" width="80">
 					</el-table-column>
@@ -140,7 +140,7 @@
 				</el-table-column>
 				<el-table-column prop="brand" label="品牌" width="80">
 				</el-table-column>
-				<el-table-column prop="form" label="规格" width="200">
+				<el-table-column prop="form" show-overflow-tooltip  label="规格" width="200">
 				</el-table-column>
 				<el-table-column prop="unit" label="单位" width="70">
 				</el-table-column>
