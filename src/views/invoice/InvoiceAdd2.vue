@@ -118,9 +118,9 @@
 				</el-table-column>
 				<el-table-column prop="money" label="发票金额" width="90">
 				</el-table-column>
-				<el-table-column prop="demander" label="需求公司" width="150">
+				<el-table-column prop="demander" show-overflow-tooltip label="需求公司" width="150">
 				</el-table-column>
-				<el-table-column prop="provider" label="供应商" width="90" :formatter="formatProvider">
+				<el-table-column prop="provider" show-overflow-tooltip label="供应商" width="90" :formatter="formatProvider">
 				</el-table-column>
 				<el-table-column prop="invoiceDate" label="填开日期" width="100">
 				</el-table-column>

@@ -65,9 +65,9 @@
 					{{(scope.row.money*1000-scope.row.sum*1000)/1000}}
 				</template>
 			</el-table-column>
-			<el-table-column prop="demander" label="需求公司" width="300">
+			<el-table-column prop="demander" show-overflow-tooltip label="需求公司" width="300">
 			</el-table-column>
-			<el-table-column prop="provider" label="供货商" width="100" :formatter="formatProvider">
+			<el-table-column prop="provider" show-overflow-tooltip label="供货商" width="100" :formatter="formatProvider">
 			</el-table-column>
 			<el-table-column prop="createTime" label="创建时间" width="100">
 			</el-table-column>
@@ -75,7 +75,7 @@
 			</el-table-column>
 			<el-table-column prop="incomeDate" label="回款日期" width="100">
 			</el-table-column>
-			<el-table-column prop="remark" label="备注" width="200" >
+			<el-table-column prop="remark" show-overflow-tooltip label="备注" width="200" >
 			</el-table-column>
 			<el-table-column label="操作" width="430">
 				<template scope="scope">

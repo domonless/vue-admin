@@ -85,7 +85,7 @@
 					</el-table-column>
 					<el-table-column prop="itemNumber" label="编号" width="100" sortable>
 					</el-table-column>
-					<el-table-column prop="name" label="名称" width="120" sortable>
+					<el-table-column prop="name" show-overflow-tooltip label="名称" width="120" sortable>
 					</el-table-column>
 					<el-table-column prop="brand" label="品牌" width="100">
 					</el-table-column>
@@ -129,7 +129,7 @@
 			<el-table :data="items" highlight-current-row v-loading="itemsLoading" style="width: 100%;margin-top:10px" height="500">
 			    <el-table-column prop="itemNumber" label="编号" width="70">
 				</el-table-column>
-				<el-table-column prop="name" label="名称" width="120">
+				<el-table-column prop="name" show-overflow-tooltip label="名称" width="120">
 				</el-table-column>
 				<el-table-column prop="brand" label="品牌" width="80">
 				</el-table-column>

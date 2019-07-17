@@ -31,13 +31,13 @@
 			</el-table-column>
 			<el-table-column prop="cdSn" label="订单号" width="140" sortable>
 			</el-table-column>
-			<el-table-column prop="demander" label="需求公司" width="300" sortable>
+			<el-table-column prop="demander" show-overflow-tooltip label="需求公司" width="300" sortable>
 			</el-table-column>
-			<el-table-column prop="name" label="物料名称" width="100">
+			<el-table-column prop="name" show-overflow-tooltip label="物料名称" width="100">
 			</el-table-column>
 			<el-table-column prop="brand" label="品牌" width="70">
 			</el-table-column>
-			<el-table-column prop="form" label="规格" width="200">
+			<el-table-column prop="form" show-overflow-tooltip label="规格" width="200">
 			</el-table-column>
 			<el-table-column prop="unit" label="单位" width="80">
 			</el-table-column>
@@ -71,11 +71,11 @@
 				<el-table :data="buyItems" highlight-current-row v-loading="listLoading" style="width: 100%;" >
 					<el-table-column prop="itemNumber" label="编号" width="65">
 					</el-table-column>
-					<el-table-column prop="name" label="物料名称" width="100">
+					<el-table-column prop="name" show-overflow-tooltip label="物料名称" width="100">
 					</el-table-column>
 					<el-table-column prop="brand" label="品牌" width="70">
 					</el-table-column>
-					<el-table-column prop="form" label="规格" width="150">
+					<el-table-column prop="form" show-overflow-tooltip label="规格" width="150">
 					</el-table-column>
 					<el-table-column prop="unit" label="单位" width="60">
 					</el-table-column>
@@ -110,7 +110,7 @@
 				</el-table-column>
 				<el-table-column prop="bidPrice" label="进价" width="70">
 				</el-table-column>
-				<el-table-column prop="remark" label="备注" width="500">
+				<el-table-column prop="remark" show-overflow-tooltip label="备注" width="500">
 				</el-table-column>
 				
 			</el-table>

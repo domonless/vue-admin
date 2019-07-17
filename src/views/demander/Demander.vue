@@ -270,5 +270,8 @@
 </script>
 
 <style scoped>
-
+	i:hover{ 
+		color:#6cc;
+		cursor: pointer;
+	}
 </style>

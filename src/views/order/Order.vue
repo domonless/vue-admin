@@ -84,13 +84,13 @@
 			</el-table-column>
 			<!-- <el-table-column prop="qgSn" label="请购编号" width="120">
 			</el-table-column> -->
-			<el-table-column prop="demander" label="需求公司" width="315" sortable>
+			<el-table-column prop="demander" show-overflow-tooltip label="需求公司" width="315" sortable>
 			</el-table-column>
 			<el-table-column prop="area" label="采购组织" width="105">
 			</el-table-column>
 			<el-table-column prop="purchaser" label="采购员" width="150">
 			</el-table-column>
-			<el-table-column prop="provider" label="供货商" width="90" :formatter="formatProvider">
+			<el-table-column prop="provider" show-overflow-tooltip label="供货商" width="90" :formatter="formatProvider">
 			</el-table-column>
 			<el-table-column prop="sum" label="总金额" width="88">
 			</el-table-column>
@@ -98,7 +98,7 @@
 			</el-table-column>
 			<el-table-column prop="status" label="订单状态" width="90" :formatter="formatStatus">
 			</el-table-column>
-			<el-table-column prop="remark" label="备注" width="150">
+			<el-table-column prop="remark" show-overflow-tooltip label="备注" width="150">
 			</el-table-column>
 			<el-table-column label="操作" width="400">
 				<template scope="scope">
@@ -177,11 +177,11 @@
 				</el-table-column>
 				<el-table-column prop="itemNumber" label="编号" width="65">
 				</el-table-column>
-				<el-table-column prop="name" label="物料名称" width="100">
+				<el-table-column prop="name" show-overflow-tooltip label="物料名称" width="100">
 				</el-table-column>
 				<el-table-column prop="brand" label="品牌" width="60">
 				</el-table-column>
-				<el-table-column prop="form" label="规格" width="150">
+				<el-table-column prop="form" show-overflow-tooltip label="规格" width="150">
 				</el-table-column>
 				<el-table-column prop="unit" label="单位" width="60">
 				</el-table-column>
@@ -217,11 +217,11 @@
 				</el-table-column>
 				<el-table-column prop="itemNumber" label="编号" width="65">
 				</el-table-column>
-				<el-table-column prop="name" label="物料名称" width="100">
+				<el-table-column prop="name" show-overflow-tooltip label="物料名称" width="100">
 				</el-table-column>
 				<el-table-column prop="brand" label="品牌" width="60">
 				</el-table-column>
-				<el-table-column prop="form" label="规格" width="100">
+				<el-table-column prop="form" show-overflow-tooltip label="规格" width="100">
 				</el-table-column>
 				<el-table-column prop="unit" label="单位" width="60">
 				</el-table-column>
@@ -265,11 +265,11 @@
 					</el-table-column>
 					<el-table-column prop="itemNumber" label="编号" width="65">
 					</el-table-column>
-					<el-table-column prop="name" label="物料名称" width="100">
+					<el-table-column prop="name" show-overflow-tooltip label="物料名称" width="100">
 					</el-table-column>
 					<el-table-column prop="brand" label="品牌" width="70">
 					</el-table-column>
-					<el-table-column prop="form" label="规格" width="150">
+					<el-table-column prop="form" show-overflow-tooltip label="规格" width="150">
 					</el-table-column>
 					<el-table-column prop="unit" label="单位" width="65">
 					</el-table-column>
@@ -374,11 +374,11 @@
 			<el-table :data="items" highlight-current-row v-loading="itemsLoading" style="width: 100%;margin-top:10px" height="500">
 			    <el-table-column prop="itemNumber" label="编号" width="70">
 				</el-table-column>
-				<el-table-column prop="name" label="名称" width="120">
+				<el-table-column prop="name" show-overflow-tooltip label="名称" width="120">
 				</el-table-column>
 				<el-table-column prop="brand" label="品牌" width="80">
 				</el-table-column>
-				<el-table-column prop="form" label="规格" width="200">
+				<el-table-column prop="form" show-overflow-tooltip label="规格" width="200">
 				</el-table-column>
 				<el-table-column prop="unit" label="单位" width="70">
 				</el-table-column>

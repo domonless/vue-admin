@@ -92,7 +92,7 @@
 			</el-table-column>
 			<el-table-column prop="itemNumber" label="编号" width="80" sortable>
 			</el-table-column>
-			<el-table-column prop="name" label="名称" width="120" sortable>
+			<el-table-column prop="name" show-overflow-tooltip label="名称" width="120" sortable>
 			</el-table-column>
 			<el-table-column prop="brand" label="品牌" width="100">
 			</el-table-column>
@@ -109,11 +109,11 @@
 			</el-table-column>
 			<el-table-column prop="bidPrice" v-if="isAdmin" label="最新进价" width="80">
 			</el-table-column>
-			<el-table-column prop="providerId" label="抬头" width="100" :formatter="formatProvider">
+			<el-table-column prop="providerId" show-overflow-tooltip label="抬头" width="100" :formatter="formatProvider">
 			</el-table-column>
-			<el-table-column prop="areaId" v-if="isAread" label="采购组织" width="100" :formatter="formatArea">
+			<el-table-column prop="areaId" show-overflow-tooltip v-if="isAread" label="采购组织" width="100" :formatter="formatArea">
 			</el-table-column>
-			<el-table-column prop="remark" label="备注" width="120">
+			<el-table-column prop="remark" show-overflow-tooltip label="备注" width="120">
 			</el-table-column>
 			<el-table-column prop="endTime" label="截止日期" width="120">
 			</el-table-column>
@@ -197,11 +197,11 @@
 			<el-table :data="similarItems" highlight-current-row v-loading="listLoading" style="width: 100%;" >
 				<el-table-column prop="itemNumber" label="编号" width="65">
 				</el-table-column>
-				<el-table-column prop="name" label="物料名称" width="100">
+				<el-table-column prop="name" show-overflow-tooltip label="物料名称" width="100">
 				</el-table-column>
 				<el-table-column prop="brand" label="品牌" width="80">
 				</el-table-column>
-				<el-table-column prop="form" label="规格" width="200">
+				<el-table-column prop="form" show-overflow-tooltip label="规格" width="200">
 				</el-table-column>
 				<el-table-column prop="unit" label="单位" width="60">
 				</el-table-column>
@@ -535,30 +535,49 @@
 		                outdata = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]]);//outdata就是你想要的东西
 		                this.da = [...outdata]
 		                let arr = []
-		                this.da.map(v => {
-		                    let obj = {}
-		                    obj.itemNumber = v.itemNumber
-		                    obj.name = v.name
-		                    obj.brand = v.brand
-		                    obj.form = v.form
-		                    obj.unit = v.unit
-		                    obj.price = v.price
-		                    obj.remark = v.remark
-		                    obj.providerId = _this.batAddForm.providerId
-		                    obj.areaId = _this.batAddForm.areaId
-		                    obj.endTime = v.endTime
-		                    obj.status = 1
-		                    arr.push(obj)
-		                })
+		                try{
+		                	this.da.map(v => {
+			                	if(v.endTime<new Date() || v.endTime.indexOf("-")==-1){
+			                		throw new Error();
+			                	}
+			                    let obj = {}
+			                    obj.itemNumber = v.itemNumber
+			                    obj.name = v.name
+			                    obj.brand = v.brand
+			                    obj.form = v.form
+			                    obj.unit = v.unit
+			                    obj.price = v.price
+			                    obj.remark = v.remark
+			                    obj.providerId = _this.batAddForm.providerId
+			                    obj.areaId = _this.batAddForm.areaId
+			                    obj.endTime = v.endTime
+			                    obj.status = 1
+			                    arr.push(obj)
+			                })
+		                }catch(e){
+	                		_this.$message({
+			                  message: '日期应为文本格式，格式如2019-12-31',
+			                  type: 'error'
+			                });
+			                document.getElementById("upload").value = '';
+			                return;
+		                }
 		                batAddItem(JSON.stringify(arr)).then(res => {
 		                	if (res.data.code !== 200) {
 		                		let msg = res.data.message;
 		                		let index = msg.lastIndexOf(":")
 		                		msg = msg.substring(index).split("'")[1]
-				                _this.$message({
-				                  message: '上传失败，"'+msg+'" 不能为空，请检查文档内容',
-				                  type: 'error'
-				                });
+		                		if(!msg){
+		                			_this.$message({
+					                  message: '日期应为文本格式，格式如2019-12-31',
+					                  type: 'error'
+					                });
+		                		}else{
+		                			_this.$message({
+					                  message: '上传失败，"'+msg+'" 不能为空，请检查文档内容',
+					                  type: 'error'
+					                });
+		                		}
 				              } else {
 				                _this.$message({
 				                  message: '上传成功',
@@ -1017,7 +1036,7 @@
 
 <style scoped>
 	i:hover{ 
-		color:#999;
+		color:#6cc;
 		cursor: pointer;
 	}
 
