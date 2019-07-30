@@ -90,9 +90,9 @@
 				<el-table :data="addForm.itemList" border fit highlight-current-row>
 					<el-table-column type="index" label="序号" width="70">
 					</el-table-column>
-					<el-table-column prop="itemNumber" label="编号" width="100" sortable>
+					<el-table-column prop="itemNumber" label="编号" width="80">
 					</el-table-column>
-					<el-table-column prop="name" show-overflow-tooltip label="名称" width="120" sortable>
+					<el-table-column prop="name" show-overflow-tooltip label="名称" width="120">
 					</el-table-column>
 					<el-table-column prop="brand" label="品牌" width="100">
 					</el-table-column>
@@ -105,6 +105,8 @@
 					<el-table-column prop="count" label="数量" width="80">
 					</el-table-column>
 					<el-table-column prop="endTime" label="截止日期" width="120">
+					</el-table-column>
+					<el-table-column prop="remark" show-overflow-tooltip label="规格" width="80">
 					</el-table-column>
 					<el-table-column label="操作" width="200">
 						<template scope="scope">
@@ -136,17 +138,19 @@
 			<el-table :data="items" highlight-current-row v-loading="itemsLoading" style="width: 100%;margin-top:10px" height="500">
 			    <el-table-column prop="itemNumber" label="编号" width="70">
 				</el-table-column>
-				<el-table-column prop="name" show-overflow-tooltip label="名称" width="120">
+				<el-table-column prop="name" show-overflow-tooltip label="名称" width="100">
 				</el-table-column>
 				<el-table-column prop="brand" label="品牌" width="80">
 				</el-table-column>
-				<el-table-column prop="form" show-overflow-tooltip label="规格" width="200">
+				<el-table-column prop="form" show-overflow-tooltip label="规格" width="150">
 				</el-table-column>
 				<el-table-column prop="unit" label="单位" width="70">
 				</el-table-column>
 				<el-table-column prop="price" label="价格" width="80">
 				</el-table-column>
 				<el-table-column prop="endTime" label="到期日期" width="95" :formatter="formatDate">
+				</el-table-column>
+				<el-table-column prop="remark" show-overflow-tooltip label="规格" width="80">
 				</el-table-column>
 				<el-table-column prop="count" label="数量" width="100">
 					<template scope="scope">
@@ -255,10 +259,9 @@
 					name: this.filters.name,
 					providerId:this.filters.providerId,
 					areaId:this.filters.areaId,
-					// isOrderAdd: '1'
+					isOrderAdd: '1'
 				};
 				this.itemsLoading = true;
-				//NProgress.start();
 				getItemList(para).then((res) => {
 					this.itemsLoading = false;
 					let msg = res.data.message;

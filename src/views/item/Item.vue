@@ -47,7 +47,10 @@
 					<el-input id="upload" type="file" size="mini" @change="importFromExcel(this)" accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel" style="display:none;"></el-input>
 				</el-form-item>
 				<el-form-item>
-					<el-button type="primary" @click="export2Excel" >导出</el-button>
+					<el-button type="success" @click="exportAll" >导出全部</el-button>
+				</el-form-item>
+				<el-form-item>
+					<el-button type="success" @click="exportSelect" :disabled="this.sels.length===0">导出选中</el-button>
 				</el-form-item>
 			</el-form>
 		</el-col>
@@ -92,7 +95,7 @@
 			</el-table-column>
 			<el-table-column prop="itemNumber" label="编号" width="80" sortable>
 			</el-table-column>
-			<el-table-column prop="name" show-overflow-tooltip label="名称" width="120" sortable>
+			<el-table-column prop="name" label="名称" width="120" sortable>
 			</el-table-column>
 			<el-table-column prop="brand" label="品牌" width="100">
 			</el-table-column>
@@ -602,7 +605,7 @@
 			    let _this = this;
 			    clearInterval(this.time);
 			    this.time = setInterval(function(){  
-		           if(_this.uploadPercent<100){
+		           if(_this.uploadPercent<75){
 		               _this.uploadPercent += 25;//进程条
 		           }else{                 
 		           }          
@@ -662,7 +665,8 @@
                     remark:this.filters.remark,
                     providerId:this.filters.providerId,
                     areaId:this.filters.areaId,
-                    imgurlNull:this.imgurlNull
+                    imgurlNull:this.imgurlNull,
+                    isOrderAdd: '1'
 				};
 				this.listLoading = true;
 				getItemList(para).then((res) => {
@@ -980,8 +984,8 @@
 
 				});
 			},
-			//导出物料
-			export2Excel() {
+			//导出全部物料
+			exportAll() {
     			let exportItems=[];
     			let para = {
                     name:this.filters.name,
@@ -1020,6 +1024,28 @@
 					　})
 	                }
 				});
+			},
+			//导出选中物料
+			exportSelect() {
+    			let exportItems=[];
+    			exportItems = this.sels;
+				exportItems.forEach(row => {
+	            	row.provider = this.formatProvider(row);
+	            	row.area = this.formatArea(row);
+		          });
+				require.ensure([], () => {
+			　　　const { export_json_to_excel } = require('../../excel/Export2Excel');
+			　　　const tHeader = ['编号','名称','品牌','规格','单位','价格','抬头','区域','备注','截止日期'];
+			　　　// 上面设置Excel的表格第一行的标题
+			　　　const filterVal = ['itemNumber','name','brand','form','unit','price','provider','area','remark','endTime'];
+			　　　// 上面的index、phone_Num、school_Name是tableData里对象的属性
+			　　　const list = exportItems;  //把data里的tableData存到list
+			　　　const data = this.formatJson(filterVal, list);
+				 const provider = (this.filters.providerId==''?'':(this.formatProvider(this.filters)+'-'));
+				 const area = (this.filters.areaId==''?'':(this.formatArea(this.filters)+'-'));
+				 const fileName = provider + area + '签价导出';
+			　　　export_json_to_excel(tHeader, data, fileName);
+			　})
 			},
 		　　formatJson(filterVal, jsonData) {
 		     return jsonData.map(v => filterVal.map(j => v[j]))

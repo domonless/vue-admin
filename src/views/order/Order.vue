@@ -242,7 +242,9 @@
 				<el-table-column prop="remark" label="发货备注" width="100">
 				</el-table-column>
 			</el-table>
-			<div id="footer"></div>
+			<div v-if="this.selectStatus===3 && this.sels.length>0 && this.sendForm.status==9">
+				物料金额：{{this.repairForm.sum}}
+			</div>
 			<div slot="footer" class="dialog-footer">
 				<el-button type="primary" v-if="this.selectStatus==1 && this.sels.length>0" @click.native="handleBuy" :loading="sendLoading">进货</el-button>
 				<el-button type="warning" v-if="this.sels.length==1" @click.native="handleEditItem" :loading="editItemLoading">更改物料</el-button>
@@ -403,7 +405,7 @@
 	import Cookies from 'js-cookie'
 	import {getLodop} from '../../common/js/LodopFuncs'
 	//import NProgress from 'nprogress'
-	import { userId, getOrderList, editOrder, getOrderDetail, editOrderDetail, getProviderList, getPurchaserList, fileOrderUpload, delOrderDetail, getInvoicesByOrderId, getAreaList, getTypeList, getBuyerList, getItemList} from '../../api/api';
+	import { userId, getOrderList, editOrder, repairOrder, getOrderDetail, editOrderDetail, getProviderList, getPurchaserList, fileOrderUpload, delOrderDetail, getInvoicesByOrderId, getAreaList, getTypeList, getBuyerList, getItemList} from '../../api/api';
 
 	var LODOP
 	export default {
@@ -544,6 +546,7 @@
 				repairForm: {
 					cdSn: 'CD',
 					qgSn: 'QG',
+					sum: ''
 				},
 				//校验规则
 				repairFormRules: {
@@ -950,12 +953,12 @@
 				this.editItemFormVisible = true;
 				this.orderItems = this.sels;
 				//计算修改前金额
-				this.beforeEditSum = this.countItemsSum();
+				this.beforeEditSum = this.countItemsSum(this.orderItems);
 			},
-			countItemsSum(){
+			countItemsSum(items){
 				let sum = 0;
-				for(let i=0;i<this.orderItems.length;i++){
-					let item = this.orderItems[i];
+				for(let i=0;i<items.length;i++){
+					let item = items[i];
 					sum += item.count*item.price
 				}
 				return util.formatNumber(sum);
@@ -1000,7 +1003,7 @@
 			//修改数量提交处理
 			editItemSubmit: function () {
 				//计算修改后金额
-				this.afterEditSum = this.countItemsSum();
+				this.afterEditSum = this.countItemsSum(this.orderItems);
 				this.editItemForm.id = this.sendForm.id;
 				this.editItemForm.cdSn = this.sendForm.cdSn;
 				this.editItemForm.sum = this.sendForm.sum + (this.afterEditSum - this.beforeEditSum);
@@ -1139,11 +1142,26 @@
 			repairSubmit: function () {
 				this.$refs.repairForm.validate((valid) => {
 					if (valid) {
-						this.repairForm.id = this.orderItems[0].orderId;
+						this.repairForm.id = this.sendForm.id;
+						this.repairForm.areaId = this.sendForm.areaId;
+						this.repairForm.isAgent = this.sendForm.isAgent;
+						this.repairForm.typeId = this.sendForm.typeId;
+						this.repairForm.providerId = this.sendForm.providerId;
+						this.repairForm.demanderId = this.sendForm.demanderId;
+						this.repairForm.purchaserId = this.sendForm.purchaserId;
+						this.repairForm.buyerId = this.sendForm.buyerId;
+						this.repairForm.orderItemList = this.orderItems;
+						// //补单物料总金额
+						this.repairForm.sum = this.countItemsSum(this.orderItems);
+						//记录补单前订单总金额
+						this.repairForm.money = this.sendForm.sum;
+						//补单备注为补单
+						this.repairForm.remark = "补单未寄";
+						//补单状态为3-待入库
 						this.repairForm.status = 3;
 						this.$confirm('确认提交吗？', '提示', {}).then(() => {
 							this.repairLoading = true;
-							editOrder(this.repairForm).then((res) => {
+							repairOrder(this.repairForm).then((res) => {
 								this.repairLoading = false;
 								this.repairFormVisible = false;
 								let msg = res.data.message;
@@ -1173,6 +1191,7 @@
 				if(sels.length != 0){
 					this.selectStatus = sels[0].status;
 				}
+				this.repairForm.sum = this.countItemsSum(this.sels);
 			},
 			//处理进价
 			handleBidPriceChange: function(index, row, e){
@@ -1274,9 +1293,17 @@
 				LODOP.ADD_PRINT_TEXT(page*this.height+149,430,275,25,"送货时间：");
 				LODOP.SET_PRINT_STYLEA(0,"FontSize",10);
 				LODOP.SET_PRINT_STYLEA(0,"Bold",1);
-				// LODOP.ADD_PRINT_TEXT(page*this.height+149,500,275,25,util.formatDate.format(new Date(),"yyyy-MM-dd"));
-				// LODOP.SET_PRINT_STYLEA(0,"FontSize",10);
-				// LODOP.SET_PRINT_STYLEA(0,"Bold",1);
+				//光太、申发
+				if(this.sendForm.providerId==1 || this.sendForm.providerId==4){
+					LODOP.ADD_PRINT_TEXT(page*this.height+149,500,275,25,util.formatDate.format(new Date(),"yyyy/MM/dd"));
+					LODOP.SET_PRINT_STYLEA(0,"FontSize",10);
+					LODOP.SET_PRINT_STYLEA(0,"Bold",1);
+				}
+				if(this.sendForm.providerId==6){
+					LODOP.ADD_PRINT_TEXT(page*this.height+149,500,275,25,util.formatDate.format(new Date(),"yyyy年MM月dd日"));
+					LODOP.SET_PRINT_STYLEA(0,"FontSize",10);
+					LODOP.SET_PRINT_STYLEA(0,"Bold",1);
+				}
 				LODOP.ADD_PRINT_TEXT(page*this.height+174,430,275,24,"订单编号：");
 				LODOP.SET_PRINT_STYLEA(0,"FontSize",10);
 				LODOP.SET_PRINT_STYLEA(0,"Bold",1);

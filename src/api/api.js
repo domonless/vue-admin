@@ -153,6 +153,8 @@ export const addOrder = params => { return axios.post(`${base}/order/add`, param
 
 export const editOrder = params => { return axios.post(`${base}/order/update`, params); };
 
+export const repairOrder = params => { return axios.post(`${base}/order/repair`, params); };
+
 export const getOrderDetail = params => { return axios.get(`${base}/order/detail`, { params: params }); };
 
 export const editOrderDetail = params => { return axios.post(`${base}/order/detail/edit`, params); };
