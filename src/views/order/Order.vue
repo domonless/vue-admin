@@ -249,6 +249,7 @@
 				<el-button type="primary" v-if="this.selectStatus==1 && this.sels.length>0" @click.native="handleBuy" :loading="sendLoading">进货</el-button>
 				<el-button type="warning" v-if="this.sels.length==1" @click.native="handleEditItem" :loading="editItemLoading">更改物料</el-button>
 				<el-button type="warning" v-if="this.sels.length>0" @click.native="handleEditCount" :loading="editItemLoading">修改</el-button>
+				<el-button type="info" v-if="this.sendForm.status<4 || this.sendForm.status==9" @click.native="handleAddItem" :loading="editItemLoading">增加</el-button>
 				<el-button type="primary" v-if="this.selectStatus===2 && this.sels.length>0" @click.native="handleSend" :loading="sendLoading">发货</el-button>
 				<el-button type="primary" v-if="this.selectStatus===3 && this.sels.length>0 && this.sendForm.status!=9" @click.native="handleIn" :loading="sendLoading">入库</el-button>
 				<el-button type="primary" v-if="this.selectStatus===3 && this.sels.length>0 && this.sendForm.status==9" @click.native="handleRepair">补单</el-button>
@@ -370,17 +371,17 @@
 		</el-dialog>
 
 		<!--物料列表界面-->
-		<el-dialog title="物料列表" :visible.sync="itemsVisible" :close-on-click-modal="false" >
+		<el-dialog title="物料列表" :visible.sync="itemsVisible" :close-on-click-modal="false" @close="closeDialog">
 			<el-input v-model="filters.name" placeholder="按名称或编号搜索" @input="getItems" style="margin-bottom:20px"></el-input>
 			<!--列表-->
 			<el-table :data="items" highlight-current-row v-loading="itemsLoading" style="width: 100%;margin-top:10px" height="500">
 			    <el-table-column prop="itemNumber" label="编号" width="70">
 				</el-table-column>
-				<el-table-column prop="name" show-overflow-tooltip label="名称" width="120">
+				<el-table-column prop="name" show-overflow-tooltip label="名称" width="100">
 				</el-table-column>
 				<el-table-column prop="brand" label="品牌" width="80">
 				</el-table-column>
-				<el-table-column prop="form" show-overflow-tooltip label="规格" width="200">
+				<el-table-column prop="form" show-overflow-tooltip label="规格" width="150">
 				</el-table-column>
 				<el-table-column prop="unit" label="单位" width="70">
 				</el-table-column>
@@ -388,11 +389,18 @@
 				</el-table-column>
 				<el-table-column prop="endTime" label="到期日期" width="95" :formatter="formatDate">
 				</el-table-column>
-				<el-table-column label="操作" width="80">
+				<el-table-column prop="remark" show-overflow-tooltip label="备注" width="80">
+				</el-table-column>
+				<el-table-column prop="count" label="数量" width="100">
 					<template scope="scope">
-						<el-button size="mini" type="warning" @click="handleAdd(scope.$index, scope.row)">确定</el-button>
+						<el-input type="number" size="mini" :min="1" :max="99999" :key="scope.row.id" @change="handleItemCountChange(scope.$index, scope.row, $event)" @keyup.enter.native="handleEnter(scope.$index, scope.row)"></el-input>
 					</template>
 				</el-table-column>
+				<!-- <el-table-column label="操作" v-if="this.isAdd==false" width="80">
+					<template scope="scope">
+						<el-button size="mini" type="warning" @click="handleReplace(scope.$index, scope.row)">确定</el-button>
+					</template>
+				</el-table-column> -->
 			</el-table>
 		</el-dialog>
 
@@ -405,7 +413,7 @@
 	import Cookies from 'js-cookie'
 	import {getLodop} from '../../common/js/LodopFuncs'
 	//import NProgress from 'nprogress'
-	import { userId, getOrderList, editOrder, repairOrder, getOrderDetail, editOrderDetail, getProviderList, getPurchaserList, fileOrderUpload, delOrderDetail, getInvoicesByOrderId, getAreaList, getTypeList, getBuyerList, getItemList} from '../../api/api';
+	import { userId, getOrderList, editOrder, repairOrder, getOrderDetail, addOrderDetail, editOrderDetail, getProviderList, getPurchaserList, fileOrderUpload, delOrderDetail, getInvoicesByOrderId, getAreaList, getTypeList, getBuyerList, getItemList} from '../../api/api';
 
 	var LODOP
 	export default {
@@ -539,6 +547,9 @@
 				//入库界面数据
 				inForm: {},
 
+				//增加物料数据
+				addForm: {},
+
 				//补单界面
 				repairFormVisible: false,//补单界面是否显示
 				repairLoading: false,
@@ -559,6 +570,8 @@
 						{ min: 12, message: '请输入12位请购编号'}
 					]
 				},
+
+				isAdd: false,
 
 				spanArr:[],
 
@@ -608,7 +621,7 @@
 				this.itemsVisible = true;
 			},
 			//将老物料id替换为新物料id
-			handleAdd: function (index, row) {
+			handleReplace: function (index, row) {
 				let replaceItem = {};
 				replaceItem.id = this.sendForm.id;
 				replaceItem.status = 0;
@@ -638,6 +651,58 @@
 					});
 				});
 			},
+			//显示更新物料界面
+			handleAddItem: function (){
+				this.handleEditItem();
+				this.isAdd = true;
+			},
+			//新增物料
+			handleAdd: function (index, row) {
+				//默认数量为1
+				if(row.count == 0){
+					row.count++;
+				}
+				let newItem = Object.assign({}, row);
+				this.addForm.itemList = [];
+				this.addForm.itemList.push(newItem);
+				//计算金额
+				let sum = this.sendForm.sum + (newItem.price * newItem.count);
+				this.addForm.sum = util.formatNumber(sum);
+				this.addForm.id = this.sendForm.id;
+				this.addForm.status = this.sendForm.status;
+				this.editItemLoading = true;
+				//发送请求
+				addOrderDetail(this.addForm).then((res) => {
+					this.editItemLoading = false;
+					this.itemsVisible = false;
+					let msg = res.data.message;
+                	let code = res.data.code;
+					if (code !== 200) {
+	                  this.$message({
+	                    message: msg,
+	                    type: 'error'
+	                  });
+	                } else {
+						this.$message({
+							message: '提交成功',
+							type: 'success'
+						});
+						this.getOrders();
+						this.addForm={};
+					}
+				});
+			},
+			//处理回车
+			handleEnter: function (index, row) {
+				if(this.isAdd){
+					this.handleAdd(index,row);
+				}else{
+					this.handleReplace(index,row);
+				}
+			},
+			closeDialog(){
+		      this.isAdd = false;
+		    },
 			//状态转化
 			formatStatus: function (row, column) {
 				return this.getStrByStatus(row.status);
@@ -1059,7 +1124,7 @@
 								type: 'success'
 							});
 							this.getOrders();
-							this.$refs['editItemForm'].resetFields();
+							this.editItemForm={};
 						}
 					});
 				}).catch(() => {
