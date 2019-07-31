@@ -106,7 +106,7 @@
 					</el-table-column>
 					<el-table-column prop="endTime" label="截止日期" width="120">
 					</el-table-column>
-					<el-table-column prop="remark" show-overflow-tooltip label="规格" width="80">
+					<el-table-column prop="remark" show-overflow-tooltip label="备注" width="80">
 					</el-table-column>
 					<el-table-column label="操作" width="200">
 						<template scope="scope">
@@ -150,7 +150,7 @@
 				</el-table-column>
 				<el-table-column prop="endTime" label="到期日期" width="95" :formatter="formatDate">
 				</el-table-column>
-				<el-table-column prop="remark" show-overflow-tooltip label="规格" width="80">
+				<el-table-column prop="remark" show-overflow-tooltip label="备注" width="80">
 				</el-table-column>
 				<el-table-column prop="count" label="数量" width="100">
 					<template scope="scope">
