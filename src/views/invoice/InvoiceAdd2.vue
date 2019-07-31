@@ -67,14 +67,11 @@
 		<el-col :span="24" class="r">
 			选中物料金额合计：{{this.selSum}}
 			<el-button type="warning" @click="handleInvoice" :disabled="this.sels.length===0">发票填开</el-button>
-			
 		</el-col>
 		<el-col :span="24" class="footer">
 			<el-pagination layout="total, prev, pager, next" @current-change="handleCurrentChange" :page-size="pageSize" :total="total" style="float:right;">
 			</el-pagination>
 		</el-col>
-
-		
 
 		<!--开票界面-->
 		<el-dialog title="开票" :visible.sync="invoiceFormVisible" :close-on-click-modal="false">
@@ -376,40 +373,48 @@
 			invoiceSubmit: function () {
 				this.$refs.invoiceForm.validate((valid) => {
 					if (valid) {
-						//处理订单id和物料id
-						let orderIds=new Set()
-						let itemIds=[]
-						for(let i=0;i<this.sels.length;i++){
-							orderIds.add(this.sels[i].orderId);
-							itemIds.push(this.sels[i].id);
-						}
-						this.invoiceForm.sum = this.selSum;
-						this.invoiceForm.orderIdList = orderIds;
-						this.invoiceForm.itemIdList = itemIds;
-						this.invoiceForm.providerId = this.filters.providerId;
-						this.invoiceForm.demanderId = this.filters.demanderId;
-						this.$confirm('确认提交吗？', '提示', {}).then(() => {
-							this.invoiceLoading = true;
-							addInvoice(this.invoiceForm).then((res) => {
-								this.invoiceLoading = false;
-								this.invoiceFormVisible = false;
-								let msg = res.data.message;
-			                	let code = res.data.code;
-								if (code !== 200) {
-				                  this.$message({
-				                    message: msg,
-				                    type: 'error'
-				                  });
-				                } else {
-									this.$message({
-										message: '提交成功',
-										type: 'success'
-									});
-									this.getPrepareItems();
-									this.$refs['invoiceForm'].resetFields();
-								}
+						//判断填开日期
+						if(this.invoiceForm.invoiceDate){
+							//处理订单id和物料id
+							let orderIds=new Set()
+							let itemIds=[]
+							for(let i=0;i<this.sels.length;i++){
+								orderIds.add(this.sels[i].orderId);
+								itemIds.push(this.sels[i].id);
+							}
+							this.invoiceForm.sum = this.selSum;
+							this.invoiceForm.orderIdList = orderIds;
+							this.invoiceForm.itemIdList = itemIds;
+							this.invoiceForm.providerId = this.filters.providerId;
+							this.invoiceForm.demanderId = this.filters.demanderId;
+							this.$confirm('确认提交吗？', '提示', {}).then(() => {
+								this.invoiceLoading = true;
+								addInvoice(this.invoiceForm).then((res) => {
+									this.invoiceLoading = false;
+									this.invoiceFormVisible = false;
+									let msg = res.data.message;
+				                	let code = res.data.code;
+									if (code !== 200) {
+					                  this.$message({
+					                    message: msg,
+					                    type: 'error'
+					                  });
+					                } else {
+										this.$message({
+											message: '提交成功',
+											type: 'success'
+										});
+										this.getPrepareItems();
+										this.$refs['invoiceForm'].resetFields();
+									}
+								});
 							});
-						});
+						}else{
+							this.$message({
+					          showClose: true,
+					          message: '请选择填开日期'
+					        });
+						}
 					}
 				});
 			},

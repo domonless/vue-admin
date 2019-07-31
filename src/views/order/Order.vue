@@ -249,6 +249,7 @@
 				<el-button type="primary" v-if="this.selectStatus==1 && this.sels.length>0" @click.native="handleBuy" :loading="sendLoading">进货</el-button>
 				<el-button type="warning" v-if="this.sels.length==1" @click.native="handleEditItem" :loading="editItemLoading">更改物料</el-button>
 				<el-button type="warning" v-if="this.sels.length>0" @click.native="handleEditCount" :loading="editItemLoading">修改</el-button>
+				<el-button type="success" v-if="this.sendForm.status==9" @click.native="exportToExcel">导出到excel</el-button>
 				<el-button type="info" v-if="this.sendForm.status<4 || this.sendForm.status==9" @click.native="handleAddItem" :loading="editItemLoading">增加</el-button>
 				<el-button type="primary" v-if="this.selectStatus===2 && this.sels.length>0" @click.native="handleSend" :loading="sendLoading">发货</el-button>
 				<el-button type="primary" v-if="this.selectStatus===3 && this.sels.length>0 && this.sendForm.status!=9" @click.native="handleIn" :loading="sendLoading">入库</el-button>
@@ -746,6 +747,25 @@
 					}
 		    	});
 		    },
+		    //导出订单物料
+			exportToExcel() {
+    			let exportItems=[];
+    			exportItems = this.orderItems;
+				require.ensure([], () => {
+			　　　const { export_json_to_excel } = require('../../excel/Export2Excel');
+			　　　const tHeader = ['编号','名称','品牌','规格','单位','价格'];
+			　　　// 上面设置Excel的表格第一行的标题
+			　　　const filterVal = ['itemNumber','name','brand','form','unit','price'];
+			　　　// 上面的index、phone_Num、school_Name是tableData里对象的属性
+			　　　const list = exportItems;  //把data里的tableData存到list
+			　　　const data = this.formatJson(filterVal, list);
+				 const fileName = '送货单签价导出';
+			　　　export_json_to_excel(tHeader, data, fileName);
+			　})
+			},
+			formatJson(filterVal, jsonData) {
+		     return jsonData.map(v => filterVal.map(j => v[j]))
+		   },
 			//获取采购员列表
 			getPurchasers() {
 				let para = {
