@@ -93,13 +93,13 @@
 			</el-table-column>
 			<el-table-column type="index" width="50">
 			</el-table-column>
-			<el-table-column prop="itemNumber" show-overflow-tooltip label="编号" width="70" sortable>
+			<el-table-column prop="itemNumber" show-overflow-tooltip label="编号" width="80" sortable>
 			</el-table-column>
-			<el-table-column prop="name" label="名称" width="120" sortable>
+			<el-table-column prop="name" label="名称" width="150" sortable>
 			</el-table-column>
 			<el-table-column prop="brand" show-overflow-tooltip label="品牌" width="80">
 			</el-table-column>
-			<el-table-column prop="form" show-overflow-tooltip label="规格" width="300">
+			<el-table-column prop="form" label="规格" width="250">
 			</el-table-column>
 			<el-table-column width="60">
 				<template scope="scope">

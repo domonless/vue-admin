@@ -11,15 +11,19 @@
 
 		<!--列表-->
 		<el-table :data="providers" highlight-current-row v-loading="listLoading" style="width: 100%;">
-			<el-table-column type="index" label="序号" width="100">
+			<el-table-column type="index" label="序号" width="70">
 			</el-table-column>
-			<el-table-column prop="name" label="名称" width="300">
+			<el-table-column prop="name" show-overflow-tooltip label="名称" width="250">
 			</el-table-column>
 			<el-table-column prop="master" label="联系人" width="100">
 			</el-table-column>
-			<el-table-column prop="phone" label="联系电话" width="150">
+			<el-table-column prop="phone" label="联系电话" width="130">
 			</el-table-column>
-			<el-table-column prop="address" label="地址" width="500">
+			<el-table-column prop="address" show-overflow-tooltip label="地址" width="400">
+			</el-table-column>
+			<el-table-column prop="loginname" label="招采账号" width="100">
+			</el-table-column>
+			<el-table-column prop="password" label="招采密码" width="100">
 			</el-table-column>
 			<el-table-column label="操作" width="200">
 				<template scope="scope">
@@ -49,6 +53,12 @@
 				</el-form-item>
 				<el-form-item label="地址" prop="address">
 					<el-input v-model="editForm.address"></el-input>
+				</el-form-item>
+				<el-form-item label="招采账号" prop="loginname">
+					<el-input v-model="editForm.loginname"></el-input>
+				</el-form-item>
+				<el-form-item label="招采密码" prop="password">
+					<el-input v-model="editForm.password"></el-input>
 				</el-form-item>
 				<el-form-item label="送货单" prop="template">
 					<el-radio v-model="editForm.template" label="1">
@@ -98,6 +108,12 @@
 				</el-form-item>
 				<el-form-item label="地址" prop="address">
 					<el-input v-model="addForm.address"></el-input>
+				</el-form-item>
+				<el-form-item label="招采账号" prop="loginname">
+					<el-input v-model="addForm.loginname"></el-input>
+				</el-form-item>
+				<el-form-item label="招采密码" prop="password">
+					<el-input v-model="addForm.password"></el-input>
 				</el-form-item>
 				<el-form-item label="送货单" prop="template">
 					<el-radio v-model="addForm.template" label="1">
@@ -159,7 +175,9 @@
 					name: '',
 					master: '',
 					phone: '',
-					address: ''
+					address: '',
+					loginname: '',
+					password: ''
 				},
 
 				addFormVisible: false,//新增界面是否显示
@@ -174,7 +192,9 @@
 					name: '',
 					master: '',
 					phone: '',
-					address: ''
+					address: '',
+					loginname: '',
+					password: ''
 				},
 
 				signImages: []
@@ -251,7 +271,9 @@
 					master: row.master,
 					phone: row.phone,
 					address: row.address,
-					template: row.template
+					template: row.template,
+					loginname: row.loginname,
+					password: row.password
 				};
 			},
 			//显示新增界面
@@ -262,7 +284,9 @@
 					master: '',
 					phone: '',
 					address: '',
-					template: '1'
+					template: '1',
+					loginname: '',
+					password: ''
 				};
 			},
 			//编辑
@@ -298,7 +322,6 @@
 				this.$refs.addForm.validate((valid) => {
 					if (valid) {
 							this.addLoading = true;
-							//NProgress.start();
 							let para = Object.assign({}, this.addForm);
 							addProvider(para).then((res) => {
 								this.addLoading = false;
@@ -311,7 +334,6 @@
 				                    type: 'error'
 				                  });
 				                } else {
-									//NProgress.done();
 									this.$message({
 										message: '提交成功',
 										type: 'success'
