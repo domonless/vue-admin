@@ -11,7 +11,8 @@ import OrderAdd from './views/order/OrderAdd.vue'
 import OrderAddPre from './views/order/OrderAddPre.vue'
 import Area from './views/area/Area.vue'
 import Type from './views/type/Type.vue'
-import Year from './views/year/Year.vue'
+import Pur from './views/srm/Pur.vue'
+import Bid from './views/srm/Bid.vue'
 import Purchaser from './views/purchaser/Purchaser.vue'
 import Buyer from './views/buyer/Buyer.vue'
 import Provider from './views/provider/Provider.vue'
@@ -85,13 +86,14 @@ let routes = [
         ]
     },
     {
-        path: '/year',
+        path: '/srm',
         component: Home,
         name: '招采平台',
         iconCls: 'fa fa-hacker-news',//图标样式class
-        redirect: '/year/1',
+        redirect: '/srm/pur',
         children: [
-            { path: '/year/1', component:Year, name: '报价查询' },
+            { path: '/srm/pur', component:Pur, name: '报价查询' },
+            // { path: '/srm/bid', component:Bid, name: '投标查询' },
         ]
     },
     {
