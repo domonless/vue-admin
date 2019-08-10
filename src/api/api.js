@@ -261,4 +261,11 @@ export const editExpenses = params => { return axios.post(`${base}/expenses/upda
 export const getExpensesSum = params => { return axios.get(`${base}/expenses/list/sum`, { params: params }); };
 
 
+//feedback
+
+export const getFeedBackList = params => { return axios.get(`${base}/feedback/list`, { params: params }); };
+export const getMaxFeedBackId = params => { return axios.get(`${base}/feedback/max`, { params: params }); };
+export const addFeedBack = params => { return axios.post(`${base}/feedback/add`, params); };
+
+
 
