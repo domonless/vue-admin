@@ -42,7 +42,7 @@
 			</el-table-column>
 			<el-table-column label="操作">
 				<template scope="scope">
-					<el-button size="small" type="primary" @click="queryDetail(scope.$index, scope.row)" icon="el-icon-search"></el-button>
+					<el-button size="small" type="primary" :disabled="isUpdate" @click="queryDetail(scope.$index, scope.row)" icon="el-icon-search"></el-button>
 					<el-button size="small" @click="handlePriceImport(scope.$index, scope.row)">价格导入</el-button>
 					<el-input id="upload" type="file" size="mini" @change="importFromExcel(this)" accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel" style="display:none;"></el-input>
 				</template>
@@ -218,9 +218,9 @@
 									type: 'success'
 								});
 								that.query(5215);
-								// setTimeout(function(){ 
-								// 	that.update();
-								// }, 1000);
+								setTimeout(function(){ 
+									that.update();
+								}, 1000);
 							}
 						}
 					}
