@@ -659,7 +659,7 @@
 					// parameter.futrue_meet_flag_desc = "是";
 					parameter.price_category = that.importForm.price_category;
 					// parameter.vendor_contact_id = 87866;
-					parameter.tax_type_id = 10021;
+					// parameter.tax_type_id = 10021;
 					// parameter.fastest_arrival_date = "2019-09-11";
 					parameter.coop_company_id = that.importForm.coop_company_id;
 					// parameter.left_time = 508779;
