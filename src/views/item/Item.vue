@@ -110,8 +110,6 @@
 			</el-table-column>
 			<el-table-column prop="price" label="价格" width="80">
 			</el-table-column>
-			<el-table-column prop="bidPrice" v-if="isAdmin" label="最新进价" width="80">
-			</el-table-column>
 			<el-table-column prop="providerId" show-overflow-tooltip label="抬头" width="100" :formatter="formatProvider">
 			</el-table-column>
 			<el-table-column prop="areaId" show-overflow-tooltip v-if="isAread" label="采购组织" width="100" :formatter="formatArea">

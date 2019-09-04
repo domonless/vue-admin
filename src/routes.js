@@ -93,7 +93,7 @@ let routes = [
         redirect: '/srm/pur',
         children: [
             { path: '/srm/pur', component:Pur, name: '报价查询' },
-            // { path: '/srm/bid', component:Bid, name: '投标查询' },
+            { path: '/srm/bid', component:Bid, name: '投标查询' },
         ]
     },
     {

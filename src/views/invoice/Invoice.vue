@@ -328,8 +328,8 @@
 			getInvoices() {
 				let start,end = '';
 				if(this.filters.dates!='' && this.filters.dates!=undefined){
-					start = util.formatDate.format(this.filters.dates[0],"yyyy-MM-dd");
-					end = util.formatDate.format(this.filters.dates[1],"yyyy-MM-dd");
+					start = util.formatDate.format(this.filters.dates[0],"yyyy-MM-dd 00:00:00");
+					end = util.formatDate.format(this.filters.dates[1],"yyyy-MM-dd 23:59:59");
 				}
 				let para = {
 					page:this.page,
