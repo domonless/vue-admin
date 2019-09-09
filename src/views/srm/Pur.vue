@@ -716,7 +716,7 @@
 							}
 						}
 					})
-				}, 3000);
+				}, 5000);
 			},
 			//价格导入处理
 			handlePriceImport:function(index, row){

@@ -250,7 +250,7 @@
 				<el-button type="warning" v-if="this.sels.length==1" @click.native="handleEditItem" :loading="editItemLoading">更改物料</el-button>
 				<el-button type="warning" v-if="this.sels.length>0" @click.native="handleEditCount" :loading="editItemLoading">修改</el-button>
 				<el-button type="success" v-if="this.sendForm.status==9" @click.native="exportToExcel">导出到excel</el-button>
-				<el-button type="info" v-if="this.sendForm.status<4 || this.sendForm.status==9" @click.native="handleAddItem" :loading="editItemLoading">增加</el-button>
+				<el-button type="info" @click.native="handleAddItem" :loading="editItemLoading">增加</el-button>
 				<el-button type="primary" v-if="this.selectStatus===2 && this.sels.length>0" @click.native="handleSend" :loading="sendLoading">发货</el-button>
 				<el-button type="primary" v-if="this.selectStatus===3 && this.sels.length>0 && this.sendForm.status!=9" @click.native="handleIn" :loading="sendLoading">入库</el-button>
 				<el-button type="primary" v-if="this.selectStatus===3 && this.sels.length>0 && this.sendForm.status==9" @click.native="handleRepair">补单</el-button>

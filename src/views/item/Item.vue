@@ -664,7 +664,7 @@
                     providerId:this.filters.providerId,
                     areaId:this.filters.areaId,
                     imgurlNull:this.imgurlNull,
-                    isOrderAdd: '1'
+                    // isOrderAdd: '1'
 				};
 				this.listLoading = true;
 				getItemList(para).then((res) => {
