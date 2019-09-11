@@ -126,9 +126,10 @@
 		<!--物料列表界面-->
 		<el-dialog title="物料列表" :visible.sync="itemsVisible" :close-on-click-modal="false" >
 			<el-input v-model="filters.name" placeholder="按名称或编号搜索" @input="getItems" style="margin-bottom:20px"></el-input>
+			<el-checkbox v-model="isOrderAdd" @change="getItems"><b>显示过期签价</b></el-checkbox>&nbsp;&nbsp;
 			提示: 输入数量后按回车键即可添加，默认数量为1个
 			<!--列表-->
-			<el-table :data="items" highlight-current-row v-loading="itemsLoading" style="width: 100%;margin-top:10px" height="500">
+			<el-table :data="items" highlight-current-row v-loading="itemsLoading" style="width: 100%;margin-top:10px" :row-class-name="tableRowClassName" height="500">
 			    <el-table-column prop="itemNumber" label="编号" width="70">
 				</el-table-column>
 				<el-table-column prop="name" label="名称" width="120">
@@ -239,9 +240,17 @@
 				isEdit:false,
 				editIndex:'',
 				editRow:'',
+
+				isOrderAdd:false,
 			}
 		},
 		methods: {
+			tableRowClassName({row, rowIndex}) {
+				if (new Date(row.endTime) < new Date()) {
+				  return 'error-row';
+				}
+				return '';
+			},
 			formatDate: function (row, column) {
 				return util.formatDate.format(new Date(row.endTime),"yyyy-MM-dd");
 			},
@@ -253,7 +262,7 @@
 					name: this.filters.name,
 					providerId:this.filters.providerId,
 					areaId: this.filters.areaId,
-					isOrderAdd: '1'
+					isOrderAdd:this.isOrderAdd?'':'1'
 				};
 				this.itemsLoading = true;
 				getItemList(para).then((res) => {
@@ -509,5 +518,8 @@
     margin-right: 0;
     margin-bottom: 0;
     width: 50%;
+  }
+  .el-table .error-row {
+    background: #e429296b;
   }
 </style>

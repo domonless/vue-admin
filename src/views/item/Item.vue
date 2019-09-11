@@ -29,6 +29,9 @@
 					    </el-option>
 					</el-select>
 				</el-form-item>
+				<el-form-item>
+					<el-checkbox v-model="isOrderAdd" @change="getItems">即将过期</el-checkbox>
+				</el-form-item>
 				<br>
 				<el-form-item>
 					<el-input v-model="filters.remark" placeholder="备注" @input="getItems" clearable></el-input>
@@ -37,20 +40,20 @@
 					<el-checkbox v-model="imgurlNull" @change="getItems">图片为空</el-checkbox>
 				</el-form-item>
 				<el-form-item>
-					<el-button type="primary" v-on:click="getItems" >查询</el-button>
+					<el-button size="mini" type="primary" v-on:click="getItems" >查询</el-button>
 				</el-form-item>
 				<el-form-item>
-					<el-button type="warning" @click="handleAdd">新增</el-button>
+					<el-button size="mini" type="warning" @click="handleAdd">新增</el-button>
 				</el-form-item>
 				<el-form-item>
-					<el-button type="primary" @click="isItemsBatAddShow=true" >批量导入</el-button>
+					<el-button size="mini" type="primary" @click="isItemsBatAddShow=true" >批量导入</el-button>
 					<el-input id="upload" type="file" size="mini" @change="importFromExcel(this)" accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel" style="display:none;"></el-input>
 				</el-form-item>
 				<el-form-item>
-					<el-button type="success" @click="exportAll" >导出全部</el-button>
+					<el-button size="mini" type="success" @click="exportAll" >导出全部</el-button>
 				</el-form-item>
 				<el-form-item>
-					<el-button type="success" @click="exportSelect" :disabled="this.sels.length===0">导出选中</el-button>
+					<el-button size="mini" type="success" @click="exportSelect" :disabled="this.sels.length===0">导出选中</el-button>
 				</el-form-item>
 			</el-form>
 		</el-col>
@@ -88,7 +91,7 @@
 		</el-dialog>
 
 		<!--列表-->
-		<el-table :data="items" @row-click="clickRow" ref="tb" highlight-current-row v-loading="listLoading" @selection-change="selsChange" style="width: 100%;">
+		<el-table :data="items" @row-click="clickRow" ref="tb" highlight-current-row v-loading="listLoading" @selection-change="selsChange" :row-class-name="tableRowClassName" style="width: 100%;">
 			<el-table-column type="selection" width="55">
 			</el-table-column>
 			<el-table-column type="index" width="50">
@@ -116,7 +119,7 @@
 			</el-table-column>
 			<el-table-column prop="remark" show-overflow-tooltip label="备注" width="120">
 			</el-table-column>
-			<el-table-column prop="endTime" label="截止日期" width="120">
+			<el-table-column prop="endTime" label="截止日期" width="120" :formatter="formatEndTime">
 			</el-table-column>
 			<el-table-column label="操作" width="420">
 				<template scope="scope">
@@ -439,10 +442,25 @@
 				},
 				isItemsBatAddShow: false,
 
-				similarVisible:false
+				similarVisible:false,
+
+				isOrderAdd:false,
 			}
 		},
 		methods: {
+			tableRowClassName({row, rowIndex}) {
+				var now = new Date();
+				var endTime = new Date(row.endTime);
+				var endTimeBefore = new Date(row.endTime);
+				endTimeBefore.setMonth(endTimeBefore.getMonth()-1);
+				if (endTime < now) {
+				  return 'error-row';
+				}
+				if (now < endTime && endTimeBefore < now) {
+				  return 'warning-row';
+				}
+				return '';
+			},
 			copy(value) {
 		      var oInput = document.createElement("input");
 		      oInput.value = value;
@@ -485,6 +503,12 @@
 			formatDeliveryDate: function (row, column) {
 				if(row.deliveryTime){
 					return util.formatDate.format(new Date(row.deliveryTime),"yyyy-MM-dd");
+				}
+			},
+			//截止日期转化
+			formatEndTime: function (row, column) {
+				if(row.endTime){
+					return util.formatDate.format(new Date(row.endTime),"yyyy-MM-dd");
 				}
 			},
 			//导入excel数据
@@ -551,7 +575,7 @@
 			                    obj.remark = v.remark
 			                    obj.providerId = _this.batAddForm.providerId
 			                    obj.areaId = _this.batAddForm.areaId
-			                    obj.endTime = v.endTime
+			                    obj.endTime = v.endTime + " 23:59:59";
 			                    obj.status = 1
 			                    arr.push(obj)
 			                })
@@ -664,7 +688,7 @@
                     providerId:this.filters.providerId,
                     areaId:this.filters.areaId,
                     imgurlNull:this.imgurlNull,
-                    // isOrderAdd: '1'
+                    isOrderAdd: this.isOrderAdd?'2':''
 				};
 				this.listLoading = true;
 				getItemList(para).then((res) => {
@@ -797,16 +821,6 @@
 			},
 			//物料签价图片
     		handlePrint: function (index, row) {
-    			// let newWindow=""
-		    	// 		if(row.imgurl.endsWith('.pdf')){
-		    	// 			var printHtml = "<iframe id='pdf' width='100%'' height='100%'' src='" + row.imgurl + "' />";
-							// newWindow = window.open("",'newwindow');
-							// newWindow.document.body.innerHTML = printHtml;
-		    	// 		}else{
-		    	// 			var printHtml = "<img id='img' src='" + row.imgurl + "' width='868px' height='1195px' />";
-							// newWindow = window.open("",'newwindow');
-							// newWindow.document.body.innerHTML = printHtml;
-		    	// 		}
     			window.open(row.imgurl);
     		},
     		//物料相关订单
@@ -866,6 +880,9 @@
 				this.$refs.editForm.validate((valid) => {
 					if (valid) {
 						this.editLoading = true;
+						console.log(this.editForm.endTime);
+						this.editForm.endTime = this.editForm.endTime + " 23:59:59";
+						console.log(this.editForm.endTime);
 						let para = Object.assign({}, this.editForm);
 						para.createTime = undefined;
 						para.updateTime = undefined;
@@ -927,6 +944,7 @@
 				this.$refs.addForm.validate((valid) => {
 					if (valid) {
 						this.addLoading = true;
+						this.addForm.endTime = this.addForm.endTime + " 23:59:59";
 						let para = Object.assign({}, this.addForm);
 						addItem(para).then((res) => {
 							this.addLoading = false;
@@ -1058,7 +1076,7 @@
 
 </script>
 
-<style scoped>
+<style>
 	i:hover{ 
 		color:#6cc;
 		cursor: pointer;
@@ -1099,6 +1117,17 @@
   img{
   	width:100%;
   	height:100%;
+  }
+
+  .el-table .error-row {
+    background: #e429296b;
+  }
+
+  .el-table .warning-row {
+    background: #fdf6ec;
+  }
+  .el-table .success-row {
+    background: #f0f9eb;
   }
 
 </style>
