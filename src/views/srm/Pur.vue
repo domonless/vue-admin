@@ -343,6 +343,7 @@
 				//查询系统最大feedBackId
 				this.getMaxId();
 				let that = this;
+				that.feedBacks = [];
 				setTimeout(function(){ 
 					if(that.maxFeedBackId<that.currentFeedBackId){
 						//查询导入数据
@@ -350,7 +351,7 @@
 							that.queryDataByHeaderId(i);
 						}
 						setTimeout(function(){
-							if(that.feedBacks){
+							if(that.feedBacks.length>0){
 								//插入数据
 								addFeedBack(JSON.stringify(that.feedBacks)).then((res) => {
 									let msg = res.data.message;
@@ -376,7 +377,7 @@
 							that.queryDataByHeaderId(i);
 						}
 						setTimeout(function(){
-							if(that.feedBacks){
+							if(that.feedBacks.length>0){
 								//插入数据
 								addFeedBack(JSON.stringify(that.feedBacks)).then((res) => {
 									let msg = res.data.message;

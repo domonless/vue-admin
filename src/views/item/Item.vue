@@ -31,6 +31,8 @@
 				</el-form-item>
 				<el-form-item>
 					<el-checkbox v-model="isOrderAdd" @change="getItems">即将过期</el-checkbox>
+					<el-tag type="warning">即将过期</el-tag>
+					<el-tag type="danger">已过期</el-tag>
 				</el-form-item>
 				<br>
 				<el-form-item>
