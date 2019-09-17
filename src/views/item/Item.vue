@@ -818,7 +818,7 @@
 					price: 0,
 					providerId: '',
 					areaId: '',
-					endTime: new Date(new Date().getTime() + 365*24*60*60*1000)
+					endTime: new Date(new Date().getTime() + 366*24*60*60*1000-1)
 				};
 			},
 			//物料签价图片
@@ -946,7 +946,7 @@
 				this.$refs.addForm.validate((valid) => {
 					if (valid) {
 						this.addLoading = true;
-						this.addForm.endTime = this.addForm.endTime + " 23:59:59";
+						this.addForm.endTime = this.addForm.endTime;
 						let para = Object.assign({}, this.addForm);
 						addItem(para).then((res) => {
 							this.addLoading = false;

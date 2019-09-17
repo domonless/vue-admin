@@ -29,7 +29,7 @@ module.exports = {
     assetsPublicPath: '/',
     proxyTable: {
         '/zc': {
-            target: 'http://srm.countrygarden.com.cn',
+            target: 'https://srm.countrygarden.com.cn',
             changeOrigin: true,
             pathRewrite: {
                 '^/zc': ''   //需要rewrite重写的,

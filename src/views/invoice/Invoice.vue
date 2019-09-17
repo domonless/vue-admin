@@ -343,6 +343,19 @@
                     endTime:end==undefined?'':end
 				};
 				this.listLoading = true;
+				getInvoiceSum(para).then((res) => {
+					this.listLoading = false
+					let msg = res.data.message;
+                	let code = res.data.code;
+					if (code !== 200) {
+	                  this.$message({
+	                    message: msg,
+	                    type: 'error'
+	                  });
+	                } else {
+	                	this.sums[1] = res.data.data+"元";
+	                }
+				});
 				getInvoiceList(para).then((res) => {
 					this.listLoading = false
 					let msg = res.data.message;
@@ -356,19 +369,6 @@
 	                	this.invoices = res.data.data.list
 	                    this.page = res.data.data.pageNum == 0 ? res.data.data.pageNum +1 : res.data.data.pageNum
 	                    this.total = res.data.data.total
-	                }
-				});
-				getInvoiceSum(para).then((res) => {
-					this.listLoading = false
-					let msg = res.data.message;
-                	let code = res.data.code;
-					if (code !== 200) {
-	                  this.$message({
-	                    message: msg,
-	                    type: 'error'
-	                  });
-	                } else {
-	                	this.sums[1] = res.data.data+"元";
 	                }
 				});
 			},

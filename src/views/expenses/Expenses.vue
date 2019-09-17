@@ -178,6 +178,19 @@
                     detail:this.filters.detail	
 				};
 				this.listLoading = true;
+				getExpensesSum(para).then((res) => {
+					this.listLoading = false
+					let msg = res.data.message;
+                	let code = res.data.code;
+					if (code !== 200) {
+	                  this.$message({
+	                    message: msg,
+	                    type: 'error'
+	                  });
+	                } else {
+	                	this.sums[1] = res.data.data+"元";
+	                }
+				});
 				getExpensesList(para).then((res) => {
 					this.listLoading = false;
 					let msg = res.data.message;
@@ -191,19 +204,6 @@
 						this.expenses = res.data.data.list
 	                    this.page = res.data.data.pageNum == 0 ? res.data.data.pageNum +1 : res.data.data.pageNum
 	                    this.total = res.data.data.total
-	                }
-				});
-				getExpensesSum(para).then((res) => {
-					this.listLoading = false
-					let msg = res.data.message;
-                	let code = res.data.code;
-					if (code !== 200) {
-	                  this.$message({
-	                    message: msg,
-	                    type: 'error'
-	                  });
-	                } else {
-	                	this.sums[1] = res.data.data+"元";
 	                }
 				});
 			},

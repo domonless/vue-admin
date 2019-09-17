@@ -411,6 +411,7 @@
 <script>
 	import util from '../../common/js/util'
 	import pdf from 'vue-pdf'
+	import wx from 'weixin-js-sdk';
 	import Cookies from 'js-cookie'
 	import {getLodop} from '../../common/js/LodopFuncs'
 	//import NProgress from 'nprogress'
@@ -955,8 +956,24 @@
     			window.open(row.imgurl);
     		},
     		handlePdfPrint: function (index, row) {
-				window.open(row.url);
+    			var ua = window.navigator.userAgent.toLowerCase();
+    			//在微信里
+    			if(ua.match(/MicroMessenger/i) == 'micromessenger'){
+    				wx.miniProgram.getEnv((res)=>{
+    					//在小程序里
+    					if (res.miniprogram) {
+    						wx.miniProgram.navigateTo({
+		    					url: '/pages/pdf/pdf?url='+row.url
+		    				});
+    					}else{
+    						window.open(row.url);
+    					}
+    				});
+				}else{
+    				window.open(row.url);
+    			}
     		},
+
 			//删除
 			handleDel: function (index, row) {
 				this.$confirm('确认删除该记录吗?', '提示', {
