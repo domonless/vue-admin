@@ -104,7 +104,7 @@
 					</el-table-column>
 					<el-table-column prop="count" label="数量" width="80">
 					</el-table-column>
-					<el-table-column prop="endTime" label="截止日期" width="120">
+					<el-table-column prop="endTime" label="截止日期" width="120" :formatter="formatDate">
 					</el-table-column>
 					<el-table-column prop="remark" show-overflow-tooltip label="备注" width="80">
 					</el-table-column>
