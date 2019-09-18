@@ -249,7 +249,7 @@
 				<el-button type="primary" v-if="this.selectStatus==1 && this.sels.length>0" @click.native="handleBuy" :loading="sendLoading">进货</el-button>
 				<el-button type="warning" v-if="this.sels.length==1" @click.native="handleEditItem" :loading="editItemLoading">更改物料</el-button>
 				<el-button type="warning" v-if="this.sels.length>0" @click.native="handleEditCount" :loading="editItemLoading">修改</el-button>
-				<el-button type="success" v-if="this.sendForm.status==9" @click.native="exportToExcel">导出到excel</el-button>
+				<el-button type="success" @click.native="exportToExcel">导出到excel</el-button>
 				<el-button type="info" @click.native="handleAddItem" :loading="editItemLoading">增加</el-button>
 				<el-button type="primary" v-if="this.selectStatus===2 && this.sels.length>0" @click.native="handleSend" :loading="sendLoading">发货</el-button>
 				<el-button type="primary" v-if="this.selectStatus===3 && this.sels.length>0 && this.sendForm.status!=9" @click.native="handleIn" :loading="sendLoading">入库</el-button>
@@ -359,10 +359,10 @@
 		<el-dialog title="补单" :visible.sync="repairFormVisible" :close-on-click-modal="false">
 			<el-form :model="repairForm" label-width="80px" :rules="repairFormRules" ref="repairForm" :inline="true">
 				<el-form-item label="订单编号" prop="cdSn">
-					<el-input v-model="repairForm.cdSn" :maxlength="14"></el-input>
+					<el-input v-model="repairForm.cdSn"></el-input>
 				</el-form-item>
 				<el-form-item label="请购编号" prop="qgSn">
-					<el-input v-model="repairForm.qgSn" :maxlength="12"></el-input>
+					<el-input v-model="repairForm.qgSn"></el-input>
 				</el-form-item>
 			</el-form>
 			<div slot="footer" class="dialog-footer">
@@ -557,20 +557,20 @@
 				repairLoading: false,
 				//补单界面数据
 				repairForm: {
-					cdSn: 'CD',
-					qgSn: 'QG',
+					cdSn: '',
+					qgSn: '',
 					sum: ''
 				},
 				//校验规则
 				repairFormRules: {
 					cdSn: [
 						{ required: true, message: '请输入订单编号', trigger: 'blur' },
-						{ min: 12, message: '请输入12位订单编号'}
+						// { min: 12, message: '请输入12位订单编号'}
 					],
-					qgSn: [
-						{ required: true, message: '请输入请购编号', trigger: 'blur' },
-						{ min: 12, message: '请输入12位请购编号'}
-					]
+					// qgSn: [
+					// 	{ required: true, message: '请输入请购编号', trigger: 'blur' },
+					// 	{ min: 12, message: '请输入12位请购编号'}
+					// ]
 				},
 
 				isAdd: false,

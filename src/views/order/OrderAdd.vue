@@ -51,10 +51,10 @@
 			<br>
 
 			<el-form-item label="订单编号" prop="cdSn">
-				<el-input v-model="addForm.cdSn" :maxlength="14"></el-input>
+				<el-input v-model="addForm.cdSn"></el-input>
 			</el-form-item>
 			<el-form-item label="请购编号" prop="qgSn">
-				<el-input v-model="addForm.qgSn" :maxlength="12"></el-input>
+				<el-input v-model="addForm.qgSn"></el-input>
 			</el-form-item>
 			<el-button type="primary" :disabled="!this.addForm.providerId || !this.addForm.areaId" @click="showItemList">物料列表</el-button>
 			<br>
@@ -206,12 +206,12 @@
 				addFormRules: {
 					cdSn: [
 						{ required: true, message: '请输入订单编号', trigger: 'blur' },
-						{ min: 12, message: '请输入12位或14位订单编号'}
+						// { min: 12, message: '请输入12位或14位订单编号'}
 					],
-					qgSn: [
-						{ required: true, message: '请输入请购编号', trigger: 'blur' },
-						{ min: 12, message: '请输入12位请购编号'}
-					],
+					// qgSn: [
+					// 	{ required: true, message: '请输入请购编号', trigger: 'blur' },
+					// 	{ min: 12, message: '请输入12位请购编号'}
+					// ],
 					providerId: [
 						{ required: true, message: '请选择供应商', trigger: 'blur', type: 'number'}
 					],
@@ -228,8 +228,8 @@
 
 				//新增界面数据
 				addForm: {
-					cdSn: 'CD',
-					qgSn: 'QG',
+					cdSn: '',
+					qgSn: '',
 					providerId: '',
 					demanderId: '',
 					purchaserId: '',
