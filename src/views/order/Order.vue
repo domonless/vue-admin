@@ -78,13 +78,9 @@
 
 		<!--列表-->
 		<el-table :data="orders" highlight-current-row v-loading="listLoading" style="width: 100%;">
-			<!-- <el-table-column type="index" width="60"> -->
-			<!-- </el-table-column> -->
-			<el-table-column prop="cdSn" label="订单编号" width="140" sortable>
+			<el-table-column prop="cdSn" label="订单编号" width="160" sortable>
 			</el-table-column>
-			<!-- <el-table-column prop="qgSn" label="请购编号" width="120">
-			</el-table-column> -->
-			<el-table-column prop="demander" show-overflow-tooltip label="需求公司" width="315" sortable>
+			<el-table-column prop="demander" show-overflow-tooltip label="需求公司" width="250" sortable>
 			</el-table-column>
 			<el-table-column prop="area" label="采购组织" width="105">
 			</el-table-column>
@@ -100,7 +96,7 @@
 			</el-table-column>
 			<el-table-column prop="remark" show-overflow-tooltip label="备注" width="150">
 			</el-table-column>
-			<el-table-column label="操作" width="400">
+			<el-table-column label="操作" width="380">
 				<template scope="scope">
 					<el-button type="warning" size="small" @click="handleDeliveryOrder(scope.$index, scope.row)">送货单</el-button>
 					<el-button type="danger" size="small" icon="fa fa-file-pdf-o" :disabled="scope.row.url==''" @click="handlePdfPrint(scope.$index, scope.row)"></el-button>
@@ -173,15 +169,15 @@
 			<el-table :data="orderItems" ref="viewTable" :span-method="objectSpanMethod" highlight-current-row v-loading="orderItemsLoading" @selection-change="selsChange" style="width: 100%;" >
 				<el-table-column type="selection" :disable="false" width="40">
 			    </el-table-column>
-			    <el-table-column type="index" width="55">
+			    <el-table-column type="index" width="50">
 				</el-table-column>
-				<el-table-column prop="itemNumber" label="编号" width="65">
+				<el-table-column prop="itemNumber" label="编号" width="70">
 				</el-table-column>
-				<el-table-column prop="name" show-overflow-tooltip label="物料名称" width="100">
+				<el-table-column prop="name" label="物料名称" width="120">
 				</el-table-column>
 				<el-table-column prop="brand" label="品牌" width="60">
 				</el-table-column>
-				<el-table-column prop="form" show-overflow-tooltip label="规格" width="150">
+				<el-table-column prop="form" label="规格" width="200">
 				</el-table-column>
 				<el-table-column prop="unit" label="单位" width="60">
 				</el-table-column>
@@ -215,13 +211,13 @@
 			    </el-table-column>
 			    <el-table-column  type="index" width="45">
 				</el-table-column>
-				<el-table-column prop="itemNumber" label="编号" width="65">
+				<el-table-column prop="itemNumber" label="编号" width="70">
 				</el-table-column>
-				<el-table-column prop="name" show-overflow-tooltip label="物料名称" width="100">
+				<el-table-column prop="name" label="物料名称" width="120">
 				</el-table-column>
 				<el-table-column prop="brand" label="品牌" width="60">
 				</el-table-column>
-				<el-table-column prop="form" show-overflow-tooltip label="规格" width="100">
+				<el-table-column prop="form" label="规格" width="200">
 				</el-table-column>
 				<el-table-column prop="unit" label="单位" width="60">
 				</el-table-column>
@@ -267,13 +263,13 @@
 				<el-table :data="orderItems" highlight-current-row v-loading="orderItemsLoading" style="width: 100%;" >
 					<el-table-column type="index" width="50">
 					</el-table-column>
-					<el-table-column prop="itemNumber" label="编号" width="65">
+					<el-table-column prop="itemNumber" label="编号" width="70">
 					</el-table-column>
-					<el-table-column prop="name" show-overflow-tooltip label="物料名称" width="100">
+					<el-table-column prop="name" label="物料名称" width="120">
 					</el-table-column>
 					<el-table-column prop="brand" label="品牌" width="70">
 					</el-table-column>
-					<el-table-column prop="form" show-overflow-tooltip label="规格" width="150">
+					<el-table-column prop="form" label="规格" width="200">
 					</el-table-column>
 					<el-table-column prop="unit" label="单位" width="65">
 					</el-table-column>
@@ -309,7 +305,7 @@
 					</el-table-column>
 					<el-table-column prop="brand" label="品牌" width="80">
 					</el-table-column>
-					<el-table-column prop="form" label="规格" width="150">
+					<el-table-column prop="form" label="规格" width="200">
 					</el-table-column>
 					<el-table-column prop="unit" label="单位" width="65">
 					</el-table-column>
@@ -378,11 +374,11 @@
 			<el-table :data="items" highlight-current-row v-loading="itemsLoading" style="width: 100%;margin-top:10px" height="500">
 			    <el-table-column prop="itemNumber" label="编号" width="70">
 				</el-table-column>
-				<el-table-column prop="name" show-overflow-tooltip label="名称" width="100">
+				<el-table-column prop="name" label="名称" width="120">
 				</el-table-column>
 				<el-table-column prop="brand" label="品牌" width="80">
 				</el-table-column>
-				<el-table-column prop="form" show-overflow-tooltip label="规格" width="150">
+				<el-table-column prop="form" label="规格" width="200">
 				</el-table-column>
 				<el-table-column prop="unit" label="单位" width="70">
 				</el-table-column>
@@ -397,11 +393,6 @@
 						<el-input type="number" size="mini" :min="1" :max="99999" :key="scope.row.id" @change="handleItemCountChange(scope.$index, scope.row, $event)" @keyup.enter.native="handleEnter(scope.$index, scope.row)"></el-input>
 					</template>
 				</el-table-column>
-				<!-- <el-table-column label="操作" v-if="this.isAdd==false" width="80">
-					<template scope="scope">
-						<el-button size="mini" type="warning" @click="handleReplace(scope.$index, scope.row)">确定</el-button>
-					</template>
-				</el-table-column> -->
 			</el-table>
 		</el-dialog>
 

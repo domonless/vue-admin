@@ -882,9 +882,7 @@
 				this.$refs.editForm.validate((valid) => {
 					if (valid) {
 						this.editLoading = true;
-						console.log(this.editForm.endTime);
 						this.editForm.endTime = this.editForm.endTime + " 23:59:59";
-						console.log(this.editForm.endTime);
 						let para = Object.assign({}, this.editForm);
 						para.createTime = undefined;
 						para.updateTime = undefined;
