@@ -96,7 +96,7 @@
 			</el-table-column>
 			<el-table-column prop="remark" show-overflow-tooltip label="备注" width="150">
 			</el-table-column>
-			<el-table-column label="操作" width="380">
+			<el-table-column label="操作" width="400">
 				<template scope="scope">
 					<el-button type="warning" size="small" @click="handleDeliveryOrder(scope.$index, scope.row)">送货单</el-button>
 					<el-button type="danger" size="small" icon="fa fa-file-pdf-o" :disabled="scope.row.url==''" @click="handlePdfPrint(scope.$index, scope.row)"></el-button>
@@ -249,7 +249,7 @@
 				<el-button type="info" @click.native="handleAddItem" :loading="editItemLoading">增加</el-button>
 				<el-button type="primary" v-if="this.selectStatus===2 && this.sels.length>0" @click.native="handleSend" :loading="sendLoading">发货</el-button>
 				<el-button type="primary" v-if="this.selectStatus===3 && this.sels.length>0 && this.sendForm.status!=9" @click.native="handleIn" :loading="sendLoading">入库</el-button>
-				<el-button type="primary" v-if="this.selectStatus===3 && this.sels.length>0 && this.sendForm.status==9" @click.native="handleRepair">补单</el-button>
+				<el-button type="primary" v-if="this.selectStatus<=3 && this.sels.length>0 && this.sendForm.status==9" @click.native="handleRepair">补单</el-button>
 				<el-button type="danger" v-if="this.selectStatus<=4 && this.sels.length>0" @click.native="handleDeleteItem" :loading="editItemLoading">删除</el-button>
 			</div>
 		</el-dialog>
@@ -1250,8 +1250,12 @@
 						this.repairForm.money = this.sendForm.sum;
 						//补单备注为补单
 						this.repairForm.remark = "补单未寄";
-						//补单状态为3-待入库
-						this.repairForm.status = 3;
+						//补单状态
+						let statusArray = [];
+						this.orderItems.forEach(item => {
+							statusArray.push(item.status);
+						});
+						this.repairForm.status = Math.min.apply(Math,statusArray);
 						this.$confirm('确认提交吗？', '提示', {}).then(() => {
 							this.repairLoading = true;
 							repairOrder(this.repairForm).then((res) => {

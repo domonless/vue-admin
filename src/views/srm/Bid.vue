@@ -28,7 +28,7 @@
 			</el-table-column>
 			<el-table-column prop="status_desc" label="状态" width="70">
 			</el-table-column>
-			<el-table-column prop="bid_header_number" label="投标编号" width="150">
+			<el-table-column prop="entrustment_header_number" label="招标书编号" width="150">
 			</el-table-column>
 			<el-table-column prop="title" label="询价单标题" show-overflow-tooltip width="200">
 			</el-table-column>
@@ -38,7 +38,7 @@
 			</el-table-column>
 			<el-table-column label="操作">
 				<template scope="scope">
-					<!-- <el-button size="small" type="primary" @click="queryImportDetails(scope.$index, scope.row)" icon="el-icon-search"></el-button> -->
+					<el-button size="small" type="primary" @click="queryDetail(scope.$index, scope.row)" icon="el-icon-search"></el-button>
 					<el-button size="small" @click="handlePriceImport(scope.$index, scope.row)">价格导入</el-button>
 					<el-input id="upload" type="file" size="mini" @change="importFromExcel(this)" accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel" style="display:none;"></el-input>
 				</template>
@@ -61,11 +61,13 @@
 				</el-table-column>
 				<el-table-column prop="quantity" label="数量" width="80">
 				</el-table-column>
-				<el-table-column prop="valid_fb_by_desc" label="供应商" width="150">
+				<el-table-column prop="unit_price" label="含税单价" width="80">
+				</el-table-column>
+				<el-table-column prop="net_price" label="不含税单价" width="90">
 				</el-table-column>
 				<el-table-column prop="tax_type_desc" label="税率" width="80">
 				</el-table-column>
-				<el-table-column prop="unit_price" label="含税单价" width="80">
+				<el-table-column prop="valid_fb_by_desc" label="供应商" width="150">
 				</el-table-column>
 			</el-table>
 		</el-dialog>
@@ -255,7 +257,7 @@
 				this.listLoading = true;
 				this.itemsVisible=true;
 				let that = this;
-				let rfxHeaderId = row.rfx_header_id;
+				// let rfxHeaderId = row.rfx_header_id;
 				let bidHeaderId = row.bid_header_id;
 				//展示的物料
 				that.items = [];
@@ -267,13 +269,13 @@
 				that.queryDetailByHeaderId(bidHeaderId,true);
 				
 				//获取相关的物料
-		        for(let i=bidHeaderId-100;i<bidHeaderId+100;i++){
+		        for(let i=bidHeaderId-200;i<bidHeaderId+500;i++){
 		        	that.queryDetailByHeaderId(i);
 				}
 
 				setTimeout(function(){ 
 					that.listLoading=false;
-				}, 1500);
+				}, 3000);
 
 			},
 			//查询详情
@@ -281,7 +283,7 @@
 				let that = this;
 				that.detailResult = [];
 				xyfAjax.ajax({
-					url:that.rootUrl + 'autocrud/bid.BID7070.bid_bidding_docm_lines/query?bid_header_id='+headerId+'&pagesize=8&pagenum=1&_fetchall=false&_autocount=false',
+					url:that.rootUrl + 'autocrud/bid.BID7070.bid_bidding_docm_lines/query?bid_header_id='+headerId+'&pagesize=8&pagenum=1&_fetchall=true&_autocount=false',
 					type:'post', //or post
 					dataType:'json', //or jsonp
 					data:{
