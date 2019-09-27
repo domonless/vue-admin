@@ -848,11 +848,11 @@
 			},
 			//多选可选控制
 			checkSelectable(row,index){
-				if(this.sels.length == 0){
-					return true;
-				}else{
-					return this.selectStatus === row.status;
-				}
+				if(this.sels.length == 0 || this.sels.some(el=>{return el.status===row.status})){
+		           return true;
+		        }else{
+		           return false;
+		        }
 			},
 			//分页
 			handleCurrentChange(val) {

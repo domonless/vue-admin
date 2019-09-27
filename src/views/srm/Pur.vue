@@ -53,7 +53,7 @@
 
 		<!--查看界面-->
 		<el-dialog title="报价详情" :visible.sync="itemsVisible" :close-on-click-modal="false">
-			<div style="color:red;margin-top:-20px;margin-bottom:10px;font-size:9px"> * 若供应商已参与但查询不出数据，点击上方更新数据按钮进行更新</div>
+			<div style="color:red;margin-top:-20px;margin-bottom:10px;font-size:18px"> * 若供应商已参与但查询不出数据，点击上方更新数据按钮进行更新</div>
 			{{paticipatedCompany}}
 			<el-table :data="items" highlight-current-row v-loading="listLoading" style="width: 100%;">
 			    <el-table-column  type="index" width="45">
