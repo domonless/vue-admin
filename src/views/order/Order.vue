@@ -370,8 +370,9 @@
 		<!--物料列表界面-->
 		<el-dialog title="物料列表" :visible.sync="itemsVisible" :close-on-click-modal="false" @close="closeDialog">
 			<el-input v-model="filters.name" placeholder="按名称或编号搜索" @input="getItems" style="margin-bottom:20px"></el-input>
+			提示: 直接按回车键即可替换，数量默认为之前的数量
 			<!--列表-->
-			<el-table :data="items" highlight-current-row v-loading="itemsLoading" style="width: 100%;margin-top:10px" height="500">
+			<el-table :data="items" highlight-current-row v-loading="itemsLoading" style="width: 100%;margin-top:10px" :row-class-name="tableRowClassName" height="500">
 			    <el-table-column prop="itemNumber" label="编号" width="70">
 				</el-table-column>
 				<el-table-column prop="name" label="名称" width="120">
@@ -577,6 +578,12 @@
 			}
 		},
 		methods: {
+			tableRowClassName({row, rowIndex}) {
+				if (new Date(row.endTime) < new Date()) {
+				  return 'error-row';
+				}
+				return '';
+			},
 			formatDate: function (row, column) {
 				return util.formatDate.format(new Date(row.endTime),"yyyy-MM-dd");
 			},

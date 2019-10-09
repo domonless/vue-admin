@@ -87,11 +87,21 @@ axios.interceptors.response.use(
   //     }}
   error => {
     console.log('err' + error);// for debug
-    Message({
-      message: '获取数据失败，请刷新重试',
-      type: 'error',
-      duration: 3 * 1000
-    });
+    if (error.response.status == 410 || error.response.status == 401) {
+        Message({
+          message: '请重新登录',
+          type: 'error',
+          duration: 3 * 1000
+        });
+        window.location.href="/#/login"
+      }else{
+        Message({
+          message: '获取数据失败，请刷新重试',
+          type: 'error',
+          duration: 3 * 1000
+        });
+      }
+
     return Promise.reject(error);
   }
 )
