@@ -1375,6 +1375,8 @@
 		    	}else if(this.sendForm.template==5){
 		    		LODOP.NewPage();
 		    		this.loadPrintTemplate5(page);
+		    	}else if(this.sendForm.template==6){
+		    		this.loadPrintTemplate6(page);
 		    	}
 		    },
 		    //送货单模版一
@@ -1837,7 +1839,7 @@
 				LODOP.ADD_PRINT_TEXT(221,579,89,20,this.sendForm.area);
 				LODOP.SET_PRINT_STYLEA(0,"FontSize",11);
 		    },
-		    //送货单模版三
+		    //送货单模版5
 		    loadPrintTemplate5:function(page){
 		    	//背景
 		    	LODOP.ADD_PRINT_SETUP_BKIMG("<img border='0' src='https://bapi.kyb66.com/img/template/template5.png' width='793px' height='1123px'>");
@@ -1905,6 +1907,158 @@
 				LODOP.SET_PRINT_STYLEA(0,"FontSize",10.5);
 				LODOP.ADD_PRINT_TEXT(206,146,89,20,this.sendForm.area);
 				LODOP.SET_PRINT_STYLEA(0,"FontSize",10.5);
+		    },
+		    //送货单模版6
+		    loadPrintTemplate6:function(page){
+		    	LODOP.ADD_PRINT_TEXT(page*this.height+77,326,104,30,"送 货 单");
+				LODOP.SET_PRINT_STYLEA(0,"FontSize",16);
+				LODOP.SET_PRINT_STYLEA(0,"Bold",1);
+				LODOP.ADD_PRINT_TEXT(page*this.height+124,96,445,25,"发票抬头：");
+				LODOP.SET_PRINT_STYLEA(0,"FontSize",10);
+				LODOP.SET_PRINT_STYLEA(0,"Bold",1);
+				LODOP.ADD_PRINT_TEXT(page*this.height+124,176,550,25,this.sendForm.demander);
+				LODOP.SET_PRINT_STYLEA(0,"FontSize",10);
+				LODOP.SET_PRINT_STYLEA(0,"Bold",1);
+				LODOP.ADD_PRINT_TEXT(page*this.height+149,96,275,25,"供应商：");
+				LODOP.SET_PRINT_STYLEA(0,"FontSize",10);
+				LODOP.SET_PRINT_STYLEA(0,"Bold",1);
+				LODOP.ADD_PRINT_TEXT(page*this.height+149,160,275,25,this.sendForm.provider);
+				LODOP.SET_PRINT_STYLEA(0,"FontSize",10);
+				LODOP.SET_PRINT_STYLEA(0,"Bold",1);
+				LODOP.ADD_PRINT_TEXT(page*this.height+149,430,275,25,"送货时间：");
+				LODOP.SET_PRINT_STYLEA(0,"FontSize",10);
+				LODOP.SET_PRINT_STYLEA(0,"Bold",1);
+				LODOP.ADD_PRINT_TEXT(page*this.height+174,430,275,24,"订单编号：");
+				LODOP.SET_PRINT_STYLEA(0,"FontSize",10);
+				LODOP.SET_PRINT_STYLEA(0,"Bold",1);
+				LODOP.ADD_PRINT_TEXT(page*this.height+174,500,275,24,this.sendForm.cdSn==''?'提前送货':this.sendForm.cdSn);
+				LODOP.SET_PRINT_STYLEA(0,"FontSize",10);
+				LODOP.SET_PRINT_STYLEA(0,"Bold",1);
+				LODOP.ADD_PRINT_TEXT(page*this.height+213,95,50,25,"序号");
+				LODOP.SET_PRINT_STYLEA(0,"FontSize",10);
+				LODOP.SET_PRINT_STYLEA(0,"Alignment",2);
+				LODOP.ADD_PRINT_TEXT(page*this.height+213,145,80,25,"编号");
+				LODOP.SET_PRINT_STYLEA(0,"FontSize",10);
+				LODOP.SET_PRINT_STYLEA(0,"Alignment",2);
+				LODOP.ADD_PRINT_TEXT(page*this.height+213,225,130,25,"名称及规格");
+				LODOP.SET_PRINT_STYLEA(0,"FontSize",10);
+				LODOP.SET_PRINT_STYLEA(0,"Alignment",2);
+				LODOP.ADD_PRINT_TEXT(page*this.height+213,355,55,25,"单位");
+				LODOP.SET_PRINT_STYLEA(0,"FontSize",10);
+				LODOP.SET_PRINT_STYLEA(0,"Alignment",2);
+				LODOP.ADD_PRINT_TEXT(page*this.height+213,410,60,25,"数量");
+				LODOP.SET_PRINT_STYLEA(0,"FontSize",10);
+				LODOP.SET_PRINT_STYLEA(0,"Alignment",2);
+				LODOP.ADD_PRINT_TEXT(page*this.height+213,470,60,25,"单价");
+				LODOP.SET_PRINT_STYLEA(0,"FontSize",10);
+				LODOP.SET_PRINT_STYLEA(0,"Alignment",2);
+				LODOP.ADD_PRINT_TEXT(page*this.height+213,530,80,25,"金额");
+				LODOP.SET_PRINT_STYLEA(0,"FontSize",10);
+				LODOP.SET_PRINT_STYLEA(0,"Alignment",2);
+				LODOP.ADD_PRINT_TEXT(page*this.height+213,610,90,25,"备注");
+				LODOP.SET_PRINT_STYLEA(0,"FontSize",10);
+				LODOP.SET_PRINT_STYLEA(0,"Alignment",2);
+				//线，竖杠(上边距1,1左边距,上边距2,2左边距,intLineStyle, intLineWidth)
+				//intLineStyle:线条类型，默认为0；0--实线 1--破折线 2--点线 3--点划线 4--双点划线
+		        //intLineWidth:线条宽，默认是1，整数型，单位是(打印)像素，非实线的线条宽也是0。
+				LODOP.ADD_PRINT_LINE(page*this.height+210,95,page*this.height+210,700,0,1);
+				LODOP.ADD_PRINT_LINE(page*this.height+210,95,page*this.height+233,95,0,1);
+				LODOP.ADD_PRINT_LINE(page*this.height+210,145,page*this.height+233,145,0,1);
+				LODOP.ADD_PRINT_LINE(page*this.height+210,225,page*this.height+233,225,0,1);
+				LODOP.ADD_PRINT_LINE(page*this.height+210,355,page*this.height+233,355,0,1);
+				LODOP.ADD_PRINT_LINE(page*this.height+210,410,page*this.height+233,410,0,1);
+				LODOP.ADD_PRINT_LINE(page*this.height+210,470,page*this.height+233,470,0,1);
+				LODOP.ADD_PRINT_LINE(page*this.height+210,530,page*this.height+233,530,0,1);
+				LODOP.ADD_PRINT_LINE(page*this.height+210,610,page*this.height+233,610,0,1);
+				LODOP.ADD_PRINT_LINE(page*this.height+210,700,page*this.height+233,700,0,1);
+				
+				//--行内容
+				let sum = 0;
+				let restCount = this.sels.length - page*this.pageSize;
+				for (let j = page*this.pageSize; j <  (restCount<this.pageSize?this.sels.length:this.pageSize*(page+1)); j++) {
+					let i = j+1;
+					let item = this.sels[j];
+					LODOP.ADD_PRINT_TEXT(page*this.height+213+25*i-500*page,95,50,25,i);
+					LODOP.SET_PRINT_STYLEA(0,"FontSize",10);
+					LODOP.SET_PRINT_STYLEA(0,"Alignment",2);
+					//编号
+					LODOP.ADD_PRINT_TEXT(page*this.height+213+25*i-500*page,145,80,25,item.itemNumber);
+					LODOP.SET_PRINT_STYLEA(0,"FontSize",10);
+					LODOP.SET_PRINT_STYLEA(0,"Alignment",2);
+					//名称
+					LODOP.ADD_PRINT_TEXT(page*this.height+213+25*i-500*page,225,130,25,item.name);
+					LODOP.SET_PRINT_STYLEA(0,"FontSize",10);
+					LODOP.SET_PRINT_STYLEA(0,"Alignment",2);
+					//单位
+					LODOP.ADD_PRINT_TEXT(page*this.height+213+25*i-500*page,355,55,25,item.unit);
+					LODOP.SET_PRINT_STYLEA(0,"FontSize",10);
+					LODOP.SET_PRINT_STYLEA(0,"Alignment",2);
+					//数量
+					LODOP.ADD_PRINT_TEXT(page*this.height+213+25*i-500*page,410,60,25,item.count);
+					LODOP.SET_PRINT_STYLEA(0,"FontSize",10);
+					LODOP.SET_PRINT_STYLEA(0,"Alignment",2);
+					//单价
+					LODOP.ADD_PRINT_TEXT(page*this.height+213+25*i-500*page,470,60,25,util.formatNumber(item.price));
+					LODOP.SET_PRINT_STYLEA(0,"FontSize",10);
+					LODOP.SET_PRINT_STYLEA(0,"Alignment",2);
+					//总金额
+					LODOP.ADD_PRINT_TEXT(page*this.height+213+25*i-500*page,530,80,25,util.formatNumber(item.count*item.price));
+					LODOP.SET_PRINT_STYLEA(0,"FontSize",10);
+					LODOP.SET_PRINT_STYLEA(0,"Alignment",2);
+					sum += (item.count*item.price);
+				}
+				sum = util.formatNumber(sum);
+				//格子画线
+				let j = this.pageSize;
+				for (let i = 1; i <= j; i++) {
+					LODOP.ADD_PRINT_LINE(page*this.height+208+25*i,95,page*this.height+208+25*i,701,0,1);
+					LODOP.ADD_PRINT_LINE(page*this.height+208+25*i,95,page*this.height+233+25*i,95,0,1);
+					LODOP.ADD_PRINT_LINE(page*this.height+208+25*i,145,page*this.height+233+25*i,145,0,1);
+					LODOP.ADD_PRINT_LINE(page*this.height+208+25*i,225,page*this.height+233+25*i,225,0,1);
+					LODOP.ADD_PRINT_LINE(page*this.height+208+25*i,355,page*this.height+233+25*i,355,0,1);
+					LODOP.ADD_PRINT_LINE(page*this.height+208+25*i,410,page*this.height+233+25*i,410,0,1);
+					LODOP.ADD_PRINT_LINE(page*this.height+208+25*i,470,page*this.height+233+25*i,470,0,1);
+					LODOP.ADD_PRINT_LINE(page*this.height+208+25*i,530,page*this.height+233+25*i,530,0,1);
+					LODOP.ADD_PRINT_LINE(page*this.height+208+25*i,610,page*this.height+233+25*i,610,0,1);
+					LODOP.ADD_PRINT_LINE(page*this.height+208+25*i,700,page*this.height+233+25*i,700,0,1);
+
+				}
+				LODOP.ADD_PRINT_LINE(page*this.height+233+25*j,95,page*this.height+233+25*j,701,0,1);
+				//合计
+				LODOP.ADD_PRINT_LINE(page*this.height+233+25*j,95,page*this.height+258+25*j,95,0,1);
+				LODOP.ADD_PRINT_LINE(page*this.height+233+25*j,145,page*this.height+258+25*j,145,0,1);
+				LODOP.ADD_PRINT_LINE(page*this.height+233+25*j,225,page*this.height+258+25*j,225,0,1);
+				LODOP.ADD_PRINT_LINE(page*this.height+233+25*j,355,page*this.height+258+25*j,355,0,1);
+				LODOP.ADD_PRINT_LINE(page*this.height+233+25*j,410,page*this.height+258+25*j,410,0,1);
+				LODOP.ADD_PRINT_LINE(page*this.height+233+25*j,470,page*this.height+258+25*j,470,0,1);
+				LODOP.ADD_PRINT_TEXT(page*this.height+238+25*j,470,300,25,"合计："+ sum +"元");
+				LODOP.SET_PRINT_STYLEA(0,"FontSize",11);
+				LODOP.ADD_PRINT_LINE(page*this.height+233+25*j,700,page*this.height+258+25*j,700,0,1);
+				LODOP.ADD_PRINT_LINE(page*this.height+258+25*j,95,page*this.height+258+25*j,701,0,1);
+
+				//大写
+				let k=j+1;
+				LODOP.ADD_PRINT_LINE(page*this.height+233+25*k,95,page*this.height+258+25*k,95,0,1);
+				LODOP.ADD_PRINT_TEXT(page*this.height+238+25*k,250,400,25,"大写人民币："+ util.DX(sum));
+				LODOP.SET_PRINT_STYLEA(0,"FontSize",11);
+				LODOP.ADD_PRINT_LINE(page*this.height+233+25*k,700,page*this.height+258+25*k,700,0,1);
+				LODOP.ADD_PRINT_LINE(page*this.height+258+25*k,95,page*this.height+258+25*k,701,0,1);
+				LODOP.ADD_PRINT_TEXT(page*this.height+790,95,194,25,"供应商联系人： " + this.sendForm.master);
+				LODOP.SET_PRINT_STYLEA(0,"FontSize",11);
+				LODOP.ADD_PRINT_TEXT(page*this.height+790,445,172,25,"联系电话：" + this.sendForm.phone);
+				LODOP.SET_PRINT_STYLEA(0,"FontSize",11);
+				LODOP.ADD_PRINT_TEXT(page*this.height+816,95,300,25,"送货方地址：" + this.sendForm.address);
+				LODOP.SET_PRINT_STYLEA(0,"FontSize",11);
+				LODOP.ADD_PRINT_TEXT(page*this.height+875,95,300,25,"供应商盖章：");
+				LODOP.SET_PRINT_STYLEA(0,"FontSize",11);
+				LODOP.ADD_PRINT_TEXT(page*this.height+836,445,107,25,"仓库签名：");
+				LODOP.SET_PRINT_STYLEA(0,"FontSize",11);
+				LODOP.ADD_PRINT_TEXT(page*this.height+836,580,109,25,"请购人签名：");
+				LODOP.SET_PRINT_STYLEA(0,"FontSize",11);
+				LODOP.ADD_PRINT_TEXT(page*this.height+875,445,94,25,"收货日期：");
+				LODOP.SET_PRINT_STYLEA(0,"FontSize",11);
+				LODOP.ADD_PRINT_TEXT(page*this.height+875,580,96,25,"收货日期：");
+				LODOP.SET_PRINT_STYLEA(0,"FontSize",11);
 		    },
 		    handlePrint: function(){
 		    	LODOP=getLodop();  

@@ -63,27 +63,27 @@
 				<el-form-item label="送货单" prop="template">
 					<el-radio v-model="editForm.template" label="1">
 						<viewer :images="signImages">
-				        	<img src="https://bapi.kyb66.com/img/template/template1.png" width="50">
+				        	<img src="https://bapi.kyb66.com/img/template/template1.png">
 				    	</viewer>
 				    </el-radio>
   					<el-radio v-model="editForm.template" label="2">
 	  					<viewer :images="signImages">
-					        <img src="https://bapi.kyb66.com/img/template/template2.png" width="50">
+					        <img src="https://bapi.kyb66.com/img/template/template2.png">
 					    </viewer>
 					</el-radio>
   					<el-radio v-model="editForm.template" label="3">
 	  					<viewer :images="signImages">
-					        <img src="https://bapi.kyb66.com/img/template/template3.png" width="50">
+					        <img src="https://bapi.kyb66.com/img/template/template3.png">
 					    </viewer>
 					</el-radio>
 					<el-radio v-model="editForm.template" label="4">
 	  					<viewer :images="signImages">
-					        <img src="https://bapi.kyb66.com/img/template/model4.png" width="50">
+					        <img src="https://bapi.kyb66.com/img/template/model4.png">
 					    </viewer>
 					</el-radio>
 					<el-radio v-model="editForm.template" label="5">
 	  					<viewer :images="signImages">
-					        <img src="https://bapi.kyb66.com/img/template/template5.png" width="50">
+					        <img src="https://bapi.kyb66.com/img/template/template5.png">
 					    </viewer>
 					</el-radio>
 				</el-form-item>
@@ -118,27 +118,27 @@
 				<el-form-item label="送货单" prop="template">
 					<el-radio v-model="addForm.template" label="1">
 						<viewer :images="signImages">
-					        <img src="https://bapi.kyb66.com/img/template/template1.png" width="50">
+					        <img src="https://bapi.kyb66.com/img/template/template1.png">
 					    </viewer>
 					</el-radio>
   					<el-radio v-model="addForm.template" label="2">
   						<viewer :images="signImages">
-					        <img src="https://bapi.kyb66.com/img/template/template2.png" width="50">
+					        <img src="https://bapi.kyb66.com/img/template/template2.png">
 					    </viewer>
   					</el-radio>
   					<el-radio v-model="addForm.template" label="3">
   						<viewer :images="signImages">
-					        <img src="https://bapi.kyb66.com/img/template/template3.png" width="50">
+					        <img src="https://bapi.kyb66.com/img/template/template3.png">
 					    </viewer>
   					</el-radio>
   					<el-radio v-model="addForm.template" label="4">
   						<viewer :images="signImages">
-					        <img src="https://bapi.kyb66.com/img/template/model4.png" width="50">
+					        <img src="https://bapi.kyb66.com/img/template/model4.png">
 					    </viewer>
   					</el-radio>
   					<el-radio v-model="editForm.template" label="5">
 	  					<viewer :images="signImages">
-					        <img src="https://bapi.kyb66.com/img/template/template5.png" width="50">
+					        <img src="https://bapi.kyb66.com/img/template/template5.png">
 					    </viewer>
 					</el-radio>
 				</el-form-item>
@@ -355,5 +355,9 @@
 </script>
 
 <style scoped>
+
+  img{
+  	width:50px;
+  }
 
 </style>
