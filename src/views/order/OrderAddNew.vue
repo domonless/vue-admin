@@ -3,7 +3,7 @@
 		<el-form :model="addForm" label-width="80px" :rules="addFormRules" ref="addForm" :inline="true">
 			<br>
 			<el-form-item label="供应商" prop="providerId">
-				<el-select v-model="addForm.providerId" placeholder="请选择" @change="providerChangeHandler" clearable>
+				<el-select v-model="addForm.providerId" filterable placeholder="请选择" @change="providerChangeHandler" clearable>
 				    <el-option
 				      v-for="item in providers"
 				      :key="item.id"
@@ -44,6 +44,19 @@
 				    </el-option>
 			  	</el-select>
 			</el-form-item>
+			<el-form-item label="是否代购" prop="isAgent">
+				<el-radio v-model="addForm.isAgent" label="1">是</el-radio>
+					<el-radio v-model="addForm.isAgent" label="0">否</el-radio>
+			</el-form-item>
+			<br>
+
+			<el-form-item label="订单编号" prop="cdSn">
+				<el-input v-model="addForm.cdSn"></el-input>
+			</el-form-item>
+			<el-form-item label="请购编号" prop="qgSn">
+				<el-input v-model="addForm.qgSn"></el-input>
+			</el-form-item>
+			<el-button type="primary" :disabled="!this.addForm.providerId || !this.addForm.areaId" @click="showItemList">物料列表</el-button>
 			<br>
 			<el-form-item label="采购类型" prop="typeId">
 				<el-select v-model="addForm.typeId" filterable placeholder="请选择" clearable>
@@ -68,16 +81,10 @@
 			<br>
 
 			<el-form-item label="备注" prop="remark">
-				<el-input type="textarea" placeholder="采购、请购人、项目" v-model="addForm.remark" clearable></el-input>
+				<el-input type="textarea" placeholder="项目" v-model="addForm.remark" clearable></el-input>
 			</el-form-item>
-			<el-form-item label="是否代购" prop="isAgent">
-				<el-radio v-model="addForm.isAgent" label="1">是</el-radio>
-				<el-radio v-model="addForm.isAgent" label="0">否</el-radio>
-			</el-form-item>
-			
-			<el-button type="primary" :disabled="!this.addForm.providerId" @click="showItemList">物料列表</el-button>
 			<br>
-
+			
 			<!-- 订单物料列表 -->
 			<el-form-item label="物料列表" prop="itemList">
 				<el-table :data="addForm.itemList" border fit highlight-current-row>
@@ -96,6 +103,9 @@
 					<el-table-column prop="price" label="价格" width="80">
 					</el-table-column>
 					<el-table-column prop="count" label="数量" width="80">
+						<template scope="scope">
+							<el-input type="number" size="mini" :min="1" :max="99999" :value="scope.row.count" :key="scope.row.id" @change="handleGoodsCountChange(scope.$index, scope.row, $event)"></el-input>
+						</template>
 					</el-table-column>
 					<el-table-column prop="endTime" label="截止日期" width="120" :formatter="formatDate">
 					</el-table-column>
@@ -174,7 +184,7 @@
 <script>
 	import util from '../../common/js/util'
 	//import NProgress from 'nprogress'
-	import { addOrder, getItemList, getProviderList, getDemanderList, getPurchaserList, getBuyerList, getTypeList, getAreaList} from '../../api/api';
+	import { addOrder, getItemList, getPurchaserList, getBuyerList, getTypeList, getProviderList, getDemanderList, getAreaList} from '../../api/api';
 	export default {
 		data() {
 			return {
@@ -190,12 +200,6 @@
 					areaId: ''
 				},
 
-				//采购组织
-				areas: [],
-
-				//采购类型
-				types: [],
-
 				//供应商
 				providers: [],
 
@@ -208,34 +212,38 @@
 				//请购人
 				buyers: [],
 
-				//仓库
-				stockers: [],
+				//采购组织
+				areas: [],
+
+				//采购类型
+				types: [],
 
 				//校验规则
 				addFormRules: {
+					cdSn: [
+						{ required: true, message: '请输入订单编号', trigger: 'blur' },
+						// { min: 12, message: '请输入12位或14位订单编号'}
+					],
+					// qgSn: [
+					// 	{ required: true, message: '请输入请购编号', trigger: 'blur' },
+					// 	{ min: 12, message: '请输入12位请购编号'}
+					// ],
 					providerId: [
 						{ required: true, message: '请选择供应商', trigger: 'blur', type: 'number'}
 					],
 					demanderId: [
-						{ required: true, message: '请选择需求公司', trigger: 'blur', type: 'number'}
+						{ required: true, message: '请选择需求公司', trigger: 'blur', type: 'number' }
 					],
 					purchaserId: [
-						{ required: true, message: '请选择采购员', trigger: 'blur', type: 'number'}
+						{ required: true, message: '请选择采购员', trigger: 'blur', type: 'number' }
 					],
 					areaId: [
-						{ required: true, message: '请选择采购组织', trigger: 'blur', type: 'number'}
-					],
-					demanderId: [
-						{ required: true, message: '请选择需求公司', trigger: 'blur', type: 'number'}
-					],
-					remark: [
-						{ required: true, message: '请备注点什么吧', trigger: 'blur'}
+						{ required: true, message: '请选择采购组织', trigger: 'blur', type: 'number' }
 					]
 				},
 
 				//新增界面数据
 				addForm: {
-					status: 9,
 					cdSn: '',
 					qgSn: '',
 					providerId: '',
@@ -244,12 +252,13 @@
 					buyerId: '',
 					areaId: '',
 					typeId: '',
+					isAgent:'0',
 					sum: 0,
-					isAgent: '0',
 					itemList: []
 				},
+
 				count:0,
-				
+
 				isEdit:false,
 				editIndex:'',
 				editRow:'',
@@ -291,7 +300,7 @@
                     size:20,
 					name: this.filters.name,
 					providerId:this.filters.providerId,
-					areaId: this.filters.areaId,
+					areaId:this.filters.areaId,
 					isOrderAdd:this.isOrderAdd?'':'1'
 				};
 				this.itemsLoading = true;
@@ -307,40 +316,6 @@
 	                } else {
 						this.items = res.data.data.list
 						this.total = res.data.data.total
-					}
-				});
-			},
-			//获取供应商列表
-			getProviders() {
-				let para = {
-				};
-				getProviderList(para).then((res) => {
-					let msg = res.data.message;
-                	let code = res.data.code;
-					if (code !== 200) {
-	                  this.$message({
-	                    message: msg,
-	                    type: 'error'
-	                  });
-	                } else {
-						this.providers = res.data.data.list
-					}
-				});
-			},
-			//获取需求公司列表
-			getDemanders() {
-				let para = {
-				};
-				getDemanderList(para).then((res) => {
-					let msg = res.data.message;
-                	let code = res.data.code;
-					if (code !== 200) {
-	                  this.$message({
-	                    message: msg,
-	                    type: 'error'
-	                  });
-	                } else {
-						this.demanders = res.data.data.list
 					}
 				});
 			},
@@ -412,6 +387,40 @@
 					}
 				});
 			},
+			//获取供应商列表
+			getProviders() {
+				let para = {
+				};
+				getProviderList(para).then((res) => {
+					let msg = res.data.message;
+                	let code = res.data.code;
+					if (code !== 200) {
+	                  this.$message({
+	                    message: msg,
+	                    type: 'error'
+	                  });
+	                } else {
+						this.providers = res.data.data.list
+					}
+				});
+			},
+			//获取需求公司列表
+			getDemanders() {
+				let para = {
+				};
+				getDemanderList(para).then((res) => {
+					let msg = res.data.message;
+                	let code = res.data.code;
+					if (code !== 200) {
+	                  this.$message({
+	                    message: msg,
+	                    type: 'error'
+	                  });
+	                } else {
+						this.demanders = res.data.data.list
+					}
+				});
+			},
 
 			//新增订单
 			addSubmit: function () {
@@ -424,8 +433,10 @@
 				            });
 				            return false;
 						}
+						//NProgress.start();
 						this.addLoading = true;
 						addOrder(this.addForm).then((res) => {
+							//NProgress.done();
 							this.addLoading = false;
 							let msg = res.data.message;
 		                	let code = res.data.code;
@@ -449,7 +460,6 @@
 			backList: function(){
 				this.$router.push({path: '/order/list'});
 			},
-
 			//弹出物料列表
 			showItemList: function(){
 				this.filters.name='';
@@ -457,12 +467,11 @@
 				this.getItems();
 				this.itemsVisible = true;
 			},
-
 			handleCurrentChange(val) {
 				this.page = val;
 				this.getItems();
 			},
-
+			//处理回车
 			handleEnter(){
 				if(this.items.length>0){
 					this.handleAdd(this.items[0]);
@@ -511,10 +520,6 @@
 				this.count -= row.count;
 				this.addForm.sum = util.formatNumber(sum);
 			},
-			//处理物料数量
-			handleItemCountChange: function(index, row, e){
-				row.count = Number(e);
-			},
 			providerChangeHandler(){
 				this.filters.providerId = this.addForm.providerId;
 				//清空选择的物料
@@ -529,22 +534,21 @@
 				this.addForm.sum = 0;
 				this.count = 0;
 			}
-
 		},
 		mounted() {
 			this.getProviders();
-			this.getDemanders();
 			this.getPurchasers();
 			this.getBuyers();
 			this.getAreas();
 			this.getTypes();
+			this.getDemanders();
 		}
 	}
 
 </script>
 
 <style scoped>
-	.select-option{
+  .select-option{
   	width: 800px;
   }
   .demo-table-expand {

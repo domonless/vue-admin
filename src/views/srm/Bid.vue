@@ -254,11 +254,18 @@
 			},
 			//查询报价详情
 			queryDetail:function(index, row){
-				this.listLoading = true;
-				this.itemsVisible=true;
 				let that = this;
 				// let rfxHeaderId = row.rfx_header_id;
 				let bidHeaderId = row.bid_header_id;
+				if(bidHeaderId==undefined){
+					that.$message({
+						message: "请先参与投标再进行其他操作",
+						type: 'error'
+					});
+					return;
+				}
+				this.listLoading = true;
+				this.itemsVisible=true;
 				//展示的物料
 				that.items = [];
 				//line_item_id
@@ -269,13 +276,13 @@
 				that.queryDetailByHeaderId(bidHeaderId,true);
 				
 				//获取相关的物料
-		        for(let i=bidHeaderId-200;i<bidHeaderId+500;i++){
+		        for(let i=bidHeaderId-400;i<bidHeaderId+600;i++){
 		        	that.queryDetailByHeaderId(i);
 				}
 
 				setTimeout(function(){ 
 					that.listLoading=false;
-				}, 3000);
+				}, 5000);
 
 			},
 			//查询详情
@@ -481,8 +488,15 @@
 			},
 			//价格导入处理
 			handlePriceImport:function(index, row){
-				this.isAnnualPriceImportShow = true;
 				this.importForm = Object.assign({}, row);
+				if(this.importForm.bid_header_id==undefined){
+					this.$message({
+						message: "请先参与投标再进行其他操作",
+						type: 'error'
+					});
+					return;
+				}
+				this.isAnnualPriceImportShow = true;
 			},
 			//上传点击
 			uploadClick(){
