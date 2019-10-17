@@ -261,8 +261,6 @@
 			handleGoodsCountChange: function(index, row, e){
 				let oldCount = row.count;
 				row.count = Number(e);
-				console.log(oldCount);
-				console.log(row.count);
 				this.count = this.count + row.count - oldCount;
 				this.addForm.sum = util.formatNumber(this.addForm.sum + (row.count - oldCount)*row.price);
 			},

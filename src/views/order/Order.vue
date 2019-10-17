@@ -752,9 +752,9 @@
     			exportItems = this.orderItems;
 				require.ensure([], () => {
 			　　　const { export_json_to_excel } = require('../../excel/Export2Excel');
-			　　　const tHeader = ['编号','名称','品牌','规格','单位','价格'];
+			　　　const tHeader = ['编号','名称','品牌','规格','单位','价格','数量'];
 			　　　// 上面设置Excel的表格第一行的标题
-			　　　const filterVal = ['itemNumber','name','brand','form','unit','price'];
+			　　　const filterVal = ['itemNumber','name','brand','form','unit','price','count'];
 			　　　// 上面的index、phone_Num、school_Name是tableData里对象的属性
 			　　　const list = exportItems;  //把data里的tableData存到list
 			　　　const data = this.formatJson(filterVal, list);

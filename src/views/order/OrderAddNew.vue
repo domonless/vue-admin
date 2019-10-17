@@ -102,7 +102,7 @@
 					</el-table-column>
 					<el-table-column prop="price" label="价格" width="80">
 					</el-table-column>
-					<el-table-column prop="count" label="数量" width="80">
+					<el-table-column prop="count" label="数量" width="120">
 						<template scope="scope">
 							<el-input type="number" size="mini" :min="1" :max="99999" :value="scope.row.count" :key="scope.row.id" @change="handleGoodsCountChange(scope.$index, scope.row, $event)"></el-input>
 						</template>
@@ -270,8 +270,6 @@
 			handleGoodsCountChange: function(index, row, e){
 				let oldCount = row.count;
 				row.count = Number(e);
-				console.log(oldCount);
-				console.log(row.count);
 				this.count = this.count + row.count - oldCount;
 				this.addForm.sum = util.formatNumber(this.addForm.sum + (row.count - oldCount)*row.price);
 			},

@@ -37,7 +37,7 @@ export function needCLodop() {
                     return true;
             }
         }
-        return false;
+        return true;
     } catch (err) {
         return true;
     }
