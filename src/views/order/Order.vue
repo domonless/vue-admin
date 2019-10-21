@@ -78,7 +78,7 @@
 
 		<!--列表-->
 		<el-table :data="orders" highlight-current-row v-loading="listLoading" style="width: 100%;">
-			<el-table-column prop="cdSn" label="订单编号" width="160" sortable>
+			<el-table-column prop="cdSn" label="订单编号" width="180" sortable>
 			</el-table-column>
 			<el-table-column prop="demander" show-overflow-tooltip label="需求公司" width="250" sortable>
 			</el-table-column>

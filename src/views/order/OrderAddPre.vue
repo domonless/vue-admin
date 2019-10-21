@@ -125,48 +125,35 @@
 
 		<!--物料列表界面-->
 		<el-dialog title="物料列表" :visible.sync="itemsVisible" :close-on-click-modal="false" >
+			<el-input v-model="filters.name" placeholder="按名称或编号搜索" @input="getItems" style="margin-bottom:20px"></el-input>
 			<el-checkbox v-model="isOrderAdd" @change="getItems"><b>显示过期签价</b></el-checkbox>&nbsp;&nbsp;
-			提示: 按回车键默认添加第一个物料，可上下选择后再回车选中，默认数量为1个
-			<br><br>
-			<el-autocomplete
-			      class="inline-input select-option"
-			      v-model="filters.name"
-			      @input="getItems"
-			      @keyup.enter.native="handleEnter"
-			      :fetch-suggestions="querySearch"
-			      :trigger-on-focus="false"  
-			      placeholder="按名称或编号搜索"
-			      @select="((item)=>handleAdd(item))"
-			  ></el-autocomplete>
-			  <br><br>
-			  <b>总数量：{{count}} &nbsp; &nbsp;总金额：{{addForm.sum}}</b> &nbsp;RMB</b>
-			  <br><br>
-			<el-table :data="addForm.itemList" highlight-current-row height="400" :default-sort="{prop: 'index', order: 'descending'}">
-				<el-table-column prop="index" type="index" label="序号" width="60">
-					<template scope="scope">
-						{{addForm.itemList.length-scope.$index}}
-					</template>
+			提示: 输入数量后按回车键即可添加，默认数量为1个
+			<!--列表-->
+			<el-table :data="items" highlight-current-row v-loading="itemsLoading" style="width: 100%;margin-top:10px" :row-class-name="tableRowClassName" height="500">
+			    <el-table-column prop="itemNumber" label="编号" width="70">
 				</el-table-column>
-				<el-table-column prop="itemNumber" label="编号" width="70">
+				<el-table-column prop="name" label="名称" width="120">
 				</el-table-column>
-				<el-table-column prop="name" show-overflow-tooltip label="名称" width="120">
+				<el-table-column prop="brand" show-overflow-tooltip label="品牌" width="70">
 				</el-table-column>
-				<el-table-column prop="brand" label="品牌" width="80">
+				<el-table-column prop="form" label="规格" width="200">
 				</el-table-column>
-				<el-table-column prop="form" show-overflow-tooltip label="规格" width="200">
-				</el-table-column>
-				<el-table-column prop="unit" label="单位" width="80">
+				<el-table-column prop="unit" label="单位" width="70">
 				</el-table-column>
 				<el-table-column prop="price" label="价格" width="80">
 				</el-table-column>
-				<el-table-column prop="count" label="数量" width="120">
-					<template scope="scope">
-						<el-input type="number" size="mini" :min="1" :max="99999" :value="scope.row.count" :key="scope.row.id" @change="handleGoodsCountChange(scope.$index, scope.row, $event)"></el-input>
-					</template>
+				<el-table-column prop="endTime" label="到期日期" width="95" :formatter="formatDate">
 				</el-table-column>
 				<el-table-column prop="remark" show-overflow-tooltip label="备注" width="80">
 				</el-table-column>
-            </el-table>
+				<el-table-column prop="count" label="数量" width="100">
+					<template scope="scope">
+						<el-input type="number" size="mini" min="1" :key="scope.row.id" @change="handleItemCountChange(scope.$index, scope.row, $event)" @keyup.enter.native="handleAdd(scope.$index, scope.row)"></el-input>
+					</template>
+				</el-table-column>
+			</el-table>
+			<el-pagination layout="prev, pager, next" @current-change="handleCurrentChange" :page-size="20" :total="total" style="float:right;">
+			</el-pagination>
 		</el-dialog>
 	</section>
 </template>
@@ -258,21 +245,6 @@
 			}
 		},
 		methods: {
-			handleGoodsCountChange: function(index, row, e){
-				let oldCount = row.count;
-				row.count = Number(e);
-				this.count = this.count + row.count - oldCount;
-				this.addForm.sum = util.formatNumber(this.addForm.sum + (row.count - oldCount)*row.price);
-			},
-			querySearch(queryString,cb){
-				this.ccb = cb;
-				let arr = [];
-				this.items.forEach((item,index) => {
-					item.value = '【'+item.itemNumber+' '+item.name+'】【'+item.price+'元/'+item.unit+'】【品牌：'+item.brand+'】【规格：'+item.form+'】';
-					arr.push(item);
-				});
-			    cb(arr)
-			},
 			tableRowClassName({row, rowIndex}) {
 				if (new Date(row.endTime) < new Date()) {
 				  return 'error-row';
@@ -461,13 +433,8 @@
 				this.getItems();
 			},
 
-			handleEnter(){
-				if(this.items.length>0){
-					this.handleAdd(this.items[0]);
-				}
-			},
 			//将物料加入订单
-			handleAdd: function (row) {
+			handleAdd: function (index, row) {
 				//默认数量为1
 				if(row.count == 0){
 					row.count++;
@@ -490,8 +457,6 @@
 				let sum = this.addForm.sum + (addItem.price * addItem.count);
 				this.count += row.count;
 				this.addForm.sum = util.formatNumber(sum);
-				this.filters.name = '';
-				this.items=[];
 			},
 			//修改物料
 			handleEdit: function(index, row){
@@ -542,9 +507,6 @@
 </script>
 
 <style scoped>
-	.select-option{
-  	width: 800px;
-  }
   .demo-table-expand {
     font-size: 0;
   }

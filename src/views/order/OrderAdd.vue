@@ -155,7 +155,7 @@
 				</el-table-column>
 				<el-table-column prop="count" label="数量" width="100">
 					<template scope="scope">
-						<el-input type="number" size="mini" :min="1" :max="99999" :key="scope.row.id" @change="handleItemCountChange(scope.$index, scope.row, $event)" @keyup.enter.native="handleAdd(scope.$index, scope.row)"></el-input>
+						<el-input type="number" size="mini" min="1" :key="scope.row.id" @change="handleItemCountChange(scope.$index, scope.row, $event)" @keyup.enter.native="handleAdd(scope.$index, scope.row)"></el-input>
 					</template>
 				</el-table-column>
 			</el-table>
@@ -427,7 +427,6 @@
 			backList: function(){
 				this.$router.push({path: '/order/list'});
 			},
-
 			//弹出物料列表
 			showItemList: function(){
 				this.filters.name='';
@@ -435,12 +434,10 @@
 				this.getItems();
 				this.itemsVisible = true;
 			},
-
 			handleCurrentChange(val) {
 				this.page = val;
 				this.getItems();
 			},
-
 			//将物料加入订单
 			handleAdd: function (index, row) {
 				//默认数量为1

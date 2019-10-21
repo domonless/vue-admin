@@ -28,7 +28,7 @@
 			</el-table-column>
 			<el-table-column prop="status_desc" label="状态" width="70">
 			</el-table-column>
-			<el-table-column prop="entrustment_header_number" label="招标书编号" width="150">
+			<el-table-column prop="entrustment_header_number" label="招标书编号" width="200">
 			</el-table-column>
 			<el-table-column prop="title" label="询价单标题" show-overflow-tooltip width="200">
 			</el-table-column>
