@@ -117,7 +117,20 @@
 
 		<!--编辑界面-->
 		<el-dialog title="编辑" :visible.sync="editFormVisible" :close-on-click-modal="false">
-			<el-form :model="editForm" label-width="80px" ref="editForm">
+			<el-form :model="editForm" label-width="80px" ref="editForm" :rules="editFormRules">
+				<el-form-item label="订单编号" prop="cdSn">
+					<el-input v-model="editForm.cdSn"></el-input>
+				</el-form-item>
+				<el-form-item label="需求公司" prop="demanderId">
+					<el-select v-model="editForm.demanderId" filterable placeholder="请选择" clearable>
+					    <el-option
+					      v-for="item in demanders"
+					      :key="item.id"
+					      :label="item.name"
+					      :value="item.id">
+					    </el-option>
+				  	</el-select>
+				</el-form-item>
 				<el-form-item label="请购人" prop="buyerId">
 					<el-select v-model="editForm.buyerId" filterable placeholder="请选择" clearable>
 					    <el-option
@@ -407,7 +420,7 @@
 	import Cookies from 'js-cookie'
 	import {getLodop} from '../../common/js/LodopFuncs'
 	//import NProgress from 'nprogress'
-	import { userId, getOrderList, editOrder, repairOrder, getOrderDetail, addOrderDetail, editOrderDetail, getProviderList, getPurchaserList, fileOrderUpload, delOrderDetail, getInvoicesByOrderId, getAreaList, getTypeList, getBuyerList, getItemList} from '../../api/api';
+	import { userId, getOrderList, editOrder, repairOrder, getOrderDetail, addOrderDetail, editOrderDetail, getProviderList, getPurchaserList, fileOrderUpload, delOrderDetail, getInvoicesByOrderId, getAreaList, getTypeList, getBuyerList, getItemList, getDemanderList} from '../../api/api';
 
 	var LODOP
 	export default {
@@ -537,6 +550,14 @@
 				//编辑界面数据
 				editForm: {
 				},
+				editFormRules: {
+					cdSn: [
+						{ required: true, message: '请输入订单编号', trigger: 'blur' }
+					],
+					demanderId: [
+						{ required: true, message: '请选择需求公司', trigger: 'blur', type: 'number' }
+					]
+				},
 
 				//入库界面数据
 				inForm: {},
@@ -574,7 +595,9 @@
 				beforeEditSum: 0,
 				afterEditSum: 0,
 
-				canHistory: false
+				canHistory: false,
+
+				demanders: []
 			}
 		},
 		methods: {
@@ -625,7 +648,7 @@
 				let replaceItem = {};
 				replaceItem.id = this.sendForm.id;
 				replaceItem.status = 0;
-				replaceItem.sum = this.sendForm.sum + util.formatNumber((row.price-this.oldItem.price)*this.oldItem.count);
+				replaceItem.sum = util.formatNumber(this.sendForm.sum + util.formatNumber((row.price-this.oldItem.price)*this.oldItem.count));
 				replaceItem.orderItemList = [];
 				this.oldItem.itemId = row.id;
 				replaceItem.orderItemList.push(this.oldItem);
@@ -796,6 +819,23 @@
 	                  });
 	                } else {
 						this.buyers = res.data.data.list
+	                }
+				});
+			},
+			//获取需求公司列表
+			getDemanders() {
+				let para = {
+				};
+				getDemanderList(para).then((res) => {
+					let msg = res.data.message;
+                	let code = res.data.code;
+					if (code !== 200) {
+	                  this.$message({
+	                    message: msg,
+	                    type: 'error'
+	                  });
+	                } else {
+						this.demanders = res.data.data.list
 	                }
 				});
 			},
@@ -1007,32 +1047,38 @@
 			},
 			//编辑
 			editSubmit: function () {
-				this.editLoading = true;
-				let para = { 
-					id: this.editForm.id, 
-					remark: this.editForm.remark,
-					isAgent: this.editForm.isAgent,
-					url: this.editForm.url,
-					buyerId: this.editForm.buyerId,
-					typeId: this.editForm.typeId
-				};
-				editOrder(para).then((res) => {
-					this.editLoading = false;
-					this.editFormVisible = false;
-					let msg = res.data.message;
-                	let code = res.data.code;
-					if (code !== 200) {
-	                  this.$message({
-	                    message: msg,
-	                    type: 'error'
-	                  });
-	                } else {
-						this.$message({
-							message: '提交成功',
-							type: 'success'
+				this.$refs.editForm.validate((valid) => {
+					if (valid) {
+						this.editLoading = true;
+						let para = { 
+							id: this.editForm.id, 
+							remark: this.editForm.remark,
+							isAgent: this.editForm.isAgent,
+							url: this.editForm.url,
+							buyerId: this.editForm.buyerId,
+							typeId: this.editForm.typeId,
+							cdSn: this.editForm.cdSn,
+							demanderId: this.editForm.demanderId
+						};
+						editOrder(para).then((res) => {
+							this.editLoading = false;
+							this.editFormVisible = false;
+							let msg = res.data.message;
+		                	let code = res.data.code;
+							if (code !== 200) {
+			                  this.$message({
+			                    message: msg,
+			                    type: 'error'
+			                  });
+			                } else {
+								this.$message({
+									message: '提交成功',
+									type: 'success'
+								});
+								this.getOrders();
+								this.$refs['editForm'].resetFields();
+							}
 						});
-						this.getOrders();
-						this.$refs['editForm'].resetFields();
 					}
 				});
 			},
@@ -1106,7 +1152,7 @@
 				this.afterEditSum = this.countItemsSum(this.orderItems);
 				this.editItemForm.id = this.sendForm.id;
 				this.editItemForm.cdSn = this.sendForm.cdSn;
-				this.editItemForm.sum = this.sendForm.sum + (this.afterEditSum - this.beforeEditSum);
+				this.editItemForm.sum = util.formatNumber(this.sendForm.sum + (this.afterEditSum - this.beforeEditSum));
 				this.editItemForm.orderItemList = this.orderItems;
 				this.editItemForm.status = 1;
 				this.$confirm('确认提交吗？', '提示', {}).then(() => {
@@ -1136,7 +1182,7 @@
 			handleDeleteItem: function (){
 				this.editItemForm.id = this.sendForm.id;
 				this.editItemForm.cdSn = this.sendForm.cdSn;
-				this.editItemForm.sum = this.sendForm.sum - this.countSelsSum();
+				this.editItemForm.sum = util.formatNumber(this.sendForm.sum - this.countSelsSum());
 				this.editItemForm.itemList = this.sels;
 				this.editItemForm.status = this.sendForm.status;
 				this.$confirm('确认删除吗?', '提示', {
@@ -2157,6 +2203,7 @@
 		mounted() {
 			this.getProviders();
 			this.getPurchasers();
+			this.getDemanders();
 			this.getBuyers();
 			this.getAreas();
 			this.getTypes();

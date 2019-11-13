@@ -53,10 +53,12 @@
 
 		<!--查看界面-->
 		<el-dialog title="报价详情" :visible.sync="itemsVisible" :close-on-click-modal="false">
-			<div style="color:red;margin-top:-20px;margin-bottom:10px;font-size:18px"> * 若供应商已参与但查询不出数据，点击上方更新数据按钮进行更新</div>
+			<div style="margin-top:-20px;margin-bottom:10px;">
+				<span style="color:red;font-size:18px">* 若供应商已参与但查询不出数据，点击上方更新数据按钮进行更新。高亮为最新一轮报价。</span>
+			</div>
 			{{paticipatedCompany}}
-			<el-table :data="items" highlight-current-row v-loading="listLoading" style="width: 100%;">
-			    <el-table-column  type="index" width="45">
+			<el-table :data="items" highlight-current-row v-loading="listLoading" style="width: 100%;" :row-class-name="tableRowClassName" :default-sort="{prop: 'line_num', order: 'ascending'}">
+				<el-table-column prop="line_num" label="#" width="45">
 				</el-table-column>
 				<el-table-column prop="item_desc" show-overflow-tooltip label="物料名称" width="100">
 				</el-table-column>
@@ -177,6 +179,12 @@
 			}
 		},
 		methods: {
+			tableRowClassName({row, rowIndex}) {
+				if (row.header_status!="FINISHED") {
+				  return 'warning-row';
+				}
+				return '';
+			},
 			//登录
 			login:function(){
 				let that = this;
@@ -593,8 +601,9 @@
 									}
 									that.paticipatedCompany = '参与报价的供应商共'+that.relatedProviders.length+'家：';
 									that.relatedProviders.forEach(r => {
+										let phoneNo = "(" + r.contact_mobile + ")";
 										let isIn = r.feedback_status=="NEW"?'(未参与)。':'(已参与)。';
-										let str = r.vendor_desc + isIn;
+										let str = r.vendor_desc + phoneNo + isIn;
 										that.paticipatedCompany += str;
 							        });
 								}
@@ -717,7 +726,7 @@
 							}
 						}
 					})
-				}, 5000);
+				}, 6000);
 			},
 			//价格导入处理
 			handlePriceImport:function(index, row){
@@ -957,5 +966,11 @@
 
 
 <style scoped>
+	.el-table .warning-row {
+	    background: #fdf6ec;
+	  }
+	.el-table .success-row {
+	    background: #f0f9eb;
+	  }
 
 </style>
