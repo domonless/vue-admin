@@ -88,7 +88,7 @@
 
 <script>
 	import util from '../../common/js/util'
-
+	import Cookies from 'js-cookie'
 	import { getProviderList} from '../../api/api';
 	export default {
 		data() {
@@ -139,6 +139,7 @@
 		methods: {
 			//登录
 			login:function(){
+				Cookies.remove('route');
 				let that = this;
 				xyfAjax.ajax({
 					url:that.rootUrl + 'login.svc',

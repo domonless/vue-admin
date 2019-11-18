@@ -4,7 +4,10 @@
 		<el-col :span="24" class="toolbar" style="padding-bottom: 0px;">
 			<el-form :inline="true" :model="filters">
 				<el-form-item>
-					<el-input v-model="filters.detail" placeholder="" @input="getExpenses" clearable></el-input>
+					<el-input v-model="filters.detail" placeholder="开销明细" @input="getExpenses" clearable></el-input>
+				</el-form-item>
+				<el-form-item>
+					<el-input v-model="filters.money" placeholder="金额" @input="getExpenses" clearable></el-input>
 				</el-form-item>
 				<el-form-item>
 					<el-button type="primary" v-on:click="getExpenses" >查询</el-button>
@@ -25,8 +28,9 @@
 			</el-table-column>
 			<el-table-column prop="createTime" label="登记时间" width="200">
 			</el-table-column>
-			<el-table-column label="操作" width="200">
+			<el-table-column label="操作" width="280">
 				<template scope="scope">
+					<el-button size="small" type="info" icon="fa fa-file-picture-o" :disabled="scope.row.imgurl==''" @click="showImg(scope.$index, scope.row)"></el-button>
 					<el-button type="primary" size="small" @click="handleEdit(scope.$index, scope.row)">编辑</el-button>
 					<el-button type="danger" size="small" @click="handleDel(scope.$index, scope.row)">删除</el-button>
 				</template>
@@ -47,6 +51,18 @@
 				</el-form-item>
 				<el-form-item label="金额" prop="money">
 					<el-input type="number" v-model="editForm.money" :maxlength="10" ></el-input>
+				</el-form-item>
+				<el-form-item label="图片" prop="imgurl">
+					<el-upload
+					  class="avatar-uploader"
+					  action=""
+					  accept=".jpg,.jpeg,.png,.gif,.bmp,.pdf,.JPG,.JPEG,.PBG,.GIF,.BMP"
+					  :http-request="uploadImg"
+					  :show-file-list="false">
+					  <img v-if="editForm.imgurl && this.uploadFlag == false" :src="editForm.imgurl" class="avatar">
+					  <i v-else-if="!editForm.imgurl && this.uploadFlag == false" class="el-icon-plus avatar-uploader-icon"></i>
+					  <el-progress v-if="this.uploadFlag" type="circle" :percentage="uploadPercent" style="margin-top:30px;"></el-progress>
+					</el-upload>
 				</el-form-item>
 			</el-form>
 			<div slot="footer" class="dialog-footer">
@@ -85,12 +101,13 @@
 
 <script>
 	import util from '../../common/js/util'
-	import { getExpensesList, addExpenses, editExpenses, getExpensesSum } from '../../api/api';
+	import { getExpensesList, addExpenses, editExpenses, getExpensesSum, fileExpenseUpload } from '../../api/api';
 	export default {
 		data() {
 			return {
 				filters: {
-					detail: ''
+					detail: '',
+					money: ''
 				},
 				expenses: [],
 				total: 0,
@@ -135,6 +152,10 @@
 						label: '耗材'
 					},
 					{
+						value: 9,
+						label: '送货费'
+					},
+					{
 						value: 2,
 						label: '顺丰'
 					},{
@@ -158,6 +179,9 @@
 					},
 				],
 
+				//图片上传
+				uploadFlag: false,
+				uploadPercent:0,
 				//发票金额合计
 				sums:['合计']
 			}
@@ -175,7 +199,8 @@
 				let para = {
 					page:this.page,
                     size:20,
-                    detail:this.filters.detail	
+                    detail:this.filters.detail,
+                    money:this.filters.money
 				};
 				this.listLoading = true;
 				getExpensesSum(para).then((res) => {
@@ -246,7 +271,8 @@
 				this.editForm = {
 					id: row.id,
 					detail: row.detail,
-					money: row.money
+					money: row.money,
+					imgurl: row.imgurl
 				};
 			},
 			//显示新增界面
@@ -317,6 +343,39 @@
 					}
 				});
 			},
+
+			//查看发票图片
+    		showImg: function (index, row) {
+    			window.open(row.imgurl);
+    		},
+    		//上传发票图片
+    		uploadImg(content){
+		    	this.uploadPercent = 0;
+			    this.uploadFlag = true;
+			    let _this = this;
+			    clearInterval(this.time);
+			    this.time = setInterval(function(){  
+		           if(_this.uploadPercent<100){
+		               _this.uploadPercent += 25;//进程条
+		           }else{                 
+		           }          
+		        },100)
+		    	var formData = new FormData();
+		    	formData.append("file", content.file);
+		    	fileExpenseUpload(formData).then((res) => {
+			        this.uploadFlag = false;
+			        let msg = res.data.message;
+                	let code = res.data.code;
+					if (code !== 200) {
+	                  this.$message({
+	                    message: msg,
+	                    type: 'error'
+	                  });
+	                } else {
+						this.editForm.imgurl = res.data.data;
+					}
+		    	});
+		    },
 
 		},
 		mounted() {

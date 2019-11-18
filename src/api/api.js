@@ -270,6 +270,9 @@ export const editExpenses = params => { return axios.post(`${base}/expenses/upda
 
 export const getExpensesSum = params => { return axios.get(`${base}/expenses/list/sum`, { params: params }); };
 
+//上传开销图片
+export const fileExpenseUpload = params => { return axios.post(`${base}/file/expense/upload`, params); };
+
 
 //feedback
 

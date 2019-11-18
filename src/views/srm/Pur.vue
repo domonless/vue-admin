@@ -111,6 +111,7 @@
 
 <script>
 	import util from '../../common/js/util'
+	import Cookies from 'js-cookie'
 
 	import { getProviderList, getFeedBackList, addFeedBack, getMaxFeedBackId} from '../../api/api';
 	export default {
@@ -187,6 +188,7 @@
 			},
 			//登录
 			login:function(){
+				Cookies.remove('route');
 				let that = this;
 				xyfAjax.ajax({
 					url:that.rootUrl + 'login.svc',
