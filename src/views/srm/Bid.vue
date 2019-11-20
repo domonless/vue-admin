@@ -485,7 +485,7 @@
 							}
 						}
 					})
-				}, 6000);
+				}, 15000);
 			},
 			//价格导入处理
 			handlePriceImport:function(index, row){

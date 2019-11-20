@@ -20,6 +20,7 @@ import Demander from './views/demander/Demander.vue'
 import OrderStatistic from './views/statistic/OrderStatistic.vue'
 import ItemStatistic from './views/statistic/ItemStatistic.vue'
 import Expenses from './views/expenses/Expenses.vue'
+import Income from './views/expenses/Income.vue'
 // import InvoiceStatistic from './views/statistic/InvoiceStatistic.vue'
 import Invoice from './views/invoice/Invoice.vue'
 import InvoiceAdd from './views/invoice/InvoiceAdd.vue'
@@ -66,6 +67,7 @@ if(user_info.userId==14){
             redirect: '/expenses/list',
             children: [
                 { path: '/expenses/list', component:Expenses, name: '开销统计' },
+                // { path: '/income/list', component:Income, name: '收银统计' },
             ]
         },
     ];
