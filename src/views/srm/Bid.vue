@@ -23,7 +23,7 @@
 		</el-col>
 
 		<!--列表-->
-		<el-table :data="bids" v-if="isLogin" highlight-current-row style="width: 100%;">
+		<el-table :data="bids" v-if="isLogin" highlight-current-row style="width: 100%;" v-loading="importLoading" element-loading-text = "年价导入中，请勿操作">
 			<el-table-column type="index" label="序号" width="60">
 			</el-table-column>
 			<el-table-column prop="status_desc" label="状态" width="70">
@@ -94,6 +94,7 @@
 		data() {
 			return {
 				listLoading:false,
+				importLoading:false,
 				//是否已登录
 				isLogin:false,
 				//登录名
@@ -434,6 +435,7 @@
 			//保存年价
 			savePrice:function(){
 				let that = this;
+				that.importLoading = true;
 				//查询报价物料数据列表
 				that.queryImportDetails();
 				//将价格加入
@@ -477,15 +479,17 @@
 										type: 'error'
 									});
 								}else{
+									that.importLoading = false;
 									that.$message({
 										message: "导入成功",
 										type: 'success'
 									});
+									document.getElementById("upload").value = '';
 								}
 							}
 						}
 					})
-				}, 15000);
+				}, 30000);
 			},
 			//价格导入处理
 			handlePriceImport:function(index, row){

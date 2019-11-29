@@ -252,6 +252,8 @@ export const fileInvoiceUpload = params => { return axios.post(`${base}/file/inv
 
 
 //统计
+export const getSumStatistic = params => { return axios.get(`${base}/statistic/sum`, { params: params }); };
+
 export const getOrderStatistic = params => { return axios.get(`${base}/statistic/order`, { params: params }); };
 
 export const getItemStatistic = params => { return axios.get(`${base}/statistic/item`, { params: params }); };
@@ -275,10 +277,14 @@ export const fileExpenseUpload = params => { return axios.post(`${base}/file/exp
 
 
 //feedback
-
 export const getFeedBackList = params => { return axios.get(`${base}/feedback/list`, { params: params }); };
 export const getMaxFeedBackId = params => { return axios.get(`${base}/feedback/max`, { params: params }); };
 export const addFeedBack = params => { return axios.post(`${base}/feedback/add`, params); };
+
+
+//结算
+export const getCheckList = params => { return axios.get(`${base}/check/list`, { params: params }); };
+export const addCheck = params => { return axios.post(`${base}/check/add`, params); };
 
 
 

@@ -48,6 +48,7 @@
 				</el-form-item>
 				<el-form-item>
 					<el-button type="primary" v-on:click="getInvoices" >查询</el-button>
+					<el-button type="warning" v-on:click="handleCheck" >汇总</el-button>
 				</el-form-item>
 			</el-form>
 		</el-col>
@@ -173,13 +174,62 @@
 				<el-button type="primary" @click.native="returnSubmit" :loading="returnLoading">提交</el-button>
 			</div>
 		</el-dialog>
+
+		<!--结算界面-->
+		<el-dialog title="结算确认" :visible.sync="checkFormVisible" :close-on-click-modal="false" style="width:600px;margin:0 auto;">
+			<el-form :model="checkForm" label-width="80px" ref="checkForm">
+				<el-form-item label="已回款：" prop="invoice">
+					<span style="color:green;font-weight:bold;">{{checkForm.invoice}}元</span>
+				</el-form-item>
+				<el-form-item label="税额：" prop="tax">
+					<span style="color:red;font-weight:bold;">{{checkForm.tax}}元</span>
+				</el-form-item>
+				<el-form-item label="进货：" prop="bid">
+					<span style="color:red;font-weight:bold;">{{checkForm.bid}}元</span>
+				</el-form-item>
+				<el-form-item label="运费：" prop="fee">
+					<span style="color:red;font-weight:bold;">{{checkForm.fee}}元</span>
+				</el-form-item>
+				<el-form-item label="开销：" prop="expense">
+					<span style="color:red;font-weight:bold;">{{checkForm.expense}}元</span>
+				</el-form-item>
+				<el-form-item label="收益：" prop="income">
+					<span style="color:orange;font-weight:bold;">{{checkForm.income}}元</span>
+				</el-form-item>
+			</el-form>
+			<!-- <div slot="footer" class="dialog-footer">
+				<el-button @click.native="checkFormVisible = false">取消</el-button>
+				<el-button type="primary" @click.native="checkSubmit" :loading="checkLoading">结算</el-button>
+			</div> -->
+		</el-dialog>
+
+		<!--结算记录界面-->
+		<el-dialog title="结算记录" :visible.sync="checkListVisible" :close-on-click-modal="false">
+			<el-table :data="checks" highlight-current-row style="width: 100%;" >
+			    <el-table-column type="index" width="55">
+				</el-table-column>
+				<el-table-column prop="invoice" label="发票金额" width="100">
+				</el-table-column>
+				<el-table-column prop="tax" label="税金" width="70">
+				</el-table-column>
+				<el-table-column prop="bid" label="进货" width="100">
+				</el-table-column>
+				<el-table-column prop="fee" label="运费" width="70">
+				</el-table-column>
+				<el-table-column prop="expense" label="开销" width="100">
+				</el-table-column>
+				<el-table-column prop="createTime" label="结算日期" width="110">
+				</el-table-column>
+			</el-table>
+		</el-dialog>
+
 	</section>
 </template>
 
 <script>
 	import util from '../../common/js/util'
 	import Cookies from 'js-cookie'
-	import { getInvoiceList, getProviderList, editInvoice, delInvoice, getOrdersByInvoiceId, fileInvoiceUpload, getInvoiceSum,getItemsByInvoiceId} from '../../api/api';
+	import { getInvoiceList, getProviderList, editInvoice, delInvoice, getOrdersByInvoiceId, fileInvoiceUpload, getInvoiceSum, getItemsByInvoiceId, getSumStatistic, getCheckList, addCheck} from '../../api/api';
 
 	export default {
 		data() {
@@ -232,6 +282,15 @@
 				//回款数据
 				returnForm: {
 				},
+
+				//结算界面是否显示
+				checkFormVisible: false,
+				checkLoading: false,
+				//结算数据
+				checkForm: {
+				},
+				checkListVisible: false,
+				checks:[],
 
 				//供货商
 				providers:[],
@@ -321,6 +380,23 @@
 	                  });
 	                } else {
 						this.providers = res.data.data.list
+					}
+				});
+			},
+			//获取结算列表
+			getChecks() {
+				let para = {
+				};
+				getCheckList(para).then((res) => {
+					let msg = res.data.message;
+                	let code = res.data.code;
+					if (code !== 200) {
+	                  this.$message({
+	                    message: msg,
+	                    type: 'error'
+	                  });
+	                } else {
+						this.checks = res.data.data.list
 					}
 				});
 			},
@@ -461,6 +537,56 @@
 							});
 							this.getInvoices();
 							this.$refs['returnForm'].resetFields();
+						}
+					});
+				});
+			},
+			//显示结算界面
+			handleCheck: function (index, row) {
+				this.query();
+				this.checkFormVisible = true;
+			},
+			query:function(){
+				let para = {
+				};
+				getSumStatistic(para).then((res) => {
+					let msg = res.data.message;
+                	let code = res.data.code;
+					if (code !== 200) {
+	                  this.$message({
+	                    message: msg,
+	                    type: 'error'
+	                  });
+	                } else {
+						if(res.data.data!=null){
+							this.checkForm = Object.assign({}, res.data.data);
+							this.checkForm.tax = util.formatNumber(this.checkForm.tax);
+							this.checkForm.income = util.formatNumber(this.checkForm.invoice-this.checkForm.tax-this.checkForm.bid-this.checkForm.fee-this.checkForm.expense);
+						}
+					}
+				});
+			},
+			//结算处理
+			checkSubmit: function () {
+				this.$confirm('确认提交吗？', '提示', {}).then(() => {
+					this.checkLoading = true;
+					addCheck(this.checkForm).then((res) => {
+						this.checkLoading = false;
+						this.checkFormVisible = false;
+						let msg = res.data.message;
+	                	let code = res.data.code;
+						if (code !== 200) {
+		                  this.$message({
+		                    message: msg,
+		                    type: 'error'
+		                  });
+		                } else {
+							this.$message({
+								message: '提交成功',
+								type: 'success'
+							});
+							this.getInvoices();
+							this.$refs['checkForm'].resetFields();
 						}
 					});
 				});

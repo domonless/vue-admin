@@ -551,9 +551,6 @@
 				editForm: {
 				},
 				editFormRules: {
-					cdSn: [
-						{ required: true, message: '请输入订单编号', trigger: 'blur' }
-					],
 					demanderId: [
 						{ required: true, message: '请选择需求公司', trigger: 'blur', type: 'number' }
 					]
