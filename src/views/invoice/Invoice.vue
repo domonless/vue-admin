@@ -49,6 +49,7 @@
 				<el-form-item>
 					<el-button type="primary" v-on:click="getInvoices" >查询</el-button>
 					<el-button type="warning" v-on:click="handleCheck" >汇总</el-button>
+					<el-button type="info" v-on:click="getChecks" >汇总记录</el-button>
 				</el-form-item>
 			</el-form>
 		</el-col>
@@ -197,10 +198,10 @@
 					<span style="color:orange;font-weight:bold;">{{checkForm.income}}元</span>
 				</el-form-item>
 			</el-form>
-			<!-- <div slot="footer" class="dialog-footer">
+			<div slot="footer" class="dialog-footer">
 				<el-button @click.native="checkFormVisible = false">取消</el-button>
 				<el-button type="primary" @click.native="checkSubmit" :loading="checkLoading">结算</el-button>
-			</div> -->
+			</div>
 		</el-dialog>
 
 		<!--结算记录界面-->
@@ -208,17 +209,17 @@
 			<el-table :data="checks" highlight-current-row style="width: 100%;" >
 			    <el-table-column type="index" width="55">
 				</el-table-column>
-				<el-table-column prop="invoice" label="发票金额" width="100">
+				<el-table-column prop="invoice" label="发票金额" width="120">
 				</el-table-column>
-				<el-table-column prop="tax" label="税金" width="70">
+				<el-table-column prop="tax" label="税金" width="120">
 				</el-table-column>
-				<el-table-column prop="bid" label="进货" width="100">
+				<el-table-column prop="bid" label="进货" width="120">
 				</el-table-column>
-				<el-table-column prop="fee" label="运费" width="70">
+				<el-table-column prop="fee" label="运费" width="100">
 				</el-table-column>
-				<el-table-column prop="expense" label="开销" width="100">
+				<el-table-column prop="expense" label="开销" width="120">
 				</el-table-column>
-				<el-table-column prop="createTime" label="结算日期" width="110">
+				<el-table-column prop="createTime" label="结算日期" width="180">
 				</el-table-column>
 			</el-table>
 		</el-dialog>
@@ -385,6 +386,7 @@
 			},
 			//获取结算列表
 			getChecks() {
+				this.checkListVisible = true;
 				let para = {
 				};
 				getCheckList(para).then((res) => {
@@ -568,7 +570,7 @@
 			},
 			//结算处理
 			checkSubmit: function () {
-				this.$confirm('确认提交吗？', '提示', {}).then(() => {
+				this.$confirm('结算后数据全部归零，确认提交吗？', '提示', {}).then(() => {
 					this.checkLoading = true;
 					addCheck(this.checkForm).then((res) => {
 						this.checkLoading = false;

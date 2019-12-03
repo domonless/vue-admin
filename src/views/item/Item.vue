@@ -146,7 +146,7 @@
 			<el-button type="danger" @click="batchRemove" :disabled="this.sels.length===0">批量删除</el-button>
 			<el-button type="info" @click="handleBatUpdateImg" :disabled="this.sels.length===0">批量更新选中图片</el-button>
 			<el-button type="warning" @click="handleNoImgSelect" :disabled="this.itemsNoImg.length==0">更新本页没有图片的项</el-button>
-			<el-pagination layout="total, sizes, prev, pager, next" @size-change="handleSizeChange" @current-change="handleCurrentChange" :page-size="pageSize" :total="total" style="float:right;">
+			<el-pagination layout="total, sizes, prev, pager, next" @size-change="handleSizeChange" @current-change="handleCurrentChange" :page-sizes="[8,20,50,100]" :page-size="pageSize" :total="total" style="float:right;">
 			</el-pagination>
 		</el-col>
 
@@ -361,7 +361,7 @@
 				similarItems:[],
 				total: 0,
 				page: 1,
-				pageSize: 20,
+				pageSize: 8,
 				listLoading: false,
 				sels: [],//列表选中列
 				itemsNoImg: [],//没有
@@ -1117,7 +1117,7 @@
   }
 
   .el-table .error-row {
-    background: #e429296b;
+    background: #fa5555;
   }
 
   .el-table .warning-row {
