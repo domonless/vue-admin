@@ -313,6 +313,8 @@
 			//获取需求公司列表
 			getDemanders() {
 				let para = {
+					page:0,
+                    size:300,
 				};
 				getDemanderList(para).then((res) => {
 					let msg = res.data.message;

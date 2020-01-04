@@ -74,16 +74,6 @@
 		<!--新增界面-->
 		<el-dialog title="新增" :visible.sync="addFormVisible" :close-on-click-modal="false">
 			<el-form :model="addForm" label-width="80px" :rules="addFormRules" ref="addForm">
-				<el-form-item label="开销类型" prop="expensesType">
-					<el-select v-model="addForm.expensesType" filterable allow-create default-first-option placeholder="请选择" clearable >
-					    <el-option
-					      v-for="item in types"
-					      :key="item.id"
-					      :label="item.label"
-					      :value="item.label">
-					    </el-option>
-					</el-select>
-				</el-form-item>
 				<el-form-item label="开销明细" prop="detail">
 					<el-input v-model="addForm.detail"></el-input>
 				</el-form-item>
@@ -131,9 +121,6 @@
 				addFormVisible: false,//新增界面是否显示
 				addLoading: false,
 				addFormRules: {
-					expensesType: [
-						{ required: true, message: '请选择类型', trigger: 'blur' }
-					],
 					detail: [
 						{ required: true, message: '请输入开销明细', trigger: 'blur' }
 					],
@@ -145,52 +132,12 @@
 				addForm: {
 				},
 
-				//开销类型
-				types:[
-					{
-						value: 2,
-						label: '耗材'
-					},
-					{
-						value: 3,
-						label: '运费送货费'
-					},
-					{
-						value: 4,
-						label: '办公用品'
-					},
-					{
-						value: 5,
-						label: '员工工资'
-					},
-					{
-						value: 6,
-						label: '水电费'
-					},
-					{
-						value: 7,
-						label: '话费'
-					},
-					{
-						value: 8,
-						label: '加油'
-					},
-					{
-						value: 9,
-						label: '房租'
-					},
-					{
-						value: 99,
-						label: '其他'
-					},
-				],
-
 				//图片上传
 				uploadFlag: false,
 				uploadPercent:0,
 				//发票金额合计
 				sums:['合计'],
-				status:1,
+				status:3,
 			}
 		},
 		methods: {
@@ -287,7 +234,6 @@
 			handleAdd: function () {
 				this.addFormVisible = true;
 				this.addForm = {
-					expensesType:'',
 					detail: '',
 					money: ''
 				};
@@ -325,7 +271,6 @@
 				this.$refs.addForm.validate((valid) => {
 					if (valid) {
 						this.addLoading = true;
-						this.addForm.detail = this.addForm.expensesType +"-"+ this.addForm.detail;
 						this.addForm.status = this.status;
 						let para = Object.assign({}, this.addForm);
 						addExpenses(para).then((res) => {

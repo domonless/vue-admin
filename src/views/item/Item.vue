@@ -146,7 +146,7 @@
 			<el-button type="danger" @click="batchRemove" :disabled="this.sels.length===0">批量删除</el-button>
 			<el-button type="info" @click="handleBatUpdateImg" :disabled="this.sels.length===0">批量更新选中图片</el-button>
 			<el-button type="warning" @click="handleNoImgSelect" :disabled="this.itemsNoImg.length==0">更新本页没有图片的项</el-button>
-			<el-pagination layout="total, sizes, prev, pager, next" @size-change="handleSizeChange" @current-change="handleCurrentChange" :page-sizes="[8,20,50,100]" :page-size="pageSize" :total="total" style="float:right;">
+			<el-pagination layout="total, sizes, prev, pager, next" @size-change="handleSizeChange" @current-change="handleCurrentChange" :page-sizes="[8,10,20,50,100]" :page-size="pageSize" :total="total" style="float:right;">
 			</el-pagination>
 		</el-col>
 
@@ -679,7 +679,7 @@
 					}
 				});
 			},
-			//获取物料倩价列表
+			//获取物料签价列表
 			getItems() {
 				let para = {
 					page:this.page,
@@ -818,7 +818,7 @@
 					price: 0,
 					providerId: '',
 					areaId: '',
-					endTime: new Date(new Date().getTime() + 366*24*60*60*1000-1)
+					endTime: new Date(new Date().getTime() + 366*24*60*60*1000-1).toISOString().substr(0,10)
 				};
 			},
 			//物料签价图片
@@ -944,7 +944,7 @@
 				this.$refs.addForm.validate((valid) => {
 					if (valid) {
 						this.addLoading = true;
-						this.addForm.endTime = this.addForm.endTime;
+						this.addForm.endTime = this.addForm.endTime + " 23:59:59";
 						let para = Object.assign({}, this.addForm);
 						addItem(para).then((res) => {
 							this.addLoading = false;

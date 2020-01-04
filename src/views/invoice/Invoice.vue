@@ -47,9 +47,10 @@
 					</el-select>
 				</el-form-item>
 				<el-form-item>
-					<el-button type="primary" v-on:click="getInvoices" >查询</el-button>
-					<el-button type="warning" v-on:click="handleCheck" >汇总</el-button>
-					<el-button type="info" v-on:click="getChecks" >汇总记录</el-button>
+					<el-button size="mini" type="primary" v-on:click="getInvoices" >查询</el-button>
+					<el-button size="mini" v-if="isAdmin" type="warning" v-on:click="handleCheck" >汇总</el-button>
+					<el-button size="mini" v-if="isAdmin" type="info" v-on:click="getChecks" >汇总记录</el-button>
+					<el-button size="mini" type="success" @click="exportAll" >导出</el-button>
 				</el-form-item>
 			</el-form>
 		</el-col>
@@ -388,6 +389,8 @@
 			getChecks() {
 				this.checkListVisible = true;
 				let para = {
+					page:0,
+                    size:300,
 				};
 				getCheckList(para).then((res) => {
 					let msg = res.data.message;
@@ -703,6 +706,52 @@
 					}
 		    	});
 		    },
+		    //导出发票
+			exportAll() {
+    			let exportInvoices=[];
+    			let start,end = '';
+				if(this.filters.dates!='' && this.filters.dates!=undefined){
+					start = util.formatDate.format(this.filters.dates[0],"yyyy-MM-dd 00:00:00");
+					end = util.formatDate.format(this.filters.dates[1],"yyyy-MM-dd 23:59:59");
+				}
+				let para = {
+                    invoiceSn:this.filters.invoiceSn,
+                    money:this.filters.money,
+                    providerId:this.filters.providerId,
+                    demander:this.filters.demander,
+                    status:this.filters.status,
+                    startTime:start==undefined?'':start,
+                    endTime:end==undefined?'':end
+				};
+				this.listLoading = true;
+				getInvoiceList(para).then((res) => {
+					this.listLoading = false;
+					let msg = res.data.message;
+	            	let code = res.data.code;
+					if (code !== 200) {
+	                  this.$message({
+	                    message: msg,
+	                    type: 'error'
+	                  });
+	                } else {
+						exportInvoices = res.data.data.list
+						require.ensure([], () => {
+					　　　const { export_json_to_excel } = require('../../excel/Export2Excel');
+					　　　const tHeader = ['发票号','发票金额','填开日期'];
+					　　　// 上面设置Excel的表格第一行的标题
+					　　　const filterVal = ['invoiceSn','money','invoiceDate'];
+					　　　// 上面的index、phone_Num、school_Name是tableData里对象的属性
+					　　　const list = exportInvoices;  //把data里的tableData存到list
+					　　　const data = this.formatJson(filterVal, list);
+						 const fileName = '发票导出';
+					　　　export_json_to_excel(tHeader, data, fileName);
+					　})
+	                }
+				});
+			},
+		　　formatJson(filterVal, jsonData) {
+		     return jsonData.map(v => filterVal.map(j => v[j]))
+		   }
 
 		},
 		mounted() {

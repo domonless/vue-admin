@@ -300,6 +300,8 @@
 			//获取需求公司列表
 			getDemanders() {
 				let para = {
+					page:0,
+                    size:300,
 				};
 				getDemanderList(para).then((res) => {
 					let msg = res.data.message;
@@ -317,6 +319,8 @@
 			//获取采购员列表
 			getPurchasers() {
 				let para = {
+					page:0,
+                    size:300,
 				};
 				getPurchaserList(para).then((res) => {
 					let msg = res.data.message;
@@ -334,6 +338,8 @@
 			//获取请购人列表
 			getBuyers() {
 				let para = {
+					page:0,
+                    size:300,
 				};
 				getBuyerList(para).then((res) => {
 					let msg = res.data.message;

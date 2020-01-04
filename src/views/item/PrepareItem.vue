@@ -81,6 +81,8 @@
 					</el-table-column>
 					<el-table-column prop="price" label="单价" width="70">
 					</el-table-column>
+					<el-table-column prop="latestBidPrice" label="最新进价" width="100">
+					</el-table-column>
 					<el-table-column prop="count" label="数量" width="70">
 					</el-table-column>
 					<el-table-column prop="bidPrice" label="进价" width="100">

@@ -89,6 +89,7 @@
 <script>
 	import util from '../../common/js/util'
 	import Cookies from 'js-cookie'
+	import md5 from 'js-md5';
 	import { getProviderList} from '../../api/api';
 	export default {
 		data() {
@@ -151,7 +152,7 @@
    					async: true,
 					data:{
 						user_name:this.loginName,
-						user_password:this.password,
+						user_password:md5(this.password).toUpperCase(),
 						language:'简体中文',
 						user_language:'ZHS'
 					},
@@ -163,6 +164,8 @@
 									message: "账号不存在，请在采购信息管理中更新该供应商招采账号信息",
 									type: 'error'
 								});
+							}else if("页面没有注册"==data.error.message){
+								that.login();
 							}else{
 								that.$message({
 									message: data.error.message,
@@ -278,7 +281,7 @@
 				that.queryDetailByHeaderId(bidHeaderId,true);
 				
 				//获取相关的物料
-		        for(let i=bidHeaderId-400;i<bidHeaderId+600;i++){
+		        for(let i=bidHeaderId-300;i<bidHeaderId+700;i++){
 		        	that.queryDetailByHeaderId(i);
 				}
 
