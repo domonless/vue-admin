@@ -123,6 +123,7 @@
 
 <script>
 	import util from '../../common/js/util'
+	import wx from 'weixin-js-sdk';
 	import Cookies from 'js-cookie'
 	import { getPrepareItemList, getOrderList, editOrderDetail, getRecentItemList } from '../../api/api';
 	export default {
@@ -208,7 +209,22 @@
 				});
 			},
 			handlePdfPrint: function (index, row) {
-				window.open(row.url);
+    			var ua = window.navigator.userAgent.toLowerCase();
+    			//在微信里
+    			if(ua.match(/MicroMessenger/i) == 'micromessenger'){
+    				wx.miniProgram.getEnv((res)=>{
+    					//在小程序里
+    					if (res.miniprogram) {
+    						wx.miniProgram.navigateTo({
+		    					url: '/pages/pdf/pdf?url='+row.url
+		    				});
+    					}else{
+    						window.open(row.url);
+    					}
+    				});
+				}else{
+    				window.open(row.url);
+    			}
     		},
     		//物料相关订单
     		handleRelated: function (index, row) {

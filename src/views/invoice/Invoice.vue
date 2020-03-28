@@ -7,7 +7,7 @@
 					<el-input v-model="filters.invoiceSn" placeholder="发票号" @input="getInvoices" clearable></el-input>
 				</el-form-item>
 				<el-form-item>
-					<el-input v-model="filters.money" placeholder="发票金额" @input="getInvoices" clearable></el-input>
+					<el-input v-model="filters.money" type="number" placeholder="发票金额" @input="getInvoices" clearable></el-input>
 				</el-form-item>
 				<el-form-item label="填开日期范围">
 					<el-date-picker
@@ -180,7 +180,7 @@
 		<!--结算界面-->
 		<el-dialog title="结算确认" :visible.sync="checkFormVisible" :close-on-click-modal="false" style="width:600px;margin:0 auto;">
 			<el-form :model="checkForm" label-width="80px" ref="checkForm">
-				<el-form-item label="已回款：" prop="invoice">
+				<el-form-item label="已开票：" prop="invoice">
 					<span style="color:green;font-weight:bold;">{{checkForm.invoice}}元</span>
 				</el-form-item>
 				<el-form-item label="税额：" prop="tax">

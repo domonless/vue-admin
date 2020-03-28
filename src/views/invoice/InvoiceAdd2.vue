@@ -67,6 +67,7 @@
 		<el-col :span="24" class="r">
 			选中物料金额合计：{{this.selSum}}
 			<el-button type="warning" @click="handleInvoice" :disabled="this.sels.length===0">发票填开</el-button>
+			<el-button type="success" @click="exportAll" :disabled="this.sels.length===0">明细导出</el-button>
 		</el-col>
 		<el-col :span="24" class="footer">
 			<el-pagination layout="total, prev, pager, next" @current-change="handleCurrentChange" :page-size="pageSize" :total="total" style="float:right;">
@@ -430,6 +431,10 @@
 				//选中的订单id数组
 				let selsOrderId = this.$refs.table.getCheckedProp("orderId");
 				//选中的物料数量数组
+				let selsName = this.$refs.table.getCheckedProp("name");
+				//选中的物料数量数组
+				let selsUnit = this.$refs.table.getCheckedProp("unit");
+				//选中的物料数量数组
 				let selsCount = this.$refs.table.getCheckedProp("count");
 				//选中的物料金额数组
 				let selsPrice = this.$refs.table.getCheckedProp("price");
@@ -443,6 +448,8 @@
 						let sel = {};
 						sel.id=selsId[i];
 						sel.orderId=selsOrderId[i];
+						sel.name=selsName[i];
+						sel.unit=selsUnit[i];
 						sel.count=selsCount[i];
 						sel.price=selsPrice[i];
 						this.selSum = util.formatNumber(this.selSum+sel.count*sel.price);
@@ -589,6 +596,24 @@
 					}
 				});
     		},
+    		//导出发票
+			exportAll() {
+				require.ensure([], () => {
+				　　　const { export_json_to_excel } = require('../../excel/Export2Excel');
+				　　　const tHeader = ['名称','单位','单价','数量'];
+				　　　// 上面设置Excel的表格第一行的标题
+				　　　const filterVal = ['name','unit','price','count'];
+				　　　// 上面的index、phone_Num、school_Name是tableData里对象的属性
+				　　　const list = this.sels;  //把data里的tableData存到list
+				　　　const data = this.formatJson(filterVal, list);
+					 const fileName = '开票数据导出';
+				　　　export_json_to_excel(tHeader, data, fileName);
+				});
+			},
+		　　formatJson(filterVal, jsonData) {
+		     return jsonData.map(v => filterVal.map(j => v[j]))
+		   }
+
 		},
 		mounted() {
 			this.$nextTick(() => {
@@ -652,6 +677,6 @@
   	padding-top: 5px;
   	padding-bottom: 5px;
   	background-color: white;
-  	width:300px;
+  	width:500px;
   }
 </style>

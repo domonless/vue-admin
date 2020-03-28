@@ -287,4 +287,15 @@ export const getCheckList = params => { return axios.get(`${base}/check/list`, {
 export const addCheck = params => { return axios.post(`${base}/check/add`, params); };
 
 
+//上传文件
+export const fileUpload = params => { return axios.post(`${base}/file/upload`, params); };
+
+//文件
+export const getFileList = params => { return axios.get(`${base}/user/file/list`, { params: params }); };
+
+export const addFile = params => { return axios.post(`${base}/user/file/add`, params); };
+
+export const editFile = params => { return axios.post(`${base}/user/file/update`, params); };
+
+
 

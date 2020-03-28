@@ -27,6 +27,8 @@ import Invoice from './views/invoice/Invoice.vue'
 import InvoiceAdd from './views/invoice/InvoiceAdd.vue'
 import InvoiceAdd2 from './views/invoice/InvoiceAdd2.vue'
 import Employee from './views/employee/Employee.vue'
+
+import File from './views/file/File.vue'
 import Cookies from 'js-cookie';
 
 let user_info={};
@@ -181,6 +183,16 @@ if(user_info.userId==14){
             redirect: '/employee/list',
             children: [
                 { path: '/employee/list', component:Employee, name: '员工列表' },
+            ]
+        },
+        {
+            path: '/file',
+            component: Home,
+            name: '相册',
+            iconCls: 'fa fa-file-image-o',//图标样式class
+            redirect: '/file/list',
+            children: [
+                { path: '/file/list', component:File, name: '相册' },
             ]
         },
         {

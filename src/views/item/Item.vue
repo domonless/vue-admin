@@ -181,7 +181,7 @@
 					  <pdf v-if="editForm.imgurl && this.uploadFlag == false && editForm.imgurl.endsWith('.pdf')" :src="editForm.imgurl" class="avatar"></pdf>
 					  <img v-if="editForm.imgurl && this.uploadFlag == false && !editForm.imgurl.endsWith('.pdf')" :src="editForm.imgurl" class="avatar">
 					  <i v-else-if="!editForm.imgurl && this.uploadFlag == false" class="el-icon-plus avatar-uploader-icon"></i>
-					  <el-progress v-if="this.uploadFlag" type="circle" :percentage="uploadPercent" style="margin-top:30px;"></el-progress>
+					  <el-progress v-if="this.uploadFlag" type="circle" :percentage="uploadPercent" style="margin-top:30px;margin-left:25px;"></el-progress>
 					</el-upload>
 					<el-button type="warning" size="mini" @click="handleSimilar()">引用图片</el-button>
 				</el-form-item>
@@ -252,7 +252,7 @@
 					  <pdf v-if="batUpdateImgForm.imgurl && this.uploadFlag == false && batUpdateImgForm.imgurl.endsWith('.pdf')" :src="editForm.imgurl" class="avatar"></pdf>
 					  <img v-if="batUpdateImgForm.imgurl && this.uploadFlag == false && !batUpdateImgForm.imgurl.endsWith('.pdf')" :src="editForm.imgurl" class="avatar">
 					  <i v-else-if="!batUpdateImgForm.imgurl && this.uploadFlag == false" class="el-icon-plus avatar-uploader-icon"></i>
-					  <el-progress v-if="this.uploadFlag" type="circle" :percentage="uploadPercent" style="margin-top:30px;"></el-progress>
+					  <el-progress v-if="this.uploadFlag" type="circle" :percentage="uploadPercent" style="margin-top:30px;margin-left:25px;"></el-progress>
 					</el-upload>
 				</el-form-item>
 			</el-form>
@@ -313,7 +313,7 @@
 					  <pdf v-if="addForm.imgurl && this.uploadFlag == false && addForm.imgurl.endsWith('.pdf')" :src="addForm.imgurl" class="avatar"></pdf>
 					  <img v-if="addForm.imgurl && this.uploadFlag == false && !addForm.imgurl.endsWith('.pdf')" :src="addForm.imgurl" class="avatar">
 					  <i v-else-if="!addForm.imgurl && this.uploadFlag == false" class="el-icon-plus avatar-uploader-icon"></i>
-					  <el-progress v-if="this.uploadFlag" type="circle" :percentage="uploadPercent" style="margin-top:30px;"></el-progress>
+					  <el-progress v-if="this.uploadFlag" type="circle" :percentage="uploadPercent" style="margin-top:30px;margin-left:25px;"></el-progress>
 					</el-upload>
 				</el-form-item>
 				<el-form-item label="截止时间" prop="endTime">

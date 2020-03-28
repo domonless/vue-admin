@@ -7,7 +7,7 @@
 					<el-input v-model="filters.detail" placeholder="开销明细" @input="getExpenses" clearable></el-input>
 				</el-form-item>
 				<el-form-item>
-					<el-input v-model="filters.money" placeholder="金额" @input="getExpenses" clearable></el-input>
+					<el-input v-model="filters.money" type="number" placeholder="金额" @input="getExpenses" clearable></el-input>
 				</el-form-item>
 				<el-form-item>
 					<el-button type="primary" v-on:click="getExpenses" >查询</el-button>
@@ -83,7 +83,31 @@
 			</el-form>
 			<div slot="footer" class="dialog-footer">
 				<el-button @click.native="addFormVisible = false">取消</el-button>
-				<el-button type="primary" @click.native="addSubmit" :loading="addLoading">提交</el-button>
+				<el-button type="primary" @click.native="checkAdd" :loading="addLoading">提交</el-button>
+			</div>
+		</el-dialog>
+
+		<!--开销列表-->
+		<el-dialog title="开销列表" :visible.sync="expensesListVisible" :close-on-click-modal="false">
+			<font color="red">*请确认是否重复录入，若无重复则关闭窗口继续新增</font>
+			<el-table :data="historyExpenses" highlight-current-row style="width: 100%;">
+				<el-table-column type="index" label="序号" width="100">
+				</el-table-column>
+				<el-table-column prop="detail" label="开销明细" width="250">
+				</el-table-column>
+				<el-table-column prop="money" label="金额" width="120">
+				</el-table-column>
+				<el-table-column prop="createTime" label="登记时间" width="200">
+				</el-table-column>
+				<el-table-column label="操作" width="100">
+					<template scope="scope">
+						<el-button size="small" type="info" icon="fa fa-file-picture-o" :disabled="scope.row.imgurl==''" @click="showImg(scope.$index, scope.row)"></el-button>
+					</template>
+				</el-table-column>
+			</el-table>
+			<div slot="footer" class="dialog-footer">
+				<el-button @click.native="expensesListVisible = false">取消</el-button>
+				<el-button type="warning" @click.native="addSubmit" :loading="addLoading">继续提交</el-button>
 			</div>
 		</el-dialog>
 	</section>
@@ -138,6 +162,9 @@
 				//发票金额合计
 				sums:['合计'],
 				status:3,
+
+				expensesListVisible:false,
+				historyExpenses:[],
 			}
 		},
 		methods: {
@@ -186,6 +213,30 @@
 	                    this.total = res.data.data.total
 	                }
 				});
+			},
+			//处理金额输入
+    		handleInput: function (){
+    			if(this.addForm.money){
+    				let para = {
+	                    money:this.addForm.money,
+	                    status:this.status
+					};
+					getExpensesList(para).then((res) => {
+						let msg = res.data.message;
+	                	let code = res.data.code;
+						if (code !== 200) {
+		                  this.$message({
+		                    message: msg,
+		                    type: 'error'
+		                  });
+		                } else {
+							this.historyExpenses = res.data.data.list
+							if(this.historyExpenses.length>0){
+		                		this.expensesListVisible =true;
+		                	}
+		                }
+					});
+    			}
 			},
 			//删除
 			handleDel: function (index, row) {
@@ -266,37 +317,47 @@
 					}
 				});
 			},
-			//新增
-			addSubmit: function () {
+			checkAdd: function () {
 				this.$refs.addForm.validate((valid) => {
 					if (valid) {
-						this.addLoading = true;
-						this.addForm.status = this.status;
-						let para = Object.assign({}, this.addForm);
-						addExpenses(para).then((res) => {
-							this.addLoading = false;
-							this.addFormVisible = false;
-							let msg = res.data.message;
-		                	let code = res.data.code;
-							if (code !== 200) {
-			                  this.$message({
-			                    message: msg,
-			                    type: 'error'
-			                  });
-			                } else {
-								//NProgress.done();
-								this.$message({
-									message: '提交成功',
-									type: 'success'
-								});
-								this.$refs['addForm'].resetFields();
-								this.getExpenses();
+						this.handleInput();
+						let that = this;
+						setTimeout(function(){
+							if(that.expensesListVisible){
+							}else{
+								that.addSubmit();
 							}
-						});
+						},200);
 					}
 				});
 			},
-
+			//新增
+			addSubmit: function () {
+				this.addLoading = true;
+				this.addForm.detail = this.addForm.expensesType +"-"+ this.addForm.detail;
+				this.addForm.status = this.status;
+				let para = Object.assign({}, this.addForm);
+				addExpenses(para).then((res) => {
+					this.addLoading = false;
+					this.addFormVisible = false;
+					let msg = res.data.message;
+                	let code = res.data.code;
+					if (code !== 200) {
+	                  this.$message({
+	                    message: msg,
+	                    type: 'error'
+	                  });
+	                } else {
+						this.$message({
+							message: '提交成功',
+							type: 'success'
+						});
+						this.expensesListVisible = false;
+						this.$refs['addForm'].resetFields();
+						this.getExpenses();
+					}
+				});
+			},
 			//查看发票图片
     		showImg: function (index, row) {
     			window.open(row.imgurl);

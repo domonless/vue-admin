@@ -160,7 +160,7 @@
 					  :show-file-list="false">
 					  <pdf v-if="editForm.url && this.uploadFlag == false" :src="editForm.url" class="avatar"></pdf>
 					  <i v-else-if="!editForm.url && this.uploadFlag == false" class="el-icon-plus avatar-uploader-icon"></i>
-					  <el-progress v-if="this.uploadFlag" type="circle" :percentage="uploadPercent" style="margin-top:30px;"></el-progress>
+					  <el-progress v-if="this.uploadFlag" type="circle" :percentage="uploadPercent" style="margin-top:30px;margin-left:25px;"></el-progress>
 					</el-upload>
 				</el-form-item>
 				<el-form-item label="是否代购" prop="isAgent">
@@ -2268,8 +2268,5 @@
   .signImg {
     width: 50px;
     height: 80px;
-  }
-  .el-upload {
-  	margin-left: 25px;
   }
 </style>
