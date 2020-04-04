@@ -13,6 +13,7 @@ import Area from './views/area/Area.vue'
 import Type from './views/type/Type.vue'
 import Pur from './views/srm/Pur.vue'
 import Bid from './views/srm/Bid.vue'
+import OrderQuery from './views/srm/Order.vue'
 import Purchaser from './views/purchaser/Purchaser.vue'
 import Buyer from './views/buyer/Buyer.vue'
 import Provider from './views/provider/Provider.vue'
@@ -147,6 +148,7 @@ if(user_info.userId==14){
             children: [
                 { path: '/srm/pur', component:Pur, name: '报价查询' },
                 { path: '/srm/bid', component:Bid, name: '投标查询' },
+                { path: '/srm/order', component:OrderQuery, name: '订单查询' },
             ]
         },
         {
@@ -192,7 +194,7 @@ if(user_info.userId==14){
             iconCls: 'fa fa-file-image-o',//图标样式class
             redirect: '/file/list',
             children: [
-                { path: '/file/list', component:File, name: '相册' },
+                { path: '/file/list', component:File, name: '相册列表' },
             ]
         },
         {

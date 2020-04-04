@@ -108,7 +108,7 @@
 			</el-table-column>
 			<el-table-column width="60">
 				<template scope="scope">
-					<i class="fa fa-copy" @click="copy(scope.row.form)"></i>
+					<i class="fa fa-copy" @click="copy(scope.row)"></i>
 				</template>
 			</el-table-column>
 			<el-table-column prop="unit" label="单位" width="80">
@@ -465,7 +465,7 @@
 			},
 			copy(value) {
 		      var oInput = document.createElement("input");
-		      oInput.value = value;
+		      oInput.value = value.itemNumber + "  " + value.name + "  " + value.form + "  " + value.price + "元";
 		      document.body.appendChild(oInput);
 		      oInput.select(); // 选择对象
 		      document.execCommand("Copy"); // 执行浏览器复制命令

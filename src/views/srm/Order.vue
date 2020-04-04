@@ -13,9 +13,15 @@
 					    </el-option>
 					</el-select>
 				</el-form-item>
+				
 				<el-form-item>
 					<el-button type="primary" v-if="!isLogin" :disabled="!provider" @click.native.prevent="login">登录</el-button>
 					<span v-if="isLogin">当前企业：{{ provider }} &nbsp;&nbsp;&nbsp;&nbsp;</span>
+				</el-form-item>
+				<el-form-item>
+					<el-input v-model="filters.cdSn" v-if="isLogin" placeholder="订单号" clearable></el-input>
+				</el-form-item>
+				<el-form-item>
 					<el-button type="primary" v-if="isLogin" @click.native.prevent="query()">查询</el-button>
 					<el-button type="warning" v-if="isLogin" @click.native.prevent="logout">退出登录</el-button>
 				</el-form-item>
@@ -23,60 +29,51 @@
 		</el-col>
 
 		<!--列表-->
-		<el-table :data="bids" v-if="isLogin" highlight-current-row style="width: 100%;" v-loading="importLoading" element-loading-text = "年价导入中，请勿操作">
-			<el-table-column type="index" label="序号" width="60">
+		<el-table :data="rfxs" v-if="isLogin" highlight-current-row style="width: 100%;" v-loading="importLoading" element-loading-text = "查询中，请勿操作">
+			<el-table-column type="index" label="序号" width="70">
 			</el-table-column>
-			<el-table-column prop="status_desc" label="状态" width="70">
+			<el-table-column prop="srm_status_desc" label="状态" width="70">
 			</el-table-column>
-			<el-table-column prop="entrustment_header_number" label="招标书编号" width="200">
+			<el-table-column prop="display_po_number" label="订单号" width="150">
 			</el-table-column>
-			<el-table-column prop="title" label="询价单标题" show-overflow-tooltip width="200">
+			<el-table-column prop="release_date_desc" label="发布日期" width="150">
 			</el-table-column>
-			<el-table-column prop="price_category_desc" label="价格类型" width="80">
+			<el-table-column prop="company_title" label="业务实体" show-overflow-tooltip width="300">
 			</el-table-column>
-			<el-table-column prop="round" label="轮次" width="60">
+			<el-table-column prop="ship_to_location_name" label="送货地址" show-overflow-tooltip width="300">
 			</el-table-column>
 			<el-table-column label="操作">
 				<template scope="scope">
 					<el-button size="small" type="primary" @click="queryDetail(scope.$index, scope.row)" icon="el-icon-search"></el-button>
-					<el-button size="small" @click="handlePriceImport(scope.$index, scope.row)">价格导入</el-button>
+					<el-button size="small" @click="handlePriceImport(scope.$index, scope.row)">数据导入</el-button>
 					<el-input id="upload" type="file" size="mini" @change="importFromExcel(this)" accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel" style="display:none;"></el-input>
 				</template>
 			</el-table-column>
 		</el-table>
 
 		<!--查看界面-->
-		<el-dialog title="报价详情" :visible.sync="itemsVisible" :close-on-click-modal="false">
-			<!-- {{paticipatedCompany}} -->
+		<el-dialog title="订单详情" :visible.sync="itemsVisible" :close-on-click-modal="false">
 			<el-table :data="items" highlight-current-row v-loading="listLoading" style="width: 100%;">
-			    <el-table-column  type="index" width="45">
+				<el-table-column prop="line_num" label="#" width="70">
 				</el-table-column>
-				<el-table-column prop="item_desc" show-overflow-tooltip label="物料名称" width="100">
+				<el-table-column prop="item_description" show-overflow-tooltip label="物料名称" width="300">
 				</el-table-column>
-				<el-table-column prop="brand" label="品牌" width="80">
+				<el-table-column prop="line_desc" show-overflow-tooltip label="采购方备注" width="350">
 				</el-table-column>
-				<el-table-column prop="stock_remarks" show-overflow-tooltip label="存货备注" width="150">
-				</el-table-column>
-				<el-table-column prop="uom_desc" label="单位" width="70">
+				<el-table-column prop="unit_meas_lookup_code" label="单位" width="70">
 				</el-table-column>
 				<el-table-column prop="quantity" label="数量" width="80">
 				</el-table-column>
-				<el-table-column prop="unit_price" label="含税单价" width="80">
-				</el-table-column>
-				<el-table-column prop="net_price" label="不含税单价" width="90">
-				</el-table-column>
-				<el-table-column prop="tax_type_desc" label="税率" width="80">
-				</el-table-column>
-				<el-table-column prop="valid_fb_by_desc" label="供应商" width="150">
+				<el-table-column prop="original_unit_price" label="含税单价" width="80">
 				</el-table-column>
 			</el-table>
 		</el-dialog>
 
 		<!--价格导入界面-->
-		<el-dialog title="价格导入" :visible.sync="isAnnualPriceImportShow" :close-on-click-modal="false" width="30%">
-			<div style="margin-top:20px">
+		<el-dialog title="数据导入" :visible.sync="isAnnualPriceImportShow" :close-on-click-modal="false" width="30%">
+			<div>
 				<font color="red"><b>请按照模版进行填写，文件后缀为.xlsx&nbsp;&nbsp;&nbsp;&nbsp;</b></font>
-				<a href="https://bapi.kyb66.com/xlsx/itemTemplate/年价导入
+				<a href="https://bapi.kyb66.com/xlsx/itemTemplate/订单数据导入
 				.xlsx" target="_blank" style="font-size:18px;color:#CD6839;">下载模版</a>
 				&nbsp;
 				<el-button @click.native="uploadClick" style="font-size:18px;color:green">立即上传</el-button>
@@ -90,7 +87,8 @@
 	import util from '../../common/js/util'
 	import Cookies from 'js-cookie'
 	import md5 from 'js-md5';
-	import { getProviderList} from '../../api/api';
+
+	import { getProviderList } from '../../api/api';
 	export default {
 		data() {
 			return {
@@ -103,8 +101,8 @@
 				//登录密码
 				password:'',
 
-				//投标单
-				bids:[],
+				//询价单
+				rfxs:[],
 
 				//物料
 				items:[],
@@ -114,26 +112,18 @@
 				provider: '',
 				providers:[],
 
-				//导入价格数组
-				priceArr:[],
-
-				//相关供应商
-				relatedProviders:[],
-				//参与报价供应商
-				paticipatedCompany:'',
-
-				//当前查出的结果
-				detailResult:[],
-				//报价物料id
-				itemIds:[],
-
 				//根链接
 				rootUrl: process.env.NODE_ENV === 'development' ? '/zc/' : 'http://bgy.kyb66.com/zc/',
 
-				//年价导入
+				//订单导入
 				isAnnualPriceImportShow:false,
 				//批量导入数据
 				importForm: {
+				},
+				importItems:[],
+
+				filters:{
+					cdSn:''
 				},
 
 			}
@@ -217,17 +207,21 @@
 					}
 				})
 			},
-			//查询投标
+			
+			//订单确认查询
 			query:function(){
 				let that = this;
-				that.bids = [];
+				that.importLoading = true;
+				that.rfxs = [];
 				xyfAjax.ajax({
-					url:that.rootUrl + 'autocrud/bid.BID5120.bid_entrustment_query/query?pagesize=19&pagenum=1&_fetchall=true&_autocount=true',
+					url:that.rootUrl + 'autocrud/pur.PUR3010.pur_purchase_order_confirm/query?pagesize=20&pagenum=1&_fetchall=false&_autocount=true',
 					type:'post', //or post
 					dataType:'json', //or jsonp
 					data:{
+						display_po_number:that.filters.cdSn
 					},
 					success: function(data){
+						that.importLoading = false;
 						//错误
 						if(!data.success){
 							that.$message({
@@ -245,126 +239,39 @@
 								if(record){
 									//如果只有一条数据，返回的是对象，需判断是不是数组
 									if(record instanceof Array){
-										that.bids = record;
+										that.rfxs = record;
 									}else{
-										that.bids.push(record);
+										that.rfxs.push(record);
 									}
+									that.currentFeedBackId = that.rfxs[0].feedback_header_id;
 								}else{
-									that.bids = [];
+									that.rfxs = [];
 								}
 							}
 						}
 					},
 				})
 			},
+			
 			//查询报价详情
 			queryDetail:function(index, row){
-				let that = this;
-				// let rfxHeaderId = row.rfx_header_id;
-				let bidHeaderId = row.bid_header_id;
-				if(bidHeaderId==undefined){
-					that.$message({
-						message: "请先参与投标再进行其他操作",
-						type: 'error'
-					});
-					return;
-				}
 				this.listLoading = true;
 				this.itemsVisible=true;
-				//展示的物料
-				that.items = [];
-				//line_item_id
-				that.itemIds = [];
-				//参与报价供应商查询
-				// this.queryRelated(rfxHeaderId);
-				//先查询出相关的物料数组
-				that.queryDetailByHeaderId(bidHeaderId,true);
-				
-				//获取相关的物料
-		        for(let i=bidHeaderId-300;i<bidHeaderId+700;i++){
-		        	that.queryDetailByHeaderId(i);
-				}
-
-				setTimeout(function(){ 
-					that.listLoading=false;
-				}, 5000);
-
+				this.queryDetailsById(row.pur_header_id);
 			},
-			//查询详情
-			queryDetailByHeaderId:function(headerId, flag){
+
+			//查询报价详情
+			queryDetailsById:function(id){
 				let that = this;
-				that.detailResult = [];
+				that.items = [];
 				xyfAjax.ajax({
-					url:that.rootUrl + 'autocrud/bid.BID7070.bid_bidding_docm_lines/query?bid_header_id='+headerId+'&pagesize=8&pagenum=1&_fetchall=true&_autocount=false',
+					url:that.rootUrl + 'autocrud/pur.PUR3010.pur_purchase_order_detail/query?pur_header_id=' + id + '&pagesize=10&pagenum=1&_fetchall=true&_autocount=true',
 					type:'post', //or post
 					dataType:'json', //or jsonp
 					data:{
 					},
 					success: function(data){
-						//错误
-						if(!data.success){
-							that.$message({
-								message: data.error.message,
-								type: 'error'
-							});
-						}else{
-							//错误
-							if(data.result!=null && "ERROR"===data.result.encryted_session_id){
-								that.$message({
-									message: data.result.message,
-									type: 'error'
-								});
-							}else{
-								let record = data.result.record;
-								if(record){
-
-									if(flag){
-										//如果只有一条数据，返回的是对象，需判断是不是数组
-										if(record instanceof Array){
-											that.detailResult = record;
-										}else{
-											that.detailResult.push(record);
-										}
-										////遍历出line_item_id
-										that.detailResult.forEach(r => {
-							            	that.itemIds.push(r.line_item_id);
-								        });
-									}else{
-										//如果只有一条数据，返回的是对象，需判断是不是数组
-										if(record instanceof Array){
-											that.itemIds.forEach(i => {
-												let obj = record.find((item)=>{
-													return item.line_item_id === i;//筛选出匹配数据 
-												}); 
-												if(obj){
-													that.items.push(obj);
-												}
-											});
-										}else{
-											that.itemIds.forEach(i => {
-												if(record.line_item_id === i){
-													that.items.push(record);
-												}
-											});
-										}
-									}
-								}
-							}
-						}
-					}
-				})
-			},
-			//查询导入报价详情
-			queryImportDetails:function(){
-				let that = this;
-				that.items = [];
-				xyfAjax.ajax({
-					url:that.rootUrl + 'autocrud/bid.BID5130.bid_bidding_docm_lines/query?bid_header_id='+that.importForm.bid_header_id+'&pagesize=10&pagenum=1&_fetchall=true&_autocount=true',
-					type:'post', //or post
-					dataType:'json', //or jsonp
-					data:{
-					},
-					success: function(data){
+						that.listLoading = false;
 						//错误
 						if(!data.success){
 							that.$message({
@@ -383,7 +290,9 @@
 								if(record){
 									//如果只有一条数据，返回的是对象，需判断是不是数组
 									if(record instanceof Array){
-										Array.prototype.push.apply(that.items, record);
+										record.forEach(item => {
+											that.items.push(item);
+										})
 									}else{
 										that.items.push(record);
 									}
@@ -393,76 +302,30 @@
 					}
 				})
 			},
-			//参与报价供应商查询
-			queryRelated:function(rfx_header_id){
-				let that = this;
-				that.relatedProviders = [];
-				xyfAjax.ajax({
-					url:that.rootUrl + 'autocrud/pur.SACPUR5110.pur_rfx_ln_vendors/query?rfx_header_id='+rfx_header_id+'&pagesize=10&pagenum=1&_fetchall=true&_autocount=false',
-					type:'post', //or post
-					dataType:'json', //or jsonp
-					data:{
-					},
-					success: function(data){
-						//错误
-						if(!data.success){
-							that.$message({
-								message: data.error.message,
-								type: 'error'
-							});
-						}else{
-							if(data.result!=null && "ERROR"===data.result.encryted_session_id){
-								that.$message({
-									message: data.result.message,
-									type: 'error'
-								});
-							}else{
-								let record = data.result.record;
-								if(record){
-									//如果只有一条数据，返回的是对象，需判断是不是数组
-									if(record instanceof Array){
-										that.relatedProviders = record;
-									}else{
-										that.relatedProviders.push(record);
-									}
-									that.paticipatedCompany = '参与报价的供应商共'+that.relatedProviders.length+'家：';
-									that.relatedProviders.forEach(r => {
-										that.paticipatedCompany += (r.vendor_desc+'。');
-							        });
-								}
-							}
-						}
-					}
-				})
-			},
-			//保存年价
+			
+			//保存
 			savePrice:function(){
 				let that = this;
 				that.importLoading = true;
 				//查询报价物料数据列表
-				that.queryImportDetails();
+				that.queryDetailsById(that.importForm.pur_header_id);
 				//将价格加入
 				setTimeout(function(){ 
-					that.items.forEach((item, index) => {
-						item.unit_price = that.priceArr[index];
+					that.importItems.forEach((item, index) => {
+						that.items[index].quotation_number = item.quotation_number;
+						that.items[index].quotation_line_number = item.quotation_line_number;
+						that.items[index].quotation_page = item.quotation_page;
+						that.items[index].no_price_flag = item.no_price_flag;
+						that.items[index].original_unit_price = item.price;
 					});
 					let params = {};
 					let parameter = {};
-					parameter.entrustment_header_id = that.importForm.entrustment_header_id;
-					parameter.entrustment_header_number = that.importForm.entrustment_header_number;
-					parameter.entrustment_type_id = that.importForm.entrustment_type_id;
-					parameter.application_date = '2019-08-21';
-
-					parameter.bid_header_id = that.importForm.bid_header_id;
-					parameter.bid_header_number = that.importForm.bid_header_number;
-					parameter.bidder_company_id = that.importForm.bidder_company_id;
-					
-					parameter.tax_included_flag = "Y";
-					parameter.items = that.items;
+					parameter.pur_header_id = that.importForm.pur_header_id;
+					parameter.lines_data = that.items;
 					params.parameter = parameter;
 					//发送保存请求
 					xyfAjax.ajax({
-						url:that.rootUrl + 'modules/bid/BID5130/bid_bidding_docm_save.svc',
+						url:that.rootUrl + 'modules/pur/PUR3010/pur_purchase_order_save_po_detail.svc',
 						type:'post', //or post
 						dataType:'json', //or jsonp
 						data:{
@@ -492,19 +355,12 @@
 							}
 						}
 					})
-				}, 50000);
+				}, 5000);
 			},
 			//价格导入处理
 			handlePriceImport:function(index, row){
-				this.importForm = Object.assign({}, row);
-				if(this.importForm.bid_header_id==undefined){
-					this.$message({
-						message: "请先参与投标再进行其他操作",
-						type: 'error'
-					});
-					return;
-				}
 				this.isAnnualPriceImportShow = true;
+				this.importForm = Object.assign({}, row);
 			},
 			//上传点击
 			uploadClick(){
@@ -514,6 +370,7 @@
 			//导入excel数据
 			importFromExcel: function(obj) {
 		        let _this = this;
+		        _this.importItems = [];
 		        let inputDOM = this.$refs.inputer;
 		        // 通过DOM取文件数据
 		        this.file = event.currentTarget.files[0];
@@ -561,9 +418,13 @@
 		                this.da = [...outdata]
 		                try{
 		                	this.da.map(v => {
-			                    let price = v.价格
-			                    _this.priceArr.push(price)
-
+		                		let newItem = {};
+			                    newItem.quotation_number = v.报价单单号
+			                    newItem.quotation_line_number = v.报价单行号
+			                    newItem.quotation_page = v.报价单页码
+			                    newItem.no_price_flag = v.无定价信息
+			                    newItem.price = v.单价
+			                    _this.importItems.push(newItem)
 			                })
 		                }catch(e){
 	                		_this.$message({
@@ -733,6 +594,13 @@
 
 
 
+
 <style scoped>
+	.el-table .warning-row {
+	    background: #fdf6ec;
+	  }
+	.el-table .success-row {
+	    background: #f0f9eb;
+	  }
 
 </style>
